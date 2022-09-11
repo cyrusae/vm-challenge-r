@@ -82,6 +82,9 @@ library(data.table)
 library(stringr)
 library(magrittr) #yeah I could use the native pipe and have it be more lightweight but you're not my dad
 
+# raw <- file({FILEPATH}, "rb")
+# cmdlist <- readBin(raw, integer(), n = 100000, size = 16, endian = "little")
+
 registers <- data.table(
   z = 0:7,
   val = c(rep(as.numeric(NA), 8)))
@@ -356,7 +359,7 @@ understandeR <- function(cmds) { #comma-separated list of integers unbinaried fr
   stopifnot(is.integer(cmds[1])) #stop if the input vector isn't made of numbers
   stopifnot(cmds[1] <= 21) #stop if the first argument isn't a legal command that we know 
   pad <- 32768 - length(cmds)
-  memories <- c(unlist(cmds), rep(0, pad))
+  memories <- c(cmds, rep(0, pad))
   memory <- data.table(
     z = 0:32767, #compensate for 0-indexing
     cmd = memories, #fill out memory space 
@@ -374,17 +377,3 @@ understandeR <- function(cmds) { #comma-separated list of integers unbinaried fr
 }
 ```
 
-not use
-```{r}
-### use <<- to assign them 
-parseR <- function(vec) {
-  com <- vec[1]
-  if (com = 0) { quit() } #halt at 0 #does that work 
-  if (com = 21) { break } #noop at 21 (is this the way?)
-  len <- length(vec)
-  if (com = 18 & len != 1) {
-    stop() #attempting to pass 1 argument to zero-argument functions
-    #replicate or find a better way or group by number of arguments later 
-  }
-}
-```
