@@ -116,7 +116,7 @@ do_write <- function(value, to) {
   return(invisible(NULL))
 }
 
-#pass as third "argument" (not really arguments because the entire input is a vector) 'loc' as the location of the next valid command whenever doing things.
+#arguments are always a vector of the a/b/c values expected, then 'loc' as the location of the next valid command whenever doing things.
 
 find <- function(after = 0) { #default to starting from z=0
   do_next <<- memory[(do == TRUE) & (done == FALSE) & (z > get(after)), z][1] #should get the first of remaining commands?
