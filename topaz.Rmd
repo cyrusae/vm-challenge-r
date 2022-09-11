@@ -133,7 +133,7 @@ finish <- function(loc) {
 
 ###########################
 
-op_0_halt <- function() {
+op_00_halt <- function() {
   memory[ , `:=` (cmd = 0, #assuming that terminating the program means... wiping memory.
                   do = FALSE,
                   done = TRUE)]
@@ -141,20 +141,20 @@ op_0_halt <- function() {
   return(invisible(NULL))
 }
 
-op_1_set <- function(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
+op_01_set <- function(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
   registers[z == get(vec[1]), val := get(vec[2])]
   finish(loc)
   return(invisible(NULL))
 }
 
-op_2_push <- function(a, loc) { #expect a and loc
+op_02_push <- function(a, loc) { #expect a and loc
   stack <<- c(a, stack)
   finish(loc)
   return(invisible(NULL))
 }
 
 #remove the top element from the stack and write it into <a>; empty stack = error
-op_3_pop <- function(a, loc) {
+op_03_pop <- function(a, loc) {
   obj <- meta_pop()
   do_write(obj, a)
   finish(loc)
@@ -163,7 +163,7 @@ op_3_pop <- function(a, loc) {
 
 #eq: 4 a b c
 #  set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
-op_4_eq <- function(vec, loc) {
+op_04_eq <- function(vec, loc) {
   a <- vec[1]
   b <- vec[2]
   c <- vec[3]
@@ -177,7 +177,7 @@ op_4_eq <- function(vec, loc) {
 }
 
 #  set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
-op_5_gt <- function(vec, loc) {
+op_05_gt <- function(vec, loc) {
   a <- vec[1]
   b <- vec[2]
   c <- vec[3]
@@ -190,7 +190,7 @@ op_5_gt <- function(vec, loc) {
   return(invisible(NULL))
 }
 
-op_6_jmp <- function(a, loc) {
+op_06_jmp <- function(a, loc) {
   find(a)
   finish(loc)
   return(invisible(NULL))
@@ -200,7 +200,7 @@ op_6_jmp <- function(a, loc) {
 #  if <a> is nonzero, jump to <b>
 #jf: 8 a b
 #  if <a> is zero, jump to <b>
-op_7_jt <- function(vec, loc) {
+op_07_jt <- function(vec, loc) {
   aval <- do_read(vec[1])
   if (aval > 0) {
     op_6_jmp(vec[2], loc)
@@ -210,7 +210,7 @@ op_7_jt <- function(vec, loc) {
   return(invisible(NULL))
 }
 
-op_8_jf <- function(vec, loc) {
+op_08_jf <- function(vec, loc) {
   aval <- do_read(vec[1])
   if (aval < 1) {
     op_6_jmp(vec[2], loc)
@@ -222,7 +222,7 @@ op_8_jf <- function(vec, loc) {
 
 #add: 9 a b c
 #  assign into <a> the sum of <b> and <c> (modulo 32768)
-op_9_add <- function(vec, loc) {
+op_09_add <- function(vec, loc) {
   a <- vec[1] 
   got <- (vec[2] + vec[3]) %>% interpret()
   do_write(got, a)
