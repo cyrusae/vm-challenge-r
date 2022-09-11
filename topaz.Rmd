@@ -263,9 +263,9 @@ understandeR <- function(cmds) { #comma-separated list of integers unbinaried fr
   setorder(memory, z)
   memory[cmd >= 32776, cmd := 0] #remove illegal numbers 
   memory[cmd <= 21, do := TRUE] #label legal commands 
- # memory[do == FALSE, cmd := (cmd %% 32768)] #un-modulo in bulk #never mind that might not be a good idea 
+
+  #big magic wherein we actually go through the table in an unavoidable while loop happens here 
   
-  rm(cmds) #go away big string
 }
 ```
 
