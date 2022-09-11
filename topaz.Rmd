@@ -1,0 +1,187 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+== architecture ==
+- three storage regions
+  - memory with 15-bit address space storing 16-bit values
+  - eight registers
+  - an unbounded stack which holds individual 16-bit values
+- all numbers are unsigned integers 0..32767 (15-bit)
+- all math is modulo 32768; 32758 + 15 => 5
+
+== binary format ==
+- each number is stored as a 16-bit little-endian pair (low byte, high byte)
+- numbers 0..32767 mean a literal value
+- numbers 32768..32775 instead mean registers 0..7
+- numbers 32776..65535 are invalid
+- programs are loaded into memory starting at address 0
+- address 0 is the first 16-bit value, address 1 is the second 16-bit value, etc
+
+== execution ==
+- After an operation is executed, the next instruction to read is immediately after the last argument of the current operation.  If a jump was performed, the next operation is instead the exact destination of the jump.
+- Encountering a register as an operation argument should be taken as reading from the register or setting into the register as appropriate.
+
+== hints ==
+- Start with operations 0, 19, and 21.
+- Here's a code for the challenge website: FblmAujZTsSw
+- The program "9,32768,32769,4,19,32768" occupies six memory addresses and should:
+  - Store into register 0 the sum of 4 and the value contained in register 1.
+  - Output to the terminal the character with the ascii code contained in register 0.
+
+== opcode listing ==
+halt: 0
+  stop execution and terminate the program
+set: 1 a b
+  set register <a> to the value of <b>
+push: 2 a
+  push <a> onto the stack
+pop: 3 a
+  remove the top element from the stack and write it into <a>; empty stack = error
+eq: 4 a b c
+  set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
+gt: 5 a b c
+  set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
+jmp: 6 a
+  jump to <a>
+jt: 7 a b
+  if <a> is nonzero, jump to <b>
+jf: 8 a b
+  if <a> is zero, jump to <b>
+add: 9 a b c
+  assign into <a> the sum of <b> and <c> (modulo 32768)
+mult: 10 a b c
+  store into <a> the product of <b> and <c> (modulo 32768)
+mod: 11 a b c
+  store into <a> the remainder of <b> divided by <c>
+and: 12 a b c
+  stores into <a> the bitwise and of <b> and <c>
+or: 13 a b c
+  stores into <a> the bitwise or of <b> and <c>
+not: 14 a b
+  stores 15-bit bitwise inverse of <b> in <a>
+rmem: 15 a b
+  read memory at address <b> and write it to <a>
+wmem: 16 a b
+  write the value from <b> into memory at address <a>
+call: 17 a
+  write the address of the next instruction to the stack and jump to <a>
+ret: 18
+  remove the top element from the stack and jump to it; empty stack = halt
+out: 19 a
+  write the character represented by ascii code <a> to the terminal
+in: 20 a
+  read a character from the terminal and write its ascii code to <a>; it can be assumed that once input starts, it will continue until a newline is encountered; this means that you can safely read whole lines from the keyboard and trust that they will be fully read
+noop: 21
+  no operation
+
+
+```{r}
+library(data.table)
+registers <- data.table(
+  z = 0:7,
+  val = c(rep(as.numeric(NA), 8)))
+stack <- c()
+interpret <- function(x) { x %% 32768 }
+
+
+#pass as third argument 'loc' as the location of the next valid command whenever doing things.
+
+find <- function(after = 0) {
+  do_next <- memory[(do == TRUE) & (done == FALSE) & (z > get(after)), z][1] #should get the first of remaining commands?
+  stop_at <- memory[(z > get(do_next)) & (do == TRUE), z][1]
+  found <- c(do_next, stop_at)
+  rm(do_next, stop_at)
+  found #we want to hand this up for the multi-argument guys
+} 
+finish <- function(loc) { 
+  memory[(z == get(loc)), done := TRUE] #mark the command with this z-index as done
+  return(invisible(NULL))
+}
+
+set <- function(vec) {
+  a <- vec[1]
+  b <- vec[2]
+  loc <- vec[3]
+  registers[z == get(a), val := get(b)]
+  finish(loc)
+  rm(a, b, loc)
+  return(invisible(NULL))
+}
+ret <- function(loc) {
+  if (length(stack) < 1) { #if the stack is empty, set main up to halt
+    memory[z < 32767, done := TRUE]
+    memory[z == 32767, `:=` (done = FALSE,
+                             cmd = 0)]
+  } #can decide if we want to call halt directly here later.
+  finish(loc) 
+  
+}
+#rmem: 15 a b
+#  read memory at address <b> and write it to <a>
+rmem <- function(a, b, loc) {
+  bval <- memory[z == get(b), cmd] 
+  aval <- interpret(a)
+  registers[z == get(aval), val := get(bval)]
+  finish(loc)
+  rm(aval, bval)
+  return(invisible(NULL))
+}
+#wmem: 16 a b
+#  write the value from <b> into memory at address <a>
+wmem <- function(a, b, loc) {
+  bloc <- interpret(b)
+  bval <- registers[z == get(bloc), val]
+  memory[z == get(a), cmd := get(bval)]
+  finish(loc)
+  rm(bloc, bval)
+  return(invisible(NULL))
+}
+
+push <- function(a) {
+  
+}
+### understand the legal memory registers 
+#### numbers 32768..32775 aka 0..7 
+#### as members of a list the entire thing can access
+
+### use <<- to assign them 
+parseR <- function(vec) {
+  com <- vec[1]
+  if (com = 0) { quit() } #halt at 0 #does that work 
+  if (com = 21) { break } #noop at 21 (is this the way?)
+  len <- length(vec)
+  if (com = 18 & len != 1) {
+    stop() #attempting to pass 1 argument to zero-argument functions
+    #replicate or find a better way or group by number of arguments later 
+  }
+}
+
+understandeR <- function(cmds) { #comma-separated list of integers unbinaried from binary goes here (as a vector! vectorize it!)
+  stopifnot(is.integer(cmds[1])) #stop if the input vector isn't made of numbers
+  stopifnot(cmds[1] <= 21) #stop if the first argument isn't a legal command that we know 
+  pad <- 32768 - length(cmds)
+  memories <- c(unlist(cmds), rep(0, pad))
+  memory <- data.table(
+    z = 0:32767, #compensate for 0-indexing
+    cmd = memories, #fill out memory space 
+    do = rep(FALSE, 32768), #add a boolean column to find commands 
+    done = rep(as.logical(NA), 32768) #mark commands that have been executed
+  )
+  rm(pad, memories)
+  setkey(memory, z)
+  setorder(memory, z)
+  memory[cmd >= 32776, cmd := 0] #remove illegal numbers 
+  memory[cmd <= 21, do := TRUE] #label legal commands 
+ # memory[do == FALSE, cmd := (cmd %% 32768)] #un-modulo in bulk #never mind that might not be a good idea 
+  
+  rm(cmds) #go away big string
+}
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
