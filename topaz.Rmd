@@ -80,13 +80,15 @@ noop: 21
 ```{r}
 library(data.table)
 library(stringr)
+library(magrittr) #yeah I could use the native pipe and have it be more lightweight but you're not my dad
+
 registers <- data.table(
   z = 0:7,
   val = c(rep(as.numeric(NA), 8)))
 stack <- c()
 
 meta_pop <- function() {
-  stopifnot(length(stack) > 0)
+  stopifnot(length(stack) > 0) #add more sophisticated error-handling to the popper functions later 
   obj <- stack[1]
   stack <<- stack[-1]
   obj
@@ -159,6 +161,35 @@ op_3_pop <- function(a, loc) {
   return(invisible(NULL))
 }
 
+#eq: 4 a b c
+#  set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
+op_4_eq <- function(vec, loc) {
+  a <- vec[1]
+  b <- vec[2]
+  c <- vec[3]
+  if (identical(b, c)) {
+    do_write(a, 1)
+  } else {
+    do_write(a, 0)
+  }
+  finish(loc)
+  return(invisible(NULL))
+}
+
+#  set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
+op_5_gt <- function(vec, loc) {
+  a <- vec[1]
+  b <- vec[2]
+  c <- vec[3]
+  if (b > c) {
+    do_write(a, 1)
+  } else {
+    do_write(a, 0)
+  }
+  finish(loc)
+  return(invisible(NULL))
+}
+
 op_6_jmp <- function(a, loc) {
   find(a)
   finish(loc)
@@ -189,6 +220,36 @@ op_8_jf <- function(vec, loc) {
   return(invisible(NULL))
 }
 
+#add: 9 a b c
+#  assign into <a> the sum of <b> and <c> (modulo 32768)
+op_9_add <- function(vec, loc) {
+  a <- vec[1] 
+  got <- (vec[2] + vec[3]) %>% interpret()
+  do_write(got, a)
+  finish(loc)
+  return(invisible(NULL))
+}
+#mult: 10 a b c
+#  store into <a> the product of <b> and <c> (modulo 32768)
+op_10_mult <- function(vec, loc) {
+  a <- vec[1] 
+  got <- (vec[2] * vec[3]) %>% interpret()
+  do_write(got, a)
+  finish(loc)
+  return(invisible(NULL))
+}
+
+#mod: 11 a b c
+#  store into <a> the remainder of <b> divided by <c> ### is this one supposed to be modulo 32768 or not??
+op_11_mod <- function(vec, loc) {
+  a <- vec[1] 
+  got <- (vec[2] %% vec[3]) # %>% interpret() #???
+  do_write(got, a)
+  finish(loc)
+  return(invisible(NULL))
+}
+
+
 #  read memory at address <b> and write it to <a>
 op_15_rmem <- function(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
   bval <- memory[z == get(vec[2]), cmd] 
@@ -204,6 +265,15 @@ op_16_wmem <- function(vec, loc) { # expect numeric vector of length 2 that brea
   bval <- registers[z == get(bloc), val]
   memory[z == get(vec[1]), cmd := get(bval)]
   finish(loc)
+  return(invisible(NULL))
+}
+
+#call: 17 a
+#  write the address of the next instruction to the stack and jump to <a>
+op_17_call <- function(a, loc) {
+  write_next <- memory[(z > get(loc)) & (do == TRUE) & (done == FALSE), z][1]
+  stack <<- c(write_next, stack)
+  op_6_jmp(a, loc)
   return(invisible(NULL))
 }
 
