@@ -79,6 +79,7 @@ noop: 21
 
 ```{r}
 library(data.table)
+library(stringr)
 registers <- data.table(
   z = 0:7,
   val = c(rep(as.numeric(NA), 8)))
