@@ -249,6 +249,41 @@ op_11_mod <- function(vec, loc) {
   return(invisible(NULL))
 }
 
+#and: 12 a b c
+ # stores into <a> the bitwise and of <b> and <c>
+op_12_and <- function(vec, loc) {
+  a <- vec[1]
+  b <- vec[2]
+  c <- vec[3]
+  bits <- bitwAnd(b, c)
+  do_write(bits, a)
+  finish(loc)
+  return(invisible(NULL))
+}
+
+#or: 13 a b c
+#  stores into <a> the bitwise or of <b> and <c>
+op_13_or <- function(vec, loc) {
+  a <- vec[1]
+  b <- vec[2]
+  c <- vec[3]
+  bits <- bitwOr(b, c)
+  do_write(bits, a)
+  finish(loc)
+  return(invisible(NULL))
+}
+
+##not: 14 a b
+  #stores 15-bit bitwise inverse of <b> in <a>
+op_14_not <- function(vec, loc) {
+  a <- vec[1]
+  b <- vec[2]
+  c <- vec[3]
+  bits <- bitwNot(b, c)
+  do_write(bits, a)
+  finish(loc)
+  return(invisible(NULL))
+}
 
 #  read memory at address <b> and write it to <a>
 op_15_rmem <- function(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
