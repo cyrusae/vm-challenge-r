@@ -76,13 +76,14 @@ in: 20 a
 noop: 21
   no operation
 
+```{r}
+raw <- file("C:/Users/cyrus/GitHere/vm-challenge-r/materiel/challenge.bin", "rb")
+cmdlist <- readBin(raw, integer(), n = 100000, size = 2, endian = "little")
+```
 
 ```{r}
 library(data.table)
 library(stringr)
-
-# raw <- file({FILEPATH}, "rb")
-# cmdlist <- readBin(raw, integer(), n = 100000, size = 16, endian = "little")
 
 registers <- data.table(
   z = 0:7,
@@ -136,10 +137,10 @@ finish <- function(loc) {
 ###########################
 
 op_00_halt <- \() {
-  memory[ , `:=` (cmd = 0, #assuming that terminating the program means... wiping memory.
-                  do = FALSE,
+  memory[ , `:=` (do = FALSE,
+#                  cmd = 0, #assuming that terminating the program means... wiping memory.
                   done = TRUE)]
-  rm(memory) #or I guess  r e a l l y  wiping memory?
+#  rm(memory) #or I guess  r e a l l y  wiping memory?
   return(invisible(NULL))
 }
 
@@ -163,7 +164,6 @@ op_03_pop <- \(a, loc) {
   return(invisible(NULL))
 }
 
-#eq: 4 a b c
 #  set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
 op_04_eq <- \(vec, loc) {
   a <- vec[1]
@@ -198,10 +198,7 @@ op_06_jmp <- function(a, loc) {
   return(invisible(NULL))
 }
 
-#jt: 7 a b
 #  if <a> is nonzero, jump to <b>
-#jf: 8 a b
-#  if <a> is zero, jump to <b>
 op_07_jt <- \(vec, loc) {
   aval <- do_read(vec[1])
   if (aval > 0) {
@@ -212,6 +209,7 @@ op_07_jt <- \(vec, loc) {
   return(invisible(NULL))
 }
 
+#  if <a> is zero, jump to <b>
 op_08_jf <- \(vec, loc) {
   aval <- do_read(vec[1])
   if (aval < 1) {
@@ -271,7 +269,7 @@ op_13_or <- \(vec, loc) {
   return(invisible(NULL))
 }
 
-  #stores 15-bit bitwise inverse of <b> in <a>
+#stores 15-bit bitwise inverse of <b> in <a>
 op_14_not <- \(vec, loc) {
   a <- vec[1]
   b <- vec[2]
@@ -310,10 +308,12 @@ op_17_call <- \(a, loc) {
 }
 
 op_18_ret <- \(loc) {
-  if (length(stack) < 1) { #if the stack is empty, set main up to halt #can decide if we want to call halt directly here later.
-    memory[z < 32767, done := TRUE]
-    memory[z == 32767, `:=` (done = FALSE,
-                             cmd = 0)]
+  if (length(stack) < 1) { 
+    op_00_halt() #call existing halt
+    #alternately: #if the stack is empty, set main up to halt 
+  #  memory[z < 32767, done := TRUE]
+  #  memory[z == 32767, `:=` (done = FALSE,
+                          #   cmd = 0)]
   } else { 
     place <- meta_pop()
     find(place)
@@ -344,17 +344,15 @@ op_21_noop <- \(loc) {
   finish(loc)
   return(invisible(NULL))
 }
-### understand the legal memory registers 
-#### numbers 32768..32775 aka 0..7 
-#### as members of a list the entire thing can access
-
 
 understandeR <- function(cmds) { #comma-separated list of integers unbinaried from binary goes here (as a vector! vectorize it!)
   stopifnot(is.integer(cmds[1])) #stop if the input vector isn't made of numbers
+  stopifnot(cmds[1] >= 0)
   stopifnot(cmds[1] <= 21) #stop if the first argument isn't a legal command that we know 
   pad <- 32768 - length(cmds)
   memories <- c(cmds, rep(0, pad))
-  memory <- data.table(
+  memory <<- data.table( #SUPERASSIGN FOR TESTING ONLY
+    #THIS ONE /DOES/ GET CUT DOWN LATER! 
     z = 0:32767, #compensate for 0-indexing
     cmd = memories, #fill out memory space 
     do = rep(FALSE, 32768), #add a boolean column to find commands 
@@ -364,10 +362,9 @@ understandeR <- function(cmds) { #comma-separated list of integers unbinaried fr
   setkey(memory, z)
   setorder(memory, z)
   memory[cmd >= 32776, cmd := 0] #remove illegal numbers 
-  memory[cmd <= 21, do := TRUE] #label legal commands 
+  memory[cmd <= 21 & cmd >= 0, do := TRUE] #label legal commands 
 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
-  
 }
 ```
 
