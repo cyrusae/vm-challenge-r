@@ -80,7 +80,6 @@ noop: 21
 ```{r}
 library(data.table)
 library(stringr)
-library(magrittr) #yeah I could use the native pipe and have it be more lightweight but you're not my dad
 
 # raw <- file({FILEPATH}, "rb")
 # cmdlist <- readBin(raw, integer(), n = 100000, size = 16, endian = "little")
@@ -136,7 +135,7 @@ finish <- function(loc) {
 
 ###########################
 
-op_00_halt <- function() {
+op_00_halt <- \() {
   memory[ , `:=` (cmd = 0, #assuming that terminating the program means... wiping memory.
                   do = FALSE,
                   done = TRUE)]
@@ -144,20 +143,20 @@ op_00_halt <- function() {
   return(invisible(NULL))
 }
 
-op_01_set <- function(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
+op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
   registers[z == get(vec[1]), val := get(vec[2])]
   finish(loc)
   return(invisible(NULL))
 }
 
-op_02_push <- function(a, loc) { #expect a and loc
+op_02_push <- \(a, loc) { #expect a and loc
   stack <<- c(a, stack)
   finish(loc)
   return(invisible(NULL))
 }
 
 #remove the top element from the stack and write it into <a>; empty stack = error
-op_03_pop <- function(a, loc) {
+op_03_pop <- \(a, loc) {
   obj <- meta_pop()
   do_write(obj, a)
   finish(loc)
@@ -166,7 +165,7 @@ op_03_pop <- function(a, loc) {
 
 #eq: 4 a b c
 #  set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
-op_04_eq <- function(vec, loc) {
+op_04_eq <- \(vec, loc) {
   a <- vec[1]
   b <- vec[2]
   c <- vec[3]
@@ -180,7 +179,7 @@ op_04_eq <- function(vec, loc) {
 }
 
 #  set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
-op_05_gt <- function(vec, loc) {
+op_05_gt <- \(vec, loc) {
   a <- vec[1]
   b <- vec[2]
   c <- vec[3]
@@ -203,7 +202,7 @@ op_06_jmp <- function(a, loc) {
 #  if <a> is nonzero, jump to <b>
 #jf: 8 a b
 #  if <a> is zero, jump to <b>
-op_07_jt <- function(vec, loc) {
+op_07_jt <- \(vec, loc) {
   aval <- do_read(vec[1])
   if (aval > 0) {
     op_6_jmp(vec[2], loc)
@@ -213,7 +212,7 @@ op_07_jt <- function(vec, loc) {
   return(invisible(NULL))
 }
 
-op_08_jf <- function(vec, loc) {
+op_08_jf <- \(vec, loc) {
   aval <- do_read(vec[1])
   if (aval < 1) {
     op_6_jmp(vec[2], loc)
@@ -223,38 +222,35 @@ op_08_jf <- function(vec, loc) {
   return(invisible(NULL))
 }
 
-#add: 9 a b c
 #  assign into <a> the sum of <b> and <c> (modulo 32768)
-op_09_add <- function(vec, loc) {
+op_09_add <- \(vec, loc) {
   a <- vec[1] 
-  got <- (vec[2] + vec[3]) %>% interpret()
+  got <- (vec[2] + vec[3]) |> interpret()
   do_write(got, a)
   finish(loc)
   return(invisible(NULL))
 }
-#mult: 10 a b c
+
 #  store into <a> the product of <b> and <c> (modulo 32768)
-op_10_mult <- function(vec, loc) {
+op_10_mult <- \(vec, loc) {
   a <- vec[1] 
-  got <- (vec[2] * vec[3]) %>% interpret()
+  got <- (vec[2] * vec[3]) |> interpret()
   do_write(got, a)
   finish(loc)
   return(invisible(NULL))
 }
 
-#mod: 11 a b c
 #  store into <a> the remainder of <b> divided by <c> ### is this one supposed to be modulo 32768 or not??
-op_11_mod <- function(vec, loc) {
+op_11_mod <- \(vec, loc) {
   a <- vec[1] 
-  got <- (vec[2] %% vec[3]) # %>% interpret() #???
+  got <- (vec[2] %% vec[3]) # |> interpret() #???
   do_write(got, a)
   finish(loc)
   return(invisible(NULL))
 }
 
-#and: 12 a b c
  # stores into <a> the bitwise and of <b> and <c>
-op_12_and <- function(vec, loc) {
+op_12_and <- \(vec, loc) {
   a <- vec[1]
   b <- vec[2]
   c <- vec[3]
@@ -264,9 +260,8 @@ op_12_and <- function(vec, loc) {
   return(invisible(NULL))
 }
 
-#or: 13 a b c
 #  stores into <a> the bitwise or of <b> and <c>
-op_13_or <- function(vec, loc) {
+op_13_or <- \(vec, loc) {
   a <- vec[1]
   b <- vec[2]
   c <- vec[3]
@@ -276,9 +271,8 @@ op_13_or <- function(vec, loc) {
   return(invisible(NULL))
 }
 
-##not: 14 a b
   #stores 15-bit bitwise inverse of <b> in <a>
-op_14_not <- function(vec, loc) {
+op_14_not <- \(vec, loc) {
   a <- vec[1]
   b <- vec[2]
   c <- vec[3]
@@ -289,7 +283,7 @@ op_14_not <- function(vec, loc) {
 }
 
 #  read memory at address <b> and write it to <a>
-op_15_rmem <- function(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
+op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
   bval <- memory[z == get(vec[2]), cmd] 
   aval <- interpret(vec[1])
   registers[z == get(aval), val := get(bval)]
@@ -298,7 +292,7 @@ op_15_rmem <- function(vec, loc) { #expect numeric vector of length 2 that break
 }
 
 #  write the value from <b> into memory at address <a>
-op_16_wmem <- function(vec, loc) { # expect numeric vector of length 2 that breaks into a, b
+op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into a, b
   bloc <- interpret(vec[2])
   bval <- registers[z == get(bloc), val]
   memory[z == get(vec[1]), cmd := get(bval)]
@@ -308,14 +302,14 @@ op_16_wmem <- function(vec, loc) { # expect numeric vector of length 2 that brea
 
 #call: 17 a
 #  write the address of the next instruction to the stack and jump to <a>
-op_17_call <- function(a, loc) {
+op_17_call <- \(a, loc) {
   write_next <- memory[(z > get(loc)) & (do == TRUE) & (done == FALSE), z][1]
   stack <<- c(write_next, stack)
   op_6_jmp(a, loc)
   return(invisible(NULL))
 }
 
-op_18_ret <- function(loc) {
+op_18_ret <- \(loc) {
   if (length(stack) < 1) { #if the stack is empty, set main up to halt #can decide if we want to call halt directly here later.
     memory[z < 32767, done := TRUE]
     memory[z == 32767, `:=` (done = FALSE,
@@ -328,13 +322,13 @@ op_18_ret <- function(loc) {
   return(invisible(NULL))
 }
 
-op_19_out <- function(a, loc) {
+op_19_out <- \(a, loc) {
   print(intToUtf8(get(a)))
   finish(loc)
   return(invisible(NULL))
 }
 
-op_20_in <- function(a, loc) {
+op_20_in <- \(a, loc) {
   str <- readline()
   split <- strsplit(str)
   for (i in seq_len(length(str))) {
@@ -346,7 +340,7 @@ op_20_in <- function(a, loc) {
   return(invisible(NULL))
 }
 
-op_21_noop <- function(loc) {
+op_21_noop <- \(loc) {
   finish(loc)
   return(invisible(NULL))
 }
