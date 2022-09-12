@@ -116,7 +116,7 @@ rm(raw)
 library(data.table)
 library(stringr)
 library(tictoc)
-
+tic()
 #binary converter
 bin_const <- 2^(0:14)
 bitteR <- function(x) {
@@ -510,7 +510,7 @@ rets <- 0
 op_18_ret <- \(loc) {
   if (isTRUE(length(stack) < 1)) { 
     finish()
-    op_00_halt() #call existing halt
+    op_00_halt(loc) #call existing halt
     #alternately: #if the stack is empty, set main up to halt 
   #  memory[z < 32767, done := TRUE]
   #  memory[z == 32767, `:=` (done = FALSE,
@@ -527,9 +527,9 @@ op_18_ret <- \(loc) {
     } else {
       rets <<- c((rets[1] + 1), place)
     }
-    do_next <<- place
     finish()
-    counteR()
+    do_next <<- place
+#    counteR()
   }
 #  finish() # mark this as done to avoid loops
   return(invisible(NULL))
@@ -701,6 +701,7 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
   print("Counter reached 32768; program ends.") #log last known iteration 
   return(invisible(NULL))
 }
+toc()
 ```
 
 ```{r}
