@@ -6,39 +6,13 @@ editor_options:
     wrap: 72
 ---
 
-== architecture == - three storage regions - memory with 15-bit address
-space storing 16-bit values - eight registers - an unbounded stack which
-holds individual 16-bit values - all numbers are unsigned integers
-0..32767 (15-bit) - all math is modulo 32768; 32758 + 15 =\> 5
-
-== binary format == - each number is stored as a 16-bit little-endian
-pair (low byte, high byte) - numbers 0..32767 mean a literal value -
-numbers 32768..32775 instead mean registers 0..7 - numbers 32776..65535
-are invalid - programs are loaded into memory starting at address 0 -
-address 0 is the first 16-bit value, address 1 is the second 16-bit
-value, etc
-
-== execution == - After an operation is executed, the next instruction
-to read is immediately after the last argument of the current operation.
-If a jump was performed, the next operation is instead the exact
-destination of the jump. - Encountering a register as an operation
-argument should be taken as reading from the register or setting into
-the register as appropriate.
-
-== hints == - Start with operations 0, 19, and 21. - Here's a code for
-the challenge website: FblmAujZTsSw - The program
-"9,32768,32769,4,19,32768" occupies six memory addresses and should: -
-Store into register 0 the sum of 4 and the value contained in
-register 1. - Output to the terminal the character with the ascii code
-contained in register 0.
-
 == opcode listing ==
 
-**halt: 0 **
+**halt: 0**
 
 stop execution and terminate the program
 
-**set: 1 a b **
+**set: 1 a b**
 
 set register <a> to the value of <b>
 
@@ -46,21 +20,21 @@ set register <a> to the value of <b>
 
 push <a> onto the stack
 
-**pop: 3 a **
+**pop: 3 a**
 
-remove the top element from the stack and write it into <a>;
-empty stack = error
+remove the top element from the stack and write it 
+into <a>; empty stack = error
 
-**eq: 4 a b c **
+**eq: 4 a b c**
 
 set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
 
-**gt: 5 a b c **
+**gt: 5 a b c**
 
 set <a> to 1 if <b> is greater than <c>; set it to 0
 otherwise
 
-**jmp: 6 a **
+**jmp: 6 a**
 
 jump to <a>
 
@@ -72,31 +46,31 @@ if <a> is nonzero, jump to <b>
 
 if <a> is zero, jump to <b>
 
-**add: 9 a b c **
+**add: 9 a b c**
 
 assign into <a> the sum of <b> and <c> (modulo 32768)
 
-**mult: 10 a b c **
+**mult: 10 a b c**
 
 store into <a> the product of <b> and <c> (modulo 32768)
 
-**mod: 11 a b c **
+**mod: 11 a b c**
 
 store into <a> the remainder of <b> divided by <c>
 
-**and: 12 a b c **
+**and: 12 a b c**
 
 stores into <a> the bitwise and of <b> and <c>
 
-**or: 13 a b c **
+**or: 13 a b c**
 
 stores into <a> the bitwise or of <b> and <c>
 
-**not: 14 a b **
+**not: 14 a b**
 
 stores 15-bit bitwise inverse of <b> in <a>
 
-**rmem: 15 a b **
+**rmem: 15 a b**
 
 read memory at address <b> and write it to <a>
 
@@ -119,7 +93,7 @@ stack = halt
 write the character represented by ascii code <a> to the
 terminal
 
-**in: 20 a **
+**in: 20 a**
 
 read a character from the terminal and write its ascii code to
 <a>; it can be assumed that once input starts, it will continue until a
@@ -154,7 +128,6 @@ counteR <- function() {
   c <- memory[z == (from), cmd]
   memory[z == (from),  `:=` (do = TRUE,
                              done = FALSE)]
-#  i <- from + 1
   if (isFALSE(c %in% c(takes1, takes2, takes3))) {
     stop_at <<- from #default to one line at a time to lower impact of fuckups maybe 
   }
@@ -173,7 +146,7 @@ counteR <- function() {
            `:=` (do = FALSE,
                  done = FALSE)] #if we take one or more arguments, mark them as such 
   }
-#  memory[(z > i & !(done == TRUE)), do := as.logical(NA)] #either this is indispensable or it's going to produce infinite loops. let's find out!
+#  memory[(z > stop_at & !(done == TRUE)), do := as.logical(NA)] #either this is indispensable or it's going to produce infinite loops. let's find out!
   return(invisible(NULL))
 }
 
@@ -210,7 +183,7 @@ do_place <- function(x) {  #either interpret a literal value, or read from the r
   a
 }
 
-do_read <- function(a) {
+do_read <- function(a) { #read address a 
   if (isTRUE(a < 32768)) {
     x <- memory[z == (a), cmd]
     print(paste("do_read read", as.character(x), "from memory"))
@@ -241,19 +214,12 @@ do_write <- function(value, to) {
 find <- function(after) { 
   #TESTING
   stopifnot(is.numeric(after))
-#  if (!is.numeric(after)) { after <- 0 } #default to starting from z=0 if something funny happens
   do_next <<- after 
-#  do_next <<- memory[between(cmd, 0, 21), ][(is.na(done) | done == FALSE), ][z >= (after), z][1] |> as.integer() #should get the first of remaining commands? #update: removing and trusting the program instead 
   counteR()
-#  stop_at <<- ((memory[z > (do_next), ][is.na(do), z][1]) - 1) |> as.integer() #stop before next legal command
-#  memory[between(z, (do_next), (stop_at)), done := FALSE] #try setting this in counteR instead 
   return(invisible(NULL))
-#  return(invisible(list(do_next, stop_at))) #we want to hand this up for the multi-argument guys and I'm not yet sure how's best
 } 
 
 finish <- function() { 
-#  memory[(z == (loc)), done := TRUE] #mark the command with this z-index as done
-#  nnext <- loc + nrow(memory[(z > (loc)), ][do == FALSE, ])
   from <- do_next 
   to <- stop_at 
   memory[between(z, (from), (to)), done := TRUE]
@@ -268,12 +234,10 @@ finish <- function() {
 op_00_halt <- \(loc) {
   print(paste("Program is terminating at location", as.character(loc), "for opcode 0"))
   do_next <<- 32768
-#  finish()
   memory[ , `:=` (do = FALSE,
                   cmd = 0, #assuming that terminating the program means... wiping memory.
                   done = TRUE)]
-#  rm(memory) #or I guess  r e a l l y  wiping memory?
-#  print(paste("Program has terminated with opcode 0 at location:", as.character(loc)))
+#  rm(memory) #or I guess we could try  r e a l l y  wiping memory?
   return(invisible(NULL))
 }
 
@@ -609,7 +573,6 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
   setkey(memory, z)
   setorder(memory, z)
   memory[cmd >= 32776, cmd := 0] #remove illegal numbers 
-#  memory[cmd <= 21 & cmd >= 0, do := TRUE] #label legal commands 
 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
   if (isFALSE(do_next == 0)) {
@@ -617,12 +580,11 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
     stop_at <<- 0 
   }
   while (do_next < 32768) {
-#    find(do_next)
     if (isTRUE(stop_at < 32768)) {
       sendeR(memory)
     }
   }
-  print("Counter set to 32768; program self-terminates.")
+  print("Counter reached 32768; program ends.")
   return(invisible(NULL))
 }
 ```
