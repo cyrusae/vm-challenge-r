@@ -266,13 +266,14 @@ finish <- function() {
 ###########################
 
 op_00_halt <- \(loc) {
-  do_next <<- 32767
-  finish()
-#  memory[ , `:=` (do = FALSE,
-#                  cmd = 0, #assuming that terminating the program means... wiping memory.
-#                  done = TRUE)]
+  print(paste("Program is terminating at location", as.character(loc), "for opcode 0"))
+  do_next <<- 32768
+#  finish()
+  memory[ , `:=` (do = FALSE,
+                  cmd = 0, #assuming that terminating the program means... wiping memory.
+                  done = TRUE)]
 #  rm(memory) #or I guess  r e a l l y  wiping memory?
-  print(paste("Program has terminated with opcode 0 at location:", as.character(loc)))
+#  print(paste("Program has terminated with opcode 0 at location:", as.character(loc)))
   return(invisible(NULL))
 }
 
@@ -339,11 +340,13 @@ op_06_jmp <- function(a, loc) {
 
 #  if <a> is nonzero, jump to <b>
 op_07_jt <- \(vec, loc) {
-  a <- do_read(vec[1])
-  b <- vec[2]
+  a <- do_place(vec[1])
+  b <- do_place(vec[2])
   if (isTRUE(a > 0)) {
-    print(paste("jt: attempting jump based on value of <a> = ", as.character(a), ", from", as.character(loc)))
-    op_06_jmp(b, loc)
+    print(paste("jt: attempting jump to", as.character(b), "based on value of <a> = ", as.character(a), ", from", as.character(loc)))
+#    op_06_jmp(b, loc)
+    finish()
+    do_next <<- b 
   } else {
     finish()
   }
@@ -353,11 +356,14 @@ op_07_jt <- \(vec, loc) {
 
 #  if <a> is zero, jump to <b>
 op_08_jf <- \(vec, loc) {
-  a <- do_read(vec[1])
-  b <- vec[2] #remember op 6 handles 
+  a <- do_place(vec[1])
+  b <- do_place(vec[2])
+#  b <- vec[2] #remember op 6 handles 
   if (isTRUE(a < 1)) {
-    print(paste("jf: attempting jump based on value <a> =", as.character(a), "from", as.character(loc)))
-    op_06_jmp(b, loc)
+    print(paste("jf: attempting jump to", as.character(b), "based on value <a> =", as.character(a), "from", as.character(loc)))
+#    op_06_jmp(b, loc)
+    finish()
+    do_next <<- b
   } else {
     finish()
   }
