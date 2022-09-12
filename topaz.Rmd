@@ -328,7 +328,7 @@ op_05_gt <- \(vec, loc) {
 op_06_jmp <- function(a, loc) {
   x <- do_place(a)
   #TESTING 
-  jmpmsg <- c("Attempt jump to:", as.character(x))
+  jmpmsg <- c("Attempt jump to:", as.character(x), "from:", as.character(loc))
   finish()
   find(after = x) 
   print(jmpmsg)
@@ -340,11 +340,12 @@ op_07_jt <- \(vec, loc) {
   a <- do_read(vec[1])
   b <- vec[2]
   if (isTRUE(a > 0)) {
-    print("jt: attempting jump based on value of <a>")
+    print(paste("jt: attempting jump based on value of <a> = ", as.character(a), ", from", as.character(loc)))
     op_06_jmp(b, loc)
   } else {
     finish()
   }
+  print(paste("Moving to", as.character(do_next)))
   return(invisible(NULL))
 }
 
@@ -352,12 +353,13 @@ op_07_jt <- \(vec, loc) {
 op_08_jf <- \(vec, loc) {
   a <- do_read(vec[1])
   b <- vec[2] #remember op 6 handles 
-  if (isTRUE(aval < 1)) {
-    print("jf: attempting jump based on value of <a>")
+  if (isTRUE(a < 1)) {
+    print(paste("jf: attempting jump based on value <a> =", as.character(a), "from", as.character(loc)))
     op_06_jmp(b, loc)
   } else {
     finish()
   }
+  print(paste("Moving to", as.character(do_next)))
   return(invisible(NULL))
 }
 
