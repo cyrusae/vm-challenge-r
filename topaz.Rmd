@@ -1,80 +1,59 @@
 ---
 title: "R Notebook"
 output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
-== architecture ==
-- three storage regions
-  - memory with 15-bit address space storing 16-bit values
-  - eight registers
-  - an unbounded stack which holds individual 16-bit values
-- all numbers are unsigned integers 0..32767 (15-bit)
-- all math is modulo 32768; 32758 + 15 => 5
+== architecture == - three storage regions - memory with 15-bit address
+space storing 16-bit values - eight registers - an unbounded stack which
+holds individual 16-bit values - all numbers are unsigned integers
+0..32767 (15-bit) - all math is modulo 32768; 32758 + 15 =\> 5
 
-== binary format ==
-- each number is stored as a 16-bit little-endian pair (low byte, high byte)
-- numbers 0..32767 mean a literal value
-- numbers 32768..32775 instead mean registers 0..7
-- numbers 32776..65535 are invalid
-- programs are loaded into memory starting at address 0
-- address 0 is the first 16-bit value, address 1 is the second 16-bit value, etc
+== binary format == - each number is stored as a 16-bit little-endian
+pair (low byte, high byte) - numbers 0..32767 mean a literal value -
+numbers 32768..32775 instead mean registers 0..7 - numbers 32776..65535
+are invalid - programs are loaded into memory starting at address 0 -
+address 0 is the first 16-bit value, address 1 is the second 16-bit
+value, etc
 
-== execution ==
-- After an operation is executed, the next instruction to read is immediately after the last argument of the current operation.  If a jump was performed, the next operation is instead the exact destination of the jump.
-- Encountering a register as an operation argument should be taken as reading from the register or setting into the register as appropriate.
+== execution == - After an operation is executed, the next instruction
+to read is immediately after the last argument of the current operation.
+If a jump was performed, the next operation is instead the exact
+destination of the jump. - Encountering a register as an operation
+argument should be taken as reading from the register or setting into
+the register as appropriate.
 
-== hints ==
-- Start with operations 0, 19, and 21.
-- Here's a code for the challenge website: FblmAujZTsSw
-- The program "9,32768,32769,4,19,32768" occupies six memory addresses and should:
-  - Store into register 0 the sum of 4 and the value contained in register 1.
-  - Output to the terminal the character with the ascii code contained in register 0.
+== hints == - Start with operations 0, 19, and 21. - Here's a code for
+the challenge website: FblmAujZTsSw - The program
+"9,32768,32769,4,19,32768" occupies six memory addresses and should: -
+Store into register 0 the sum of 4 and the value contained in
+register 1. - Output to the terminal the character with the ascii code
+contained in register 0.
 
-== opcode listing ==
-halt: 0
-  stop execution and terminate the program
-set: 1 a b
-  set register <a> to the value of <b>
-push: 2 a
-  push <a> onto the stack
-pop: 3 a
-  remove the top element from the stack and write it into <a>; empty stack = error
-eq: 4 a b c
-  set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
-gt: 5 a b c
-  set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
-jmp: 6 a
-  jump to <a>
-jt: 7 a b
-  if <a> is nonzero, jump to <b>
-jf: 8 a b
-  if <a> is zero, jump to <b>
-add: 9 a b c
-  assign into <a> the sum of <b> and <c> (modulo 32768)
-mult: 10 a b c
-  store into <a> the product of <b> and <c> (modulo 32768)
-mod: 11 a b c
-  store into <a> the remainder of <b> divided by <c>
-and: 12 a b c
-  stores into <a> the bitwise and of <b> and <c>
-or: 13 a b c
-  stores into <a> the bitwise or of <b> and <c>
-not: 14 a b
-  stores 15-bit bitwise inverse of <b> in <a>
-rmem: 15 a b
-  read memory at address <b> and write it to <a>
-wmem: 16 a b
-  write the value from <b> into memory at address <a>
-call: 17 a
-  write the address of the next instruction to the stack and jump to <a>
-ret: 18
-  remove the top element from the stack and jump to it; empty stack = halt
-out: 19 a
-  write the character represented by ascii code <a> to the terminal
-in: 20 a
-  read a character from the terminal and write its ascii code to <a>; it can be assumed that once input starts, it will continue until a newline is encountered; this means that you can safely read whole lines from the keyboard and trust that they will be fully read
-noop: 21
-  no operation
+== opcode listing == halt: 0 stop execution and terminate the program
+set: 1 a b set register <a> to the value of <b> push: 2 a push <a> onto
+the stack pop: 3 a remove the top element from the stack and write it
+into <a>; empty stack = error eq: 4 a b c set <a> to 1 if <b> is equal
+to <c>; set it to 0 otherwise gt: 5 a b c set <a> to 1 if <b> is greater
+than <c>; set it to 0 otherwise jmp: 6 a jump to <a> jt: 7 a b if <a> is
+nonzero, jump to <b> jf: 8 a b if <a> is zero, jump to <b> add: 9 a b c
+assign into <a> the sum of <b> and <c> (modulo 32768) mult: 10 a b c
+store into <a> the product of <b> and <c> (modulo 32768) mod: 11 a b c
+store into <a> the remainder of <b> divided by <c> and: 12 a b c stores
+into <a> the bitwise and of <b> and <c> or: 13 a b c stores into <a> the
+bitwise or of <b> and <c> not: 14 a b stores 15-bit bitwise inverse of
+<b> in <a> rmem: 15 a b read memory at address <b> and write it to <a>
+wmem: 16 a b write the value from <b> into memory at address <a> call:
+17 a write the address of the next instruction to the stack and jump to
+<a> ret: 18 remove the top element from the stack and jump to it; empty
+stack = halt out: 19 a write the character represented by ascii code <a>
+to the terminal in: 20 a read a character from the terminal and write
+its ascii code to <a>; it can be assumed that once input starts, it will
+continue until a newline is encountered; this means that you can safely
+read whole lines from the keyboard and trust that they will be fully
+read noop: 21 no operation
 
 ```{r}
 raw <- file("C:/Users/cyrus/GitHere/vm-challenge-r/materiel/challenge.bin", "rb")
@@ -102,6 +81,16 @@ interpret <- function(x) {
   y
 }
 
+do_place <- function(x) {  #either interpret a literal value, or read from the register 
+  if (x >= 32768) {
+    xval <- interpret(x)
+    a <- registers[z == get(xval), val]
+  } else {
+    a <- x
+  }
+  a
+}
+
 do_read <- function(a) {
   if (a < 32768) {
     x <- memory[z == get(a), cmd]
@@ -125,7 +114,7 @@ do_write <- function(value, to) {
 
 find <- function(after = 0) { #default to starting from z=0
   do_next <<- memory[(do == TRUE) & (done == FALSE) & (z > get(after)), z][1] #should get the first of remaining commands?
-  stop_at <<- memory[(z > get(do_next)) & (do == TRUE), z][1]
+  stop_at <<- (memory[(z > get(do_next)) & (do == TRUE), z][1]) - 1 #stop before next legal command
   return(invisible(list(do_next, stop_at))) #we want to hand this up for the multi-argument guys and I'm not yet sure how's best
 } 
 
@@ -145,13 +134,15 @@ op_00_halt <- \() {
 }
 
 op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
-  registers[z == get(vec[1]), val := get(vec[2])]
+  a <- do_place(vec[1])
+  b <- do_place(vec[2])
+  registers[z == get(a), val := get(b)]
   finish(loc)
   return(invisible(NULL))
 }
 
 op_02_push <- \(a, loc) { #expect a and loc
-  stack <<- c(a, stack)
+  stack <<- c(a, stack) #taking a here literally until proven otherwise on the assumption that if it wants to undergo do_place() that'll happen later.
   finish(loc)
   return(invisible(NULL))
 }
@@ -167,8 +158,8 @@ op_03_pop <- \(a, loc) {
 #  set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
 op_04_eq <- \(vec, loc) {
   a <- vec[1]
-  b <- vec[2]
-  c <- vec[3]
+  b <- do_place(vec[2]) #TODO: evaluate if 'do_place()' is less intuitive than I want it to be as far as "name of the function that checks if a value is literal or a register address"
+  c <- do_place(vec[3])
   if (identical(b, c)) {
     do_write(a, 1)
   } else {
@@ -181,8 +172,8 @@ op_04_eq <- \(vec, loc) {
 #  set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
 op_05_gt <- \(vec, loc) {
   a <- vec[1]
-  b <- vec[2]
-  c <- vec[3]
+  b <- do_place(vec[2])
+  c <- do_place(vec[3])
   if (b > c) {
     do_write(a, 1)
   } else {
@@ -193,16 +184,18 @@ op_05_gt <- \(vec, loc) {
 }
 
 op_06_jmp <- function(a, loc) {
-  find(a)
+  x <- do_place(a)
+  find(x) 
   finish(loc)
   return(invisible(NULL))
 }
 
 #  if <a> is nonzero, jump to <b>
 op_07_jt <- \(vec, loc) {
-  aval <- do_read(vec[1])
-  if (aval > 0) {
-    op_6_jmp(vec[2], loc)
+  a <- do_read(vec[1])
+  b <- vec[2]
+  if (a > 0) {
+    op_06_jmp(b, loc)
   } else {
     finish(loc)
   }
@@ -211,9 +204,10 @@ op_07_jt <- \(vec, loc) {
 
 #  if <a> is zero, jump to <b>
 op_08_jf <- \(vec, loc) {
-  aval <- do_read(vec[1])
+  a <- do_read(vec[1])
+  b <- vec[2] #remember op 6 handles 
   if (aval < 1) {
-    op_6_jmp(vec[2], loc)
+    op_06_jmp(b, loc)
   } else {
     finish(loc)
   }
@@ -222,8 +216,10 @@ op_08_jf <- \(vec, loc) {
 
 #  assign into <a> the sum of <b> and <c> (modulo 32768)
 op_09_add <- \(vec, loc) {
-  a <- vec[1] 
-  got <- (vec[2] + vec[3]) |> interpret()
+  a <- vec[1]
+  b <- do_place(vec[2])
+  c <- do_place(vec[3])
+  got <- (b + c) |> interpret()
   do_write(got, a)
   finish(loc)
   return(invisible(NULL))
@@ -232,7 +228,9 @@ op_09_add <- \(vec, loc) {
 #  store into <a> the product of <b> and <c> (modulo 32768)
 op_10_mult <- \(vec, loc) {
   a <- vec[1] 
-  got <- (vec[2] * vec[3]) |> interpret()
+  b <- do_place(vec[2])
+  c <- do_place(vec[3])
+  got <- (b * c) |> interpret()
   do_write(got, a)
   finish(loc)
   return(invisible(NULL))
@@ -241,7 +239,9 @@ op_10_mult <- \(vec, loc) {
 #  store into <a> the remainder of <b> divided by <c> ### is this one supposed to be modulo 32768 or not??
 op_11_mod <- \(vec, loc) {
   a <- vec[1] 
-  got <- (vec[2] %% vec[3]) # |> interpret() #???
+  b <- do_place(vec[2])
+  c <- do_place(vec[3])
+  got <- (b %% c) # |> interpret() #???
   do_write(got, a)
   finish(loc)
   return(invisible(NULL))
@@ -250,8 +250,8 @@ op_11_mod <- \(vec, loc) {
  # stores into <a> the bitwise and of <b> and <c>
 op_12_and <- \(vec, loc) {
   a <- vec[1]
-  b <- vec[2]
-  c <- vec[3]
+  b <- do_place(vec[2])
+  c <- do_place(vec[3])
   bits <- bitwAnd(b, c)
   do_write(bits, a)
   finish(loc)
@@ -261,8 +261,8 @@ op_12_and <- \(vec, loc) {
 #  stores into <a> the bitwise or of <b> and <c>
 op_13_or <- \(vec, loc) {
   a <- vec[1]
-  b <- vec[2]
-  c <- vec[3]
+  b <- do_place(vec[2])
+  c <- do_place(vec[3])
   bits <- bitwOr(b, c)
   do_write(bits, a)
   finish(loc)
@@ -282,18 +282,20 @@ op_14_not <- \(vec, loc) {
 
 #  read memory at address <b> and write it to <a>
 op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
-  bval <- memory[z == get(vec[2]), cmd] 
-  aval <- interpret(vec[1])
-  registers[z == get(aval), val := get(bval)]
+  #this explicitly says "read memory" but frankly I'm not sure there's harm in do_read()ing it so fuck it 
+  bval <- do_read(vec[2])
+  aval <- do_place(vec[1])
+  do_write(bval, aval)
   finish(loc)
   return(invisible(NULL))
 }
 
 #  write the value from <b> into memory at address <a>
 op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into a, b
-  bloc <- interpret(vec[2])
+  #allegedly b will reliably be a register address this time.
+  bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
   bval <- registers[z == get(bloc), val]
-  memory[z == get(vec[1]), cmd := get(bval)]
+  do_write(bloc, a) #TODO: check if this is understanding the logic correctly 
   finish(loc)
   return(invisible(NULL))
 }
@@ -315,7 +317,7 @@ op_18_ret <- \(loc) {
   #  memory[z == 32767, `:=` (done = FALSE,
                           #   cmd = 0)]
   } else { 
-    place <- meta_pop()
+    place <- meta_pop() # |> do_place(place) # is this needed?
     find(place)
   }
   finish(loc) # mark this as done to avoid loops
@@ -323,6 +325,7 @@ op_18_ret <- \(loc) {
 }
 
 op_19_out <- \(a, loc) {
+  aval <- do_place(a)
   print(intToUtf8(get(a)))
   finish(loc)
   return(invisible(NULL))
@@ -342,6 +345,80 @@ op_20_in <- \(a, loc) {
 
 op_21_noop <- \(loc) {
   finish(loc)
+  return(invisible(NULL))
+}
+
+sendeR <- function(memory) {
+  find()
+  vec <- memory$cmd[do_next:stop_at] #does safely return the only value if do_next = stop_at, I checked 
+  do <- vec[1]
+  stopifnot(do <= 21) #stop if we've been passed a non-viable command somehow 
+  if (do == 0) {
+    op_00_halt()
+  } 
+  if (do == 1) {
+    op_01_set(vec, do_next)
+  }
+  if (do == 2) {
+    op_02_push(vec, do_next)
+  }
+  if (do == 3) {
+    op_03_pop(vec, do_next)
+  }
+  if (do == 4) {
+    op_04_eq(vec, do_next)
+  }
+  if (do == 5) {
+    op_05_gt(vec, do_next)
+  }
+  if (do == 6) {
+    op_06_jmp(vec, do_next)
+  }
+  if (do == 7) {
+    op_07_jt(vec, do_next)
+  }
+  if (do == 8) {
+    op_08_jf(vec, do_next)
+  }
+  if (do == 9) {
+    op_09_add(vec, do_next)
+  }
+  if (do == 10) {
+    op_10_mult(vec, do_next)
+  }
+  if (do == 11) {
+    op_11_mod(vec, do_next)
+  }
+  if (do == 12) {
+    op_12_and(vec, do_next)
+  }
+  if (do == 13) {
+    op_13_or(vec, do_next)
+  }
+  if (do == 14) {
+    op_14_not(vec, do_next)
+  }
+  if (do == 15) {
+    op_15_rmem(vec, do_next)
+  }
+  if (do == 16) {
+    op_16_wmem(vec, do_next)
+  }
+  if (do == 17) {
+    op_17_call(vec, do_next)
+  }
+  if (do == 18) {
+    op_18_ret(vec, do_next)
+  }
+  if (do == 19) {
+    op_19_out(vec, do_next)
+  }
+  if (do == 20) {
+    op_20_in(vec, do_next)
+  }
+  if (do == 21) {
+    op_21_noop(vec, do_next)
+  }
   return(invisible(NULL))
 }
 
@@ -365,6 +442,7 @@ understandeR <- function(cmds) { #comma-separated list of integers unbinaried fr
   memory[cmd <= 21 & cmd >= 0, do := TRUE] #label legal commands 
 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
+  sendeR(memory)
+  return(invisible(NULL))
 }
 ```
-
