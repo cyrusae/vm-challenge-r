@@ -154,30 +154,24 @@ counteR <- function() {
   c <- memory[z == (from), cmd]
   memory[z == (from),  `:=` (do = TRUE,
                              done = FALSE)]
-  i <- from + 1
-  if (isTRUE(c %in% takes0)) {
-    stop_at <<- from 
-  }
-  if (isFALSE(c %in% takes0)) {
-    memory[z == (i), `:=` (do = FALSE,
-                           done = FALSE)] #if we take one or more arguments, mark the immediate next line
+#  i <- from + 1
+  if (isFALSE(c %in% c(takes1, takes2, takes3))) {
+    stop_at <<- from #default to one line at a time to lower impact of fuckups maybe 
   }
   if (isTRUE(c %in% takes1)) {
-    stop_at <- from + 1
-  }
-  if (isTRUE(c %in% c(takes2, takes3))) {
-    i <- i + 1
-    memory[z == (i), `:=` (do = FALSE,
-                           done = FALSE)] #mark second argument if two arguments are taken
+    stop_at <<- from + 1 #stop after one more line of arguments 
   }
   if (isTRUE(c %in% takes2)) {
-    stop_at <<- from + 2
+    stop_at <<- from + 2 #stop after two arguments
   }
-  if (isTRUE(c %in% takes3)) { #I think I should be able to change the meaning of i in the above if and only make this one mark the third but I don't trust Sunday night me with that enough to have that be the thing that breaks right this minute, thanks.
-    i <- i + 1
-    memory[z == (i), `:=` (do = FALSE,
-                           done = FALSE)]
+  if (isTRUE(c %in% takes3)) {
     stop_at <<- from + 3
+  }
+  if (isFALSE(c %in% takes0)) {
+    i <- do_next + 1 
+    memory[between(z, (do_next), (stop_at)), 
+           `:=` (do = FALSE,
+                 done = FALSE)] #if we take one or more arguments, mark them as such 
   }
 #  memory[(z > i & !(done == TRUE)), do := as.logical(NA)] #either this is indispensable or it's going to produce infinite loops. let's find out!
   return(invisible(NULL))
