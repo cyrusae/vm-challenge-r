@@ -117,13 +117,21 @@ library(data.table)
 library(stringr)
 library(tictoc)
 
+#binary converter
+bin_const <- 2^(0:14)
+bitteR <- function(x) {
+  q <- as.integer(intToBits(x))[1:15]
+  qz <- q == 0
+  y <- sum(bin_const[qz])
+  y
+}
 #implement print queue
 printqueue <- c()
 
 #let's learn about our opcodes.
 takes2 <- c(1,7,8,14,15,16)
 takes0 <- c(21,18,0)
-takes1 <- c(2,3,6,19,20)
+takes1 <- c(2,3,6,19,17,20)
 takes3 <- c(13,12,11,10,9,5,4)
 
 counteR <- function() {
@@ -251,7 +259,7 @@ op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're comin
 }
 
 op_02_push <- \(a, loc) { #expect a and loc
-  aval <- interpret(a)
+  aval <- do_place(a)
   stack <<- c(aval, stack) #taking a here literally until proven otherwise on the assumption that if it wants to undergo do_place() that'll happen later.
   print(paste("Pushing value", as.character(aval),
               "(aka", as.character(a),
@@ -419,7 +427,7 @@ op_12_and <- \(vec, loc) {
   a <- vec[1]
   b <- do_place(vec[2])
   c <- do_place(vec[3])
-  bits <- bitwAnd(b, c) |> packBits(type = "double")
+  bits <- bitwAnd(b, c) 
   do_write(bits, a)
   finish()
   return(invisible(NULL))
@@ -430,7 +438,7 @@ op_13_or <- \(vec, loc) {
   a <- vec[1]
   b <- do_place(vec[2])
   c <- do_place(vec[3])
-  bits <- bitwOr(b, c) |> packBits(type = "double")
+  bits <- bitwOr(b, c)
   do_write(bits, a)
   finish()
   return(invisible(NULL))
@@ -440,7 +448,7 @@ op_13_or <- \(vec, loc) {
 op_14_not <- \(vec, loc) {
   a <- vec[1]
   b <- do_place(vec[2])
-  bits <- bitwNot(b) |> packBits(type = "double")
+  bits <- bitteR(b) 
   do_write(bits, a)
   finish()
   return(invisible(NULL))
@@ -449,7 +457,8 @@ op_14_not <- \(vec, loc) {
 #  read memory at address <b> and write it to <a>
 op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
   #this explicitly says "read memory" but frankly I'm not sure there's harm in do_read()ing it so fuck it 
-  bval <- do_read(vec[2])
+  b <- do_place(vec[2])
+  bval <- do_read(b)
 #  aval <- do_place(vec[1]) #I also don't trust this not to be potentially register in a hat #update: and am a dumbass who should therefore trust do_write to handle it 
   a <- vec[1]
   print(paste0("15 rmem using z = ", 
@@ -464,35 +473,43 @@ op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into 
 
 #  write the value from <b> into memory at address <a>
 op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into a, b
-  #allegedly b will reliably be a register address this time.
-  a <- vec[1]
-  bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
+  #allegedly b will reliably be a register address this time. #lmao nope
+  a <- do_place(vec[1])
+#  bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
+  bval <- do_place(vec[2])
   print(paste0("16 wmem using z = ", 
                as.character(a), 
-               " (<a>) and source <b> = ",
+               " (<a>) and <b> = ",
+#               as.character(vec[2]),
+#               "with value = ",
                as.character(bval)))
-  bval <- registers[z == (bloc), val]
-  do_write(bloc, a) #TODO: check if this is understanding the logic correctly 
+  do_write(bval, a) #TODO: check if this is understanding the logic correctly 
   finish()
   return(invisible(NULL))
 }
 
 #  write the address of the next instruction to the stack and jump to <a>
 op_17_call <- \(a, loc) {
-  write_next <- memory[(z > (loc)) & (do == TRUE) & (done == FALSE), z][1]
+  aval <- do_place(a[1])
+  write_next <- (stop_at + 1)
   stack <<- c(write_next, stack)
   print(paste("op 17 (call) wrote",
               as.character(write_next), 
               "to the stack at line",
               as.character(loc), 
               ". Jumping to <a> = ", 
-              as.character(a)))
-  op_6_jmp(a, loc)
+              as.character(aval)))
+  finish()
+  do_next <<- aval
+  counteR()
   return(invisible(NULL))
 }
 
+chk_RETLOG <- 0 
+rets <- 0 
 op_18_ret <- \(loc) {
   if (isTRUE(length(stack) < 1)) { 
+    finish()
     op_00_halt() #call existing halt
     #alternately: #if the stack is empty, set main up to halt 
   #  memory[z < 32767, done := TRUE]
@@ -502,10 +519,19 @@ op_18_ret <- \(loc) {
     print(paste0("18 ret at ", 
                  as.character(loc), 
                  " found a non-empty stack; moving."))
-    place <- meta_pop() # |> do_place(place) # is this needed?
-    find(place)
+    place <- meta_pop() # |> do_place() # is this needed?
+#    find(place)
+    print(paste("Location found is:", place))
+    if (isFALSE(place == chk_RETLOG)) {
+      chk_RETLOG <<- place
+    } else {
+      rets <<- c((rets[1] + 1), place)
+    }
+    do_next <<- place
+    finish()
+    counteR()
   }
-  finish() # mark this as done to avoid loops
+#  finish() # mark this as done to avoid loops
   return(invisible(NULL))
 }
 
@@ -619,7 +645,7 @@ sendeR <- function(memory) {
     op_17_call(vec, do_next)
   }
   if(do_this == 18) {
-    op_18_ret(vec, do_next)
+    op_18_ret(do_next)
   }
   if(do_this == 19) {
     if (is.null(printqueue) | isFALSE(length(printqueue) > 0)) {
@@ -662,7 +688,7 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
   memory[cmd >= 32776, cmd := 0] #remove illegal numbers if existing 
 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
-  if (isFALSE(do_next == 0)) {
+  if (isFALSE(do_next == 0) | isFALSE(length(do_next) > 0)) {
     do_next <<- 0 
     stop_at <<- 0 
   }
