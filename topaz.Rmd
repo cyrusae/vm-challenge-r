@@ -113,6 +113,7 @@ rm(raw)
 ```{r}
 library(data.table)
 library(stringr)
+library(tictoc)
 
 #implement print queue
 printqueue <- c()
@@ -587,5 +588,7 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
 ```
 
 ```{r}
+tic()
 understandeR(cmdlist)
+toc()
 ```
