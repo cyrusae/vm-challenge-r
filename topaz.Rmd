@@ -311,7 +311,7 @@ op_07_jt <- \(vec, loc) {
   } else {
     finish()
   }
-  print(paste("Moving to", as.character(do_next)))
+  print(paste("jt done, moving to", as.character(do_next)))
   return(invisible(NULL))
 }
 
@@ -328,7 +328,7 @@ op_08_jf <- \(vec, loc) {
   } else {
     finish()
   }
-  print(paste("Moving to", as.character(do_next)))
+  print(paste("jf done, moving to", as.character(do_next)))
   return(invisible(NULL))
 }
 
