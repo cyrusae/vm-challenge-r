@@ -234,10 +234,6 @@ finish <- function() {
 op_00_halt <- \(loc) {
   print(paste("Program is terminating at location", as.character(loc), "for opcode 0"))
   do_next <<- 32768
-  memory[ , `:=` (do = FALSE,
-                  cmd = 0, #assuming that terminating the program means... wiping memory.
-                  done = TRUE)]
-#  rm(memory) #or I guess we could try  r e a l l y  wiping memory?
   return(invisible(NULL))
 }
 
@@ -556,7 +552,7 @@ sendeR <- function(memory) {
   return(invisible(NULL))
 }
 
-understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unbinaried from binary goes here (as a vector! vectorize it!)
+understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unbinaried from binary goes here
   stopifnot(is.integer(cmds)) #stop if the input vector isn't made of numbers
   stopifnot(cmds[1] >= 0)
   stopifnot(cmds[1] <= 21) #stop if the first argument isn't a legal command that we know 
@@ -584,6 +580,7 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
       sendeR(memory)
     }
   }
+  fwrite(memory, file = "C:/Users/cyrus/GitHere/vm-challenge-r/latest_run.csv")
   print("Counter reached 32768; program ends.")
   return(invisible(NULL))
 }
