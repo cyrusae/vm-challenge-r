@@ -101,7 +101,8 @@ keyboard and trust that they will be fully read
 no operation
 
 ```{r}
-raw <- file("C:/Users/cyrus/GitHere/vm-challenge-r/materiel/challenge.bin", "rb")
+raw <- file(
+  "C:/Users/cyrus/GitHere/vm-challenge-r/materiel/challenge.bin", "rb")
 cmdlist <- readBin(raw, 
                    integer(), 
                    n = 100000, 
@@ -210,13 +211,10 @@ do_write <- function(value, to) {
   return(invisible(NULL))
 }
 
-#arguments are always a vector of the a/b/c values expected, then 'loc' as the location of the next valid command whenever doing things.
-
 find <- function(after) { 
-  #TESTING
   stopifnot(is.numeric(after))
   do_next <<- after 
-  counteR()
+  counteR() #find() should be removable soon since counteR() no longer depends on explicit passing, but want to be very sure.
   return(invisible(NULL))
 } 
 
@@ -224,9 +222,10 @@ finish <- function() {
   from <- do_next 
   to <- stop_at 
   memory[between(z, (from), (to)), done := TRUE]
-  do_next <<- to + 1 
-  stop_at <<- do_next 
-  counteR()
+    #mark current opcode and its arguments as done
+  do_next <<- to + 1 #move to next line
+  stop_at <<- do_next #assume zero arguments until proven otherwise
+  counteR() #prove otherwise
   return(invisible(NULL))
 }
 
@@ -235,7 +234,7 @@ finish <- function() {
 op_00_halt <- \(loc) {
   print(paste("Program is terminating at location",
               as.character(loc), "for opcode 0"))
-  do_next <<- 32768
+  do_next <<- 32768 #break understandeR while loop
   return(invisible(NULL))
 }
 
