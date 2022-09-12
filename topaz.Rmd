@@ -419,7 +419,7 @@ op_12_and <- \(vec, loc) {
   a <- vec[1]
   b <- do_place(vec[2])
   c <- do_place(vec[3])
-  bits <- bitwAnd(b, c)
+  bits <- bitwAnd(b, c) |> packBits(type = "double")
   do_write(bits, a)
   finish()
   return(invisible(NULL))
@@ -430,7 +430,7 @@ op_13_or <- \(vec, loc) {
   a <- vec[1]
   b <- do_place(vec[2])
   c <- do_place(vec[3])
-  bits <- bitwOr(b, c)
+  bits <- bitwOr(b, c) |> packBits(type = "double")
   do_write(bits, a)
   finish()
   return(invisible(NULL))
@@ -439,9 +439,8 @@ op_13_or <- \(vec, loc) {
 #stores 15-bit bitwise inverse of <b> in <a>
 op_14_not <- \(vec, loc) {
   a <- vec[1]
-  b <- vec[2]
-  c <- vec[3]
-  bits <- bitwNot(b, c)
+  b <- do_place(vec[2])
+  bits <- bitwNot(b) |> packBits(type = "double")
   do_write(bits, a)
   finish()
   return(invisible(NULL))
