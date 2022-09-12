@@ -106,7 +106,7 @@ no operation
 
 ```{r}
 raw <- file("C:/Users/cyrus/GitHere/vm-challenge-r/materiel/challenge.bin", "rb")
-cmdlist <- readBin(raw, integer(), n = 100000, size = 2, endian = "little")
+cmdlist <- readBin(raw, integer(), n = 100000, size = 2, endian = "little", signed = FALSE)
 rm(raw)
 ```
 
@@ -151,11 +151,6 @@ counteR <- function() {
   return(invisible(NULL))
 }
 
-#places things live
-registers <- data.table(
-  z = 0:7,
-  val = c(rep(0, 8))) #replace with as.numeric(NA) if it's not supposed to be implicit 0  
-stack <- c()
 
 #metafunctions for things I didn't have the patience to repeat per opcode 
 meta_pop <- function() {
@@ -239,7 +234,7 @@ op_00_halt <- \(loc) {
 }
 
 op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
-  a <- do_place(vec[1])
+  a <- interpret(vec[1])
   b <- do_place(vec[2])
   print(paste("Attempted to set register", as.character(a), "to value", as.character(b), "at line", as.character(loc)))
   registers[z == (a), val := (b)]
@@ -267,9 +262,9 @@ op_04_eq <- \(vec, loc) {
   b <- do_place(vec[2]) #TODO: evaluate if 'do_place()' is less intuitive than I want it to be as far as "name of the function that checks if a value is literal or a register address"
   c <- do_place(vec[3])
   if (identical(b, c)) {
-    do_write(a, 1)
+    do_write(1, a)
   } else {
-    do_write(a, 0)
+    do_write(0, a)
   }
   finish()
   return(invisible(NULL))
@@ -281,9 +276,9 @@ op_05_gt <- \(vec, loc) {
   b <- do_place(vec[2])
   c <- do_place(vec[3])
   if (b > c) {
-    do_write(a, 1)
+    do_write(1, a)
   } else {
-    do_write(a, 0)
+    do_write(0, a)
   }
   finish()
   return(invisible(NULL))
@@ -557,6 +552,13 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
   stopifnot(is.integer(cmds)) #stop if the input vector isn't made of numbers
   stopifnot(cmds[1] >= 0)
   stopifnot(cmds[1] <= 21) #stop if the first argument isn't a legal command that we know 
+  
+  #places things live
+  registers <<- data.table(
+    z = 0:7,
+    val = c(rep(0, 8))) #replace with as.numeric(NA) if it's not supposed to be implicit 0  
+  stack <<- c()
+  
   pad <- 32768 - length(cmds)
   memories <- c(cmds, rep(0, pad))
   memory <<- data.table( #SUPERASSIGN FOR TESTING ONLY
