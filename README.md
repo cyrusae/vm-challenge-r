@@ -1,1 +1,1 @@
-I'm doing [this](https://challenge.synacor.com/) in R. See [topaz.Rmd](topaz.Rmd) for progress. See [arch-spec](materiel/arch-spec) for the original instructions.
+I'm doing [this](https://challenge.synacor.com/) in R. See [topaz.Rmd](topaz.Rmd) for progress on code and [latest-run.csv](latest-run.csv) for the most recent program iteration. See [arch-spec](materiel/arch-spec) for the original instructions.
