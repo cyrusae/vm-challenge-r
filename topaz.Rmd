@@ -168,8 +168,8 @@ counteR <- function() {
     stop_at <<- from + 3
   }
   if (isFALSE(c %in% takes0)) {
-    i <- do_next + 1 
-    memory[between(z, (do_next), (stop_at)), 
+    do_with <- do_next + 1 
+    memory[between(z, (do_with), (stop_at)), 
            `:=` (do = FALSE,
                  done = FALSE)] #if we take one or more arguments, mark them as such 
   }
@@ -227,9 +227,11 @@ do_read <- function(a) {
 do_write <- function(value, to) {
   if (isTRUE(to < 32768)) {
     memory[z == (to), cmd := (value)]
+    print(paste("do_write wrote value", value, "to memory at address z = ", to))
   } else {
     toval <- interpret(to)
     registers[z == (toval), val := (value)]
+    print(paste("do_write wrote value", value, "to registers at address z =", to))
   }
   return(invisible(NULL))
 }
@@ -264,7 +266,7 @@ finish <- function() {
 ###########################
 
 op_00_halt <- \(loc) {
-  do_next <<- 32768
+  do_next <<- 32767
   finish()
 #  memory[ , `:=` (do = FALSE,
 #                  cmd = 0, #assuming that terminating the program means... wiping memory.
@@ -433,7 +435,8 @@ op_14_not <- \(vec, loc) {
 op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
   #this explicitly says "read memory" but frankly I'm not sure there's harm in do_read()ing it so fuck it 
   bval <- do_read(vec[2])
-  aval <- do_place(vec[1])
+  aval <- do_place(vec[1]) #I also don't trust this not to be potentially register in a hat 
+#  a <- vec[1]
   do_write(bval, aval)
   finish()
   return(invisible(NULL))
@@ -442,6 +445,7 @@ op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into 
 #  write the value from <b> into memory at address <a>
 op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into a, b
   #allegedly b will reliably be a register address this time.
+  a <- vec[1]
   bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
   bval <- registers[z == (bloc), val]
   do_write(bloc, a) #TODO: check if this is understanding the logic correctly 
@@ -612,6 +616,7 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
       sendeR(memory)
     }
   }
+  print("Counter set to 32768; program self-terminates.")
   return(invisible(NULL))
 }
 ```
