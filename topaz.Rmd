@@ -413,10 +413,11 @@ op_14_not <- \(vec, loc) {
 op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into a, b
   #this explicitly says "read memory" but frankly I'm not sure there's harm in do_read()ing it so fuck it 
   bval <- do_read(vec[2])
-  aval <- do_place(vec[1]) #I also don't trust this not to be potentially register in a hat 
-  print(paste0("15 rmem using z = ", as.character(aval), " (<a>) and value <b> = ", as.character(bval)))
+#  aval <- do_place(vec[1]) #I also don't trust this not to be potentially register in a hat #update: and am a dumbass who should therefore trust do_write to handle it 
+  a <- vec[1]
+  print(paste0("15 rmem using z = ", as.character(a), " (<a>) and value <b> = ", as.character(bval)))
 #  a <- vec[1]
-  do_write(bval, aval)
+  do_write(bval, a)
   finish()
   return(invisible(NULL))
 }
