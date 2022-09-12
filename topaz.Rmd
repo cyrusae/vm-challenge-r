@@ -180,7 +180,7 @@ counteR <- function() {
 #places things live
 registers <- data.table(
   z = 0:7,
-  val = c(rep(as.numeric(NA), 8)))
+  val = c(rep(0, 8))) #replace with as.numeric(NA) if it's not supposed to be implicit 0  
 stack <- c()
 
 #metafunctions for things I didn't have the patience to repeat per opcode 
@@ -200,9 +200,11 @@ do_place <- function(x) {  #either interpret a literal value, or read from the r
   if (isTRUE(x >= 32768)) {
     xval <- interpret(x)
     a <- registers[z == (xval), val]
+    print(paste("do_place retrieved", as.character(a), "from the registers"))
     a
   } else {
     a <- interpret(x)
+    print(paste("do_place interpreted", as.character(a)))
     a
   }
   a
@@ -211,9 +213,13 @@ do_place <- function(x) {  #either interpret a literal value, or read from the r
 do_read <- function(a) {
   if (isTRUE(a < 32768)) {
     x <- memory[z == (a), cmd]
+    print(paste("do_read read", as.character(x), "from memory"))
+    x
   } else {
     aval <- interpret(a)
     x <- registers[z == (aval), val]
+    print(paste("do_read read", as.character(x), "from registers"))
+    x
   }
   x
 }
@@ -271,6 +277,7 @@ op_00_halt <- \(loc) {
 op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
   a <- do_place(vec[1])
   b <- do_place(vec[2])
+  print(paste("Attempted to set register", as.character(a), "to value", as.character(b), "at line", as.character(loc)))
   registers[z == (a), val := (b)]
   finish()
   return(invisible(NULL))
@@ -324,7 +331,8 @@ op_06_jmp <- function(a, loc) {
   jmpmsg <- c("Attempt jump to:", as.character(x))
   finish()
   find(after = x) 
-  return(jmpmsg)
+  print(jmpmsg)
+  return(invisible(NULL))
 }
 
 #  if <a> is nonzero, jump to <b>
@@ -332,6 +340,7 @@ op_07_jt <- \(vec, loc) {
   a <- do_read(vec[1])
   b <- vec[2]
   if (isTRUE(a > 0)) {
+    print("jt: attempting jump based on value of <a>")
     op_06_jmp(b, loc)
   } else {
     finish()
@@ -344,6 +353,7 @@ op_08_jf <- \(vec, loc) {
   a <- do_read(vec[1])
   b <- vec[2] #remember op 6 handles 
   if (isTRUE(aval < 1)) {
+    print("jf: attempting jump based on value of <a>")
     op_06_jmp(b, loc)
   } else {
     finish()
