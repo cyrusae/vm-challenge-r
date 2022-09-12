@@ -117,6 +117,8 @@ library(data.table)
 library(stringr)
 library(tictoc)
 tic()
+
+stack <- NULL 
 #binary converter
 bin_const <- 2^(0:14)
 bitteR <- function(x) {
@@ -573,11 +575,11 @@ sendeR <- function(memory) {
   do_this <- memory[z == do_next, cmd]
   stopifnot(do_this <= 21) #stop if we've been passed a non-viable command somehow 
   vec <- vec[-1]
-  if (!is.null(stack) & (length(stack) > 0)) {
-    print(paste("As of line", do_next, 
-                "the stack contains", 
-                length(stack), "items"))
-  }
+#  if (!is.null(stack) & (length(stack) > 0)) {
+#    print(paste("As of line", do_next, 
+#                "the stack contains", 
+#                length(stack), "items"))
+#  }
   if (do_this != 19) {
     if (!is.null(printqueue) 
         | isTRUE(length(printqueue) > 0)) {
@@ -672,8 +674,6 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
   registers <<- data.table(
     z = 0:7,
     val = c(rep(0, 8))) #replace with as.numeric(NA) if it's not supposed to be implicit 0  
-  stack <<- c()
-  
   pad <- 32768 - length(cmds)
   memories <- c(cmds, rep(0, pad))
   memory <<- data.table( 
@@ -686,11 +686,12 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
   setkey(memory, z)
   setorder(memory, z)
   memory[cmd >= 32776, cmd := 0] #remove illegal numbers if existing 
-
+  do_next <<- 0 
+  stop_at <<- 0 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
   if (isFALSE(do_next == 0) | isFALSE(length(do_next) > 0)) {
-    do_next <<- 0 
-    stop_at <<- 0 
+    do_next <- 0 
+    stop_at <- 0 
   }
   while (do_next < 32768) {
     if (isTRUE(stop_at < 32768)) {
