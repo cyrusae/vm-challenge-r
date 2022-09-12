@@ -58,6 +58,7 @@ read noop: 21 no operation
 ```{r}
 raw <- file("C:/Users/cyrus/GitHere/vm-challenge-r/materiel/challenge.bin", "rb")
 cmdlist <- readBin(raw, integer(), n = 100000, size = 2, endian = "little")
+rm(raw)
 ```
 
 ```{r}
@@ -113,7 +114,7 @@ do_write <- function(value, to) {
 #arguments are always a vector of the a/b/c values expected, then 'loc' as the location of the next valid command whenever doing things.
 
 find <- function(after = 0) { #default to starting from z=0
-  do_next <<- memory[(do == TRUE) & (done == FALSE) & (z > get(after)), z][1] #should get the first of remaining commands?
+  do_next <<- memory[(do == TRUE) & (done == FALSE) & (z >= get(after)), z][1] #should get the first of remaining commands?
   stop_at <<- (memory[(z > get(do_next)) & (do == TRUE), z][1]) - 1 #stop before next legal command
   return(invisible(list(do_next, stop_at))) #we want to hand this up for the multi-argument guys and I'm not yet sure how's best
 } 
@@ -423,7 +424,7 @@ sendeR <- function(memory) {
 }
 
 understandeR <- function(cmds) { #comma-separated list of integers unbinaried from binary goes here (as a vector! vectorize it!)
-  stopifnot(is.integer(cmds[1])) #stop if the input vector isn't made of numbers
+  stopifnot(is.integer(cmds)) #stop if the input vector isn't made of numbers
   stopifnot(cmds[1] >= 0)
   stopifnot(cmds[1] <= 21) #stop if the first argument isn't a legal command that we know 
   pad <- 32768 - length(cmds)
@@ -442,7 +443,10 @@ understandeR <- function(cmds) { #comma-separated list of integers unbinaried fr
   memory[cmd <= 21 & cmd >= 0, do := TRUE] #label legal commands 
 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
-  sendeR(memory)
+  do_next <- 0 
+  while (do_next < 32768) {
+    sendeR(memory)
+  }
   return(invisible(NULL))
 }
 ```
