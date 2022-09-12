@@ -151,20 +151,23 @@ takes3 <- c(13,12,11,10,9,5,4)
 
 counteR <- function(from) {
   c <- memory[z == (from), cmd]
-  memory[z == (from), do := TRUE]
+  memory[z == (from),  `:=` (do = TRUE,
+                             done = FALSE)]
   i <- from + 1
   if (isFALSE(c %in% takes0)) {
     memory[z == (i), do := FALSE] #if we take one or more arguments, mark the immediate next line
   }
   if (isTRUE(c %in% c(takes2, takes3))) {
     i <- i + 1
-    memory[z == (i), do := FALSE] #mark second argument if two arguments are taken
+    memory[z == (i), `:=` (do = FALSE,
+                           done = TRUE)] #mark second argument if two arguments are taken
   }
   if (isTRUE(c %in% takes3)) { #I think I should be able to change the meaning of i in the above if and only make this one mark the third but I don't trust Sunday night me with that enough to have that be the thing that breaks right this minute, thanks.
     i <- i + 1
-    memory[z == (i), do := FALSE]
+    memory[z == (i), `:=` (do = FALSE,
+                           done = TRUE)]
   }
-  memory[(z > i & !(done == TRUE)), do := as.logical(NA)] #either this is indispensable or it's going to produce infinite loops. let's find out!
+#  memory[(z > i & !(done == TRUE)), do := as.logical(NA)] #either this is indispensable or it's going to produce infinite loops. let's find out!
   return(invisible(NULL))
 }
 
@@ -221,12 +224,17 @@ do_write <- function(value, to) {
 
 #arguments are always a vector of the a/b/c values expected, then 'loc' as the location of the next valid command whenever doing things.
 
-find <- function(after = 0) { #default to starting from z=0
-  if (!is.numeric(after)) { after <- 0 }
-  do_next <<- memory[between(cmd, 0, 21), ][(is.na(done) | done == FALSE), ][z >= (after), z][1] |> as.integer() #should get the first of remaining commands?
+find <- function(after) { 
+  #TESTING
+  stopifnot(is.numeric(after))
+#  if (!is.numeric(after)) { after <- 0 } #default to starting from z=0 if something funny happens
+  do_next <<- after 
+#  do_next <<- memory[between(cmd, 0, 21), ][(is.na(done) | done == FALSE), ][z >= (after), z][1] |> as.integer() #should get the first of remaining commands? #update: removing and trusting the program instead 
   counteR(do_next)
   stop_at <<- ((memory[z > (do_next), ][is.na(do), z][1]) - 1) |> as.integer() #stop before next legal command
-  return(invisible(list(do_next, stop_at))) #we want to hand this up for the multi-argument guys and I'm not yet sure how's best
+#  memory[between(z, (do_next), (stop_at)), done := FALSE] #try setting this in counteR instead 
+  return(invisible(NULL))
+#  return(invisible(list(do_next, stop_at))) #we want to hand this up for the multi-argument guys and I'm not yet sure how's best
 } 
 
 finish <- function(loc) { 
@@ -470,7 +478,7 @@ op_21_noop <- \(loc) {
 }
 
 sendeR <- function(memory) {
-  find()
+  find(do_next)
   vec <- memory[between(z, (do_next), (stop_at)), cmd] #does safely return the only value if do_next = stop_at, I checked 
   do_this <- memory[z == do_next, cmd]
   stopifnot(do_this <= 21) #stop if we've been passed a non-viable command somehow 
