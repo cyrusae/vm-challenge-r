@@ -149,23 +149,35 @@ takes0 <- c(21,18,0)
 takes1 <- c(2,3,6,19,20)
 takes3 <- c(13,12,11,10,9,5,4)
 
-counteR <- function(from) {
+counteR <- function() {
+  from <- do_next 
   c <- memory[z == (from), cmd]
   memory[z == (from),  `:=` (do = TRUE,
                              done = FALSE)]
   i <- from + 1
+  if (isTRUE(c %in% takes0)) {
+    stop_at <<- from 
+  }
   if (isFALSE(c %in% takes0)) {
-    memory[z == (i), do := FALSE] #if we take one or more arguments, mark the immediate next line
+    memory[z == (i), `:=` (do = FALSE,
+                           done = FALSE)] #if we take one or more arguments, mark the immediate next line
+  }
+  if (isTRUE(c %in% takes1)) {
+    stop_at <- from + 1
   }
   if (isTRUE(c %in% c(takes2, takes3))) {
     i <- i + 1
     memory[z == (i), `:=` (do = FALSE,
-                           done = TRUE)] #mark second argument if two arguments are taken
+                           done = FALSE)] #mark second argument if two arguments are taken
+  }
+  if (isTRUE(c %in% takes2)) {
+    stop_at <<- from + 2
   }
   if (isTRUE(c %in% takes3)) { #I think I should be able to change the meaning of i in the above if and only make this one mark the third but I don't trust Sunday night me with that enough to have that be the thing that breaks right this minute, thanks.
     i <- i + 1
     memory[z == (i), `:=` (do = FALSE,
-                           done = TRUE)]
+                           done = FALSE)]
+    stop_at <<- from + 3
   }
 #  memory[(z > i & !(done == TRUE)), do := as.logical(NA)] #either this is indispensable or it's going to produce infinite loops. let's find out!
   return(invisible(NULL))
@@ -230,25 +242,30 @@ find <- function(after) {
 #  if (!is.numeric(after)) { after <- 0 } #default to starting from z=0 if something funny happens
   do_next <<- after 
 #  do_next <<- memory[between(cmd, 0, 21), ][(is.na(done) | done == FALSE), ][z >= (after), z][1] |> as.integer() #should get the first of remaining commands? #update: removing and trusting the program instead 
-  counteR(do_next)
-  stop_at <<- ((memory[z > (do_next), ][is.na(do), z][1]) - 1) |> as.integer() #stop before next legal command
+  counteR()
+#  stop_at <<- ((memory[z > (do_next), ][is.na(do), z][1]) - 1) |> as.integer() #stop before next legal command
 #  memory[between(z, (do_next), (stop_at)), done := FALSE] #try setting this in counteR instead 
   return(invisible(NULL))
 #  return(invisible(list(do_next, stop_at))) #we want to hand this up for the multi-argument guys and I'm not yet sure how's best
 } 
 
-finish <- function(loc) { 
+finish <- function() { 
 #  memory[(z == (loc)), done := TRUE] #mark the command with this z-index as done
-  nnext <- loc + nrow(memory[(z > (loc)), ][do == FALSE, ])
-  memory[between(z, (loc), (nnext)), done := TRUE]
+#  nnext <- loc + nrow(memory[(z > (loc)), ][do == FALSE, ])
+  from <- do_next 
+  to <- stop_at 
+  memory[between(z, (from), (to)), done := TRUE]
+  do_next <<- to + 1 
+  stop_at <<- do_next 
+  counteR()
   return(invisible(NULL))
 }
 
 ###########################
 
 op_00_halt <- \(loc) {
-  stop_at <<- 32768
-  finish(loc)
+  do_next <<- 32768
+  finish()
 #  memory[ , `:=` (do = FALSE,
 #                  cmd = 0, #assuming that terminating the program means... wiping memory.
 #                  done = TRUE)]
@@ -261,13 +278,13 @@ op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're comin
   a <- do_place(vec[1])
   b <- do_place(vec[2])
   registers[z == (a), val := (b)]
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
 op_02_push <- \(a, loc) { #expect a and loc
   stack <<- c(a, stack) #taking a here literally until proven otherwise on the assumption that if it wants to undergo do_place() that'll happen later.
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -275,7 +292,7 @@ op_02_push <- \(a, loc) { #expect a and loc
 op_03_pop <- \(a, loc) {
   obj <- meta_pop()
   do_write(obj, a)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -289,7 +306,7 @@ op_04_eq <- \(vec, loc) {
   } else {
     do_write(a, 0)
   }
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -303,7 +320,7 @@ op_05_gt <- \(vec, loc) {
   } else {
     do_write(a, 0)
   }
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -311,7 +328,7 @@ op_06_jmp <- function(a, loc) {
   x <- do_place(a)
   #TESTING 
   jmpmsg <- c("Attempt jump to:", as.character(x))
-  finish(loc)
+  finish()
   find(after = x) 
   return(jmpmsg)
 }
@@ -323,7 +340,7 @@ op_07_jt <- \(vec, loc) {
   if (isTRUE(a > 0)) {
     op_06_jmp(b, loc)
   } else {
-    finish(loc)
+    finish()
   }
   return(invisible(NULL))
 }
@@ -335,7 +352,7 @@ op_08_jf <- \(vec, loc) {
   if (isTRUE(aval < 1)) {
     op_06_jmp(b, loc)
   } else {
-    finish(loc)
+    finish()
   }
   return(invisible(NULL))
 }
@@ -347,7 +364,7 @@ op_09_add <- \(vec, loc) {
   c <- do_place(vec[3])
   got <- (b + c) |> interpret()
   do_write(got, a)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -358,7 +375,7 @@ op_10_mult <- \(vec, loc) {
   c <- do_place(vec[3])
   got <- (b * c) |> interpret()
   do_write(got, a)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -369,7 +386,7 @@ op_11_mod <- \(vec, loc) {
   c <- do_place(vec[3])
   got <- (b %% c) # |> interpret() #???
   do_write(got, a)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -380,7 +397,7 @@ op_12_and <- \(vec, loc) {
   c <- do_place(vec[3])
   bits <- bitwAnd(b, c)
   do_write(bits, a)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -391,7 +408,7 @@ op_13_or <- \(vec, loc) {
   c <- do_place(vec[3])
   bits <- bitwOr(b, c)
   do_write(bits, a)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -402,7 +419,7 @@ op_14_not <- \(vec, loc) {
   c <- vec[3]
   bits <- bitwNot(b, c)
   do_write(bits, a)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -412,7 +429,7 @@ op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into 
   bval <- do_read(vec[2])
   aval <- do_place(vec[1])
   do_write(bval, aval)
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -422,7 +439,7 @@ op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into
   bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
   bval <- registers[z == (bloc), val]
   do_write(bloc, a) #TODO: check if this is understanding the logic correctly 
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
@@ -446,17 +463,15 @@ op_18_ret <- \(loc) {
     place <- meta_pop() # |> do_place(place) # is this needed?
     find(place)
   }
-  finish(loc) # mark this as done to avoid loops
+  finish() # mark this as done to avoid loops
   return(invisible(NULL))
 }
 
 op_19_out <- \(a, loc) {
   aval <- do_place(a[1])
-#  print(rawToChar(as.raw(aval)))
   ch <- rawToChar(as.raw(aval))
   printqueue <<- c(printqueue, ch)
-  finish(loc)
-#  print(rawToChar(as.raw(aval)))
+  finish()
   return(invisible(NULL))
 }
 
@@ -468,12 +483,13 @@ op_20_in <- \(a, loc) {
     char <- charToRaw(str[[i]])
     do_write(char, go)
   }
-  finish(loc)
+  finish()
   return(invisible(NULL))
 }
 
 op_21_noop <- \(loc) {
-  finish(loc)
+  print("......pausing to note noop.......")
+  finish()
   return(invisible(NULL))
 }
 
@@ -486,8 +502,8 @@ sendeR <- function(memory) {
   if (do_this != 19) {
     if (!is.null(printqueue)) {
       cat(printqueue, sep = "")
-      print("(End printing.)")
-      printqueue <- c()
+      print("[End printing.]")
+      printqueue <<- c()
     }
   }
   if (do_this == 0) {
@@ -556,6 +572,7 @@ sendeR <- function(memory) {
   if (do_this == 21) {
     op_21_noop(do_next)
   }
+  counteR()
   return(invisible(NULL))
 }
 
@@ -579,10 +596,15 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
 #  memory[cmd <= 21 & cmd >= 0, do := TRUE] #label legal commands 
 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
-  do_next <- 0 
-  stop_at <- 0 
+  if (isFALSE(do_next == 0)) {
+    do_next <<- 0 
+    stop_at <<- 0 
+  }
   while (do_next < 32768) {
-    sendeR(memory)
+#    find(do_next)
+    if (isTRUE(stop_at < 32768)) {
+      sendeR(memory)
+    }
   }
   return(invisible(NULL))
 }
