@@ -22,8 +22,8 @@ push <a> onto the stack
 
 **pop: 3 a**
 
-remove the top element from the stack and write it 
-into <a>; empty stack = error
+remove the top element from the stack and write it into <a>; empty stack
+= error
 
 **eq: 4 a b c**
 
@@ -31,8 +31,7 @@ set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
 
 **gt: 5 a b c**
 
-set <a> to 1 if <b> is greater than <c>; set it to 0
-otherwise
+set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
 
 **jmp: 6 a**
 
@@ -80,25 +79,22 @@ write the value from <b> into memory at address <a>
 
 **call: 17 a**
 
-write the address of the next instruction to the stack and
-jump to <a>
+write the address of the next instruction to the stack and jump to <a>
 
 **ret: 18**
 
-remove the top element from the stack and jump to it; empty
-stack = halt
+remove the top element from the stack and jump to it; empty stack = halt
 
 **out: 19 a**
 
-write the character represented by ascii code <a> to the
-terminal
+write the character represented by ascii code <a> to the terminal
 
 **in: 20 a**
 
-read a character from the terminal and write its ascii code to
-<a>; it can be assumed that once input starts, it will continue until a
-newline is encountered; this means that you can safely read whole lines
-from the keyboard and trust that they will be fully read 
+read a character from the terminal and write its ascii code to <a>; it
+can be assumed that once input starts, it will continue until a newline
+is encountered; this means that you can safely read whole lines from the
+keyboard and trust that they will be fully read
 
 **noop: 21**
 
@@ -169,11 +165,11 @@ do_place <- function(x) {  #either interpret a literal value, or read from the r
   if (isTRUE(x >= 32768)) {
     xval <- interpret(x)
     a <- registers[z == (xval), val]
-    print(paste("do_place retrieved", as.character(a), "from the registers"))
+    print(paste("do_place retrieved", as.character(a), "from the registers at position z =", as.character(xval)))
     a
   } else {
     a <- interpret(x)
-    print(paste("do_place interpreted", as.character(a)))
+#    print(paste("do_place interpreted", as.character(a)))
     a
   }
   a
@@ -200,7 +196,7 @@ do_write <- function(value, to) {
   } else {
     toval <- interpret(to)
     registers[z == (toval), val := (value)]
-    print(paste("do_write wrote value", value, "to registers at address z =", to))
+    print(paste("do_write wrote value", value, "to registers at address z =", toval))
   }
   return(invisible(NULL))
 }
@@ -243,16 +239,30 @@ op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're comin
 }
 
 op_02_push <- \(a, loc) { #expect a and loc
-  stack <<- c(a, stack) #taking a here literally until proven otherwise on the assumption that if it wants to undergo do_place() that'll happen later.
+  aval <- interpret(a)
+  stack <<- c(aval, stack) #taking a here literally until proven otherwise on the assumption that if it wants to undergo do_place() that'll happen later.
+  print(paste("Pushing value", as.character(aval), "(aka", as.character(a),"modulo 32768) onto the stack"))
+#  stack <<- c(a, stack)
+#  print(paste("Pushing raw value entered <a> =", as.character(a), "onto the stack."))
+  print(paste("The stack contains:", unlist(stack)))
   finish()
   return(invisible(NULL))
 }
 
 #remove the top element from the stack and write it into <a>; empty stack = error
 op_03_pop <- \(a, loc) {
-  obj <- meta_pop()
-  do_write(obj, a)
-  finish()
+#  if (isTRUE(length(stack) < 2)) {
+#    print("Skipping pop due to single-item stack.")
+#    finish()
+#  } else {
+    obj <- meta_pop()
+    print(paste("Popping value", as.character(obj), "out of the stack and into position", as.character(a)))
+    do_write(obj, a)
+    if (isTRUE(length(stack) < 1)) {
+      print("The stack has been emptied.")
+    }
+    finish()
+#  }
   return(invisible(NULL))
 }
 
@@ -262,8 +272,10 @@ op_04_eq <- \(vec, loc) {
   b <- do_place(vec[2]) #TODO: evaluate if 'do_place()' is less intuitive than I want it to be as far as "name of the function that checks if a value is literal or a register address"
   c <- do_place(vec[3])
   if (identical(b, c)) {
+    print(paste0("op 4 (eq) found <b> = <c> = ", as.character(b)))
     do_write(1, a)
   } else {
+    print(paste0("op 4 (eq) found <b> = ", as.character(b), " and <c> = ", as.character(c)))
     do_write(0, a)
   }
   finish()
@@ -275,6 +287,7 @@ op_05_gt <- \(vec, loc) {
   a <- vec[1]
   b <- do_place(vec[2])
   c <- do_place(vec[3])
+  print(paste0("op 5 (gt) found <b> = ", as.character(b), "and <c> = ", as.character(c)))
   if (b > c) {
     do_write(1, a)
   } else {
@@ -316,7 +329,7 @@ op_08_jf <- \(vec, loc) {
   b <- do_place(vec[2])
 #  b <- vec[2] #remember op 6 handles 
   if (isTRUE(a < 1)) {
-    print(paste("jf: attempting jump to", as.character(b), "based on value <a> =", as.character(a), "from", as.character(loc)))
+    print(paste("jf: attempting jump to <b> = ", as.character(b), "based on value <a> =", as.character(a), "from", as.character(loc)))
 #    op_06_jmp(b, loc)
     finish()
     do_next <<- b
@@ -332,6 +345,7 @@ op_09_add <- \(vec, loc) {
   a <- vec[1]
   b <- do_place(vec[2])
   c <- do_place(vec[3])
+  print(paste0("9 add: adding <b> = ", as.character(b), " + <c> = ", as.character(c)))
   got <- (b + c) |> interpret()
   do_write(got, a)
   finish()
@@ -343,17 +357,19 @@ op_10_mult <- \(vec, loc) {
   a <- vec[1] 
   b <- do_place(vec[2])
   c <- do_place(vec[3])
+  print(paste0("10 mult: multiplying <b> = ", as.character(b), " * <c> = ", as.character(c)))
   got <- (b * c) |> interpret()
   do_write(got, a)
   finish()
   return(invisible(NULL))
 }
 
-#  store into <a> the remainder of <b> divided by <c> ### is this one supposed to be modulo 32768 or not??
+#  store into <a> the remainder of <b> divided by <c> ### is this one supposed to be modulo 32768 or not?? #I think it might be mathematically impossible to need it but I don't want to find out the hard way so ??
 op_11_mod <- \(vec, loc) {
   a <- vec[1] 
   b <- do_place(vec[2])
   c <- do_place(vec[3])
+  print(paste0("11 mod: <b> = ", as.character(b), " %% <c> = ", as.character(c)))
   got <- (b %% c) # |> interpret() #???
   do_write(got, a)
   finish()
@@ -398,6 +414,7 @@ op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into 
   #this explicitly says "read memory" but frankly I'm not sure there's harm in do_read()ing it so fuck it 
   bval <- do_read(vec[2])
   aval <- do_place(vec[1]) #I also don't trust this not to be potentially register in a hat 
+  print(paste0("15 rmem using z = ", as.character(aval), " (<a>) and value <b> = ", as.character(bval)))
 #  a <- vec[1]
   do_write(bval, aval)
   finish()
@@ -409,17 +426,18 @@ op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into
   #allegedly b will reliably be a register address this time.
   a <- vec[1]
   bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
+  print(paste0("16 wmem using z = ", as.character(a), " (<a>) and source <b> = ", as.character(bval)))
   bval <- registers[z == (bloc), val]
   do_write(bloc, a) #TODO: check if this is understanding the logic correctly 
   finish()
   return(invisible(NULL))
 }
 
-#call: 17 a
 #  write the address of the next instruction to the stack and jump to <a>
 op_17_call <- \(a, loc) {
   write_next <- memory[(z > (loc)) & (do == TRUE) & (done == FALSE), z][1]
   stack <<- c(write_next, stack)
+  print(paste("op 17 (call) wrote", as.character(write_next), "to the stack at line", as.character(loc), ". Jumping to <a> = ", as.character(a)))
   op_6_jmp(a, loc)
   return(invisible(NULL))
 }
@@ -432,6 +450,7 @@ op_18_ret <- \(loc) {
   #  memory[z == 32767, `:=` (done = FALSE,
                           #   cmd = 0)]
   } else { 
+    print(paste0("18 ret at ", as.character(loc), " found a non-empty stack; moving."))
     place <- meta_pop() # |> do_place(place) # is this needed?
     find(place)
   }
@@ -448,19 +467,21 @@ op_19_out <- \(a, loc) {
 }
 
 op_20_in <- \(a, loc) {
-  str <- readline()
+  op20prompt <- paste0("Enter input for op 20 triggered at z = ", as.character(loc))
+  str <- readline(prompt = op20prompt)
   split <- strsplit(str)
   for (i in seq_len(length(str))) {
     go <- a + (i - 1)
     char <- charToRaw(str[[i]])
     do_write(char, go)
   }
+  print(paste0("Last character from input string (", str[[i]], ") written to z = ", as.character(go)))
   finish()
   return(invisible(NULL))
 }
 
 op_21_noop <- \(loc) {
-  print("......pausing to note noop.......")
+#  print("......pausing to note noop.......")
   finish()
   return(invisible(NULL))
 }
@@ -471,12 +492,16 @@ sendeR <- function(memory) {
   do_this <- memory[z == do_next, cmd]
   stopifnot(do_this <= 21) #stop if we've been passed a non-viable command somehow 
   vec <- vec[-1]
+  if (!is.null(stack) & (length(stack) > 0)) {
+    print(paste("As of line", do_next, "the stack contains", length(stack), "items"))
+  }
   if (do_this != 19) {
-    if (!is.null(printqueue)) {
+    if (!is.null(printqueue) | isTRUE(length(printqueue) > 0)) {
       cat(printqueue, sep = "")
       print("[End printing.]")
       printqueue <<- c()
     }
+    print(paste0("[NOW PERFORMING: ", as.character(do_this), " as of z = ", as.character(do_next), "]."))
   }
   if (do_this == 0) {
     op_00_halt(do_next)
@@ -536,6 +561,9 @@ sendeR <- function(memory) {
     op_18_ret(vec, do_next)
   }
   if(do_this == 19) {
+    if (is.null(printqueue) | isFALSE(length(printqueue) > 0)) {
+      print(paste0("[BEGINNING PRINT (op 19) as of z = ", as.character(do_next), "]."))
+    }
     op_19_out(vec, do_next)
   }
   if(do_this == 20) {
