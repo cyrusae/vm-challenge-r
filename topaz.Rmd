@@ -32,27 +32,96 @@ Store into register 0 the sum of 4 and the value contained in
 register 1. - Output to the terminal the character with the ascii code
 contained in register 0.
 
-== opcode listing == halt: 0 stop execution and terminate the program
-set: 1 a b set register <a> to the value of <b> push: 2 a push <a> onto
-the stack pop: 3 a remove the top element from the stack and write it
-into <a>; empty stack = error eq: 4 a b c set <a> to 1 if <b> is equal
-to <c>; set it to 0 otherwise gt: 5 a b c set <a> to 1 if <b> is greater
-than <c>; set it to 0 otherwise jmp: 6 a jump to <a> jt: 7 a b if <a> is
-nonzero, jump to <b> jf: 8 a b if <a> is zero, jump to <b> add: 9 a b c
-assign into <a> the sum of <b> and <c> (modulo 32768) mult: 10 a b c
-store into <a> the product of <b> and <c> (modulo 32768) mod: 11 a b c
-store into <a> the remainder of <b> divided by <c> and: 12 a b c stores
-into <a> the bitwise and of <b> and <c> or: 13 a b c stores into <a> the
-bitwise or of <b> and <c> not: 14 a b stores 15-bit bitwise inverse of
-<b> in <a> rmem: 15 a b read memory at address <b> and write it to <a>
-wmem: 16 a b write the value from <b> into memory at address <a> call:
-17 a write the address of the next instruction to the stack and jump to
-<a> ret: 18 remove the top element from the stack and jump to it; empty
-stack = halt out: 19 a write the character represented by ascii code <a>
-to the terminal in: 20 a read a character from the terminal and write
-its ascii code to <a>; it can be assumed that once input starts, it will
-continue until a newline is encountered; this means that you can safely
-read whole lines from the keyboard and trust that they will be fully
+== opcode listing ==
+
+**halt: 0 **
+
+stop execution and terminate the program
+
+**set: 1 a b **
+
+set register <a> to the value of <b>
+
+**push: 2 a**
+
+push <a> onto the stack
+
+pop: 3 a remove the top element from the stack and write it into <a>;
+empty stack = error
+
+**eq: 4 a b c **
+
+set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
+
+**gt: 5 a b c **
+
+set <a> to 1 if <b> is greater than <c>; set it to 0
+otherwise
+
+**jmp: 6 a **
+
+jump to <a>
+
+**jt: 7 a b**
+
+if <a> is nonzero, jump to <b>
+
+**jf: 8 a b**
+
+if <a> is zero, jump to <b>
+
+**add: 9 a b c **
+
+assign into <a> the sum of <b> and <c> (modulo 32768)
+
+**mult: 10 a b c **
+
+store into <a> the product of <b> and <c> (modulo 32768)
+
+**mod: 11 a b c **
+
+store into <a> the remainder of <b> divided by <c>
+
+**and: 12 a b c **
+
+stores into <a> the bitwise and of <b> and <c>
+
+**or: 13 a b c **
+
+stores into <a> the bitwise or of <b> and <c>
+
+**not: 14 a b **
+
+stores 15-bit bitwise inverse of <b> in <a>
+
+rmem: 15 a b 
+
+read memory at address <b> and write it to <a>
+
+wmem: 16 a b 
+
+write the value from <b> into memory at address <a>
+
+call: 17 a 
+
+write the address of the next instruction to the stack and
+jump to <a>
+
+ret: 18 
+
+remove the top element from the stack and jump to it; empty
+stack = halt
+
+out: 19 a 
+
+write the character represented by ascii code <a> to the
+terminal
+
+in: 20 a read a character from the terminal and write its ascii code to
+<a>; it can be assumed that once input starts, it will continue until a
+newline is encountered; this means that you can safely read whole lines
+from the keyboard and trust that they will be fully
+
 read noop: 21 no operation
 
 ```{r}
@@ -65,11 +134,41 @@ rm(raw)
 library(data.table)
 library(stringr)
 
+#implement print queue
+printqueue <- c()
+
+#let's learn about our opcodes.
+takes2 <- c(1,7,8,14,15,16)
+takes0 <- c(21,18,0)
+takes1 <- c(2,3,6,19,20)
+takes3 <- c(13,12,11,10,9,5,4)
+
+counteR <- function(from) {
+  c <- memory[z == (from), cmd]
+  memory[z == (from), do := TRUE]
+  i <- from + 1
+  if (isFALSE(c %in% takes0)) {
+    memory[z == (i), do := FALSE] #if we take one or more arguments, mark the immediate next line
+  }
+  if (isTRUE(c %in% c(takes2, takes3))) {
+    i <- i + 1
+    memory[z == (i), do := FALSE] #mark second argument if two arguments are taken
+  }
+  if (isTRUE(c %in% takes3)) { #I think I should be able to change the meaning of i in the above if and only make this one mark the third but I don't trust Sunday night me with that enough to have that be the thing that breaks right this minute, thanks.
+    i <- i + 1
+    memory[z == (i), do := FALSE]
+  }
+  memory[(z > i & !(done == TRUE)), do := as.logical(NA)] #either this is indispensable or it's going to produce infinite loops. let's find out!
+  return(invisible(NULL))
+}
+
+#places things live
 registers <- data.table(
   z = 0:7,
   val = c(rep(as.numeric(NA), 8)))
 stack <- c()
 
+#metafunctions for things I didn't have the patience to repeat per opcode 
 meta_pop <- function() {
   stopifnot(length(stack) > 0) #add more sophisticated error-handling to the popper functions later 
   obj <- stack[1]
@@ -83,30 +182,33 @@ interpret <- function(x) {
 }
 
 do_place <- function(x) {  #either interpret a literal value, or read from the register 
-  if (x >= 32768) {
+  if (isTRUE(x >= 32768)) {
     xval <- interpret(x)
-    a <- registers[z == get(xval), val]
+    a <- registers[z == (xval), val]
+    a
   } else {
-    a <- x
+    a <- interpret(x)
+    a
   }
   a
 }
 
 do_read <- function(a) {
-  if (a < 32768) {
-    x <- memory[z == get(a), cmd]
+  if (isTRUE(a < 32768)) {
+    x <- memory[z == (a), cmd]
   } else {
     aval <- interpret(a)
-    x <- registers[z == get(aval), val]
+    x <- registers[z == (aval), val]
   }
   x
 }
+
 do_write <- function(value, to) {
-  if (to < 32768) {
-    memory[z == get(to), cmd := get(value)]
+  if (isTRUE(to < 32768)) {
+    memory[z == (to), cmd := (value)]
   } else {
     toval <- interpret(to)
-    registers[z == get(toval), val := get(value)]
+    registers[z == (toval), val := (value)]
   }
   return(invisible(NULL))
 }
@@ -114,30 +216,37 @@ do_write <- function(value, to) {
 #arguments are always a vector of the a/b/c values expected, then 'loc' as the location of the next valid command whenever doing things.
 
 find <- function(after = 0) { #default to starting from z=0
-  do_next <<- memory[(do == TRUE) & (done == FALSE) & (z >= get(after)), z][1] #should get the first of remaining commands?
-  stop_at <<- (memory[(z > get(do_next)) & (do == TRUE), z][1]) - 1 #stop before next legal command
+  if (!is.numeric(after)) { after <- 0 }
+  do_next <<- memory[between(cmd, 0, 21), ][(is.na(done) | done == FALSE), ][z >= (after), z][1] |> as.integer() #should get the first of remaining commands?
+  counteR(do_next)
+  stop_at <<- ((memory[z > (do_next), ][is.na(do), z][1]) - 1) |> as.integer() #stop before next legal command
   return(invisible(list(do_next, stop_at))) #we want to hand this up for the multi-argument guys and I'm not yet sure how's best
 } 
 
 finish <- function(loc) { 
-  memory[(z == get(loc)), done := TRUE] #mark the command with this z-index as done
+#  memory[(z == (loc)), done := TRUE] #mark the command with this z-index as done
+  nnext <- loc + nrow(memory[(z > (loc)), ][do == FALSE, ])
+  memory[between(z, (loc), (nnext)), done := TRUE]
   return(invisible(NULL))
 }
 
 ###########################
 
-op_00_halt <- \() {
-  memory[ , `:=` (do = FALSE,
+op_00_halt <- \(loc) {
+  stop_at <<- 32768
+  finish(loc)
+#  memory[ , `:=` (do = FALSE,
 #                  cmd = 0, #assuming that terminating the program means... wiping memory.
-                  done = TRUE)]
+#                  done = TRUE)]
 #  rm(memory) #or I guess  r e a l l y  wiping memory?
+  print(paste("Program has terminated with opcode 0 at location:", as.character(loc)))
   return(invisible(NULL))
 }
 
 op_01_set <- \(vec, loc) { #expect vector of address a, value b; loc we're coming from loc
   a <- do_place(vec[1])
   b <- do_place(vec[2])
-  registers[z == get(a), val := get(b)]
+  registers[z == (a), val := (b)]
   finish(loc)
   return(invisible(NULL))
 }
@@ -186,16 +295,18 @@ op_05_gt <- \(vec, loc) {
 
 op_06_jmp <- function(a, loc) {
   x <- do_place(a)
-  find(x) 
+  #TESTING 
+  jmpmsg <- c("Attempt jump to:", as.character(x))
   finish(loc)
-  return(invisible(NULL))
+  find(after = x) 
+  return(jmpmsg)
 }
 
 #  if <a> is nonzero, jump to <b>
 op_07_jt <- \(vec, loc) {
   a <- do_read(vec[1])
   b <- vec[2]
-  if (a > 0) {
+  if (isTRUE(a > 0)) {
     op_06_jmp(b, loc)
   } else {
     finish(loc)
@@ -207,7 +318,7 @@ op_07_jt <- \(vec, loc) {
 op_08_jf <- \(vec, loc) {
   a <- do_read(vec[1])
   b <- vec[2] #remember op 6 handles 
-  if (aval < 1) {
+  if (isTRUE(aval < 1)) {
     op_06_jmp(b, loc)
   } else {
     finish(loc)
@@ -295,7 +406,7 @@ op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into 
 op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into a, b
   #allegedly b will reliably be a register address this time.
   bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
-  bval <- registers[z == get(bloc), val]
+  bval <- registers[z == (bloc), val]
   do_write(bloc, a) #TODO: check if this is understanding the logic correctly 
   finish(loc)
   return(invisible(NULL))
@@ -304,14 +415,14 @@ op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into
 #call: 17 a
 #  write the address of the next instruction to the stack and jump to <a>
 op_17_call <- \(a, loc) {
-  write_next <- memory[(z > get(loc)) & (do == TRUE) & (done == FALSE), z][1]
+  write_next <- memory[(z > (loc)) & (do == TRUE) & (done == FALSE), z][1]
   stack <<- c(write_next, stack)
   op_6_jmp(a, loc)
   return(invisible(NULL))
 }
 
 op_18_ret <- \(loc) {
-  if (length(stack) < 1) { 
+  if (isTRUE(length(stack) < 1)) { 
     op_00_halt() #call existing halt
     #alternately: #if the stack is empty, set main up to halt 
   #  memory[z < 32767, done := TRUE]
@@ -326,9 +437,12 @@ op_18_ret <- \(loc) {
 }
 
 op_19_out <- \(a, loc) {
-  aval <- do_place(a)
-  print(intToUtf8(get(a)))
+  aval <- do_place(a[1])
+#  print(rawToChar(as.raw(aval)))
+  ch <- rawToChar(as.raw(aval))
+  printqueue <<- c(printqueue, ch)
   finish(loc)
+#  print(rawToChar(as.raw(aval)))
   return(invisible(NULL))
 }
 
@@ -351,79 +465,87 @@ op_21_noop <- \(loc) {
 
 sendeR <- function(memory) {
   find()
-  vec <- memory$cmd[do_next:stop_at] #does safely return the only value if do_next = stop_at, I checked 
-  do <- vec[1]
-  stopifnot(do <= 21) #stop if we've been passed a non-viable command somehow 
-  if (do == 0) {
-    op_00_halt()
+  vec <- memory[between(z, (do_next), (stop_at)), cmd] #does safely return the only value if do_next = stop_at, I checked 
+  do_this <- memory[z == do_next, cmd]
+  stopifnot(do_this <= 21) #stop if we've been passed a non-viable command somehow 
+  vec <- vec[-1]
+  if (do_this != 19) {
+    if (!is.null(printqueue)) {
+      cat(printqueue, sep = "")
+      print("(End printing.)")
+      printqueue <- c()
+    }
+  }
+  if (do_this == 0) {
+    op_00_halt(do_next)
   } 
-  if (do == 1) {
+  if(do_this == 1) {
     op_01_set(vec, do_next)
   }
-  if (do == 2) {
+  if(do_this == 2) {
     op_02_push(vec, do_next)
   }
-  if (do == 3) {
+  if(do_this == 3) {
     op_03_pop(vec, do_next)
   }
-  if (do == 4) {
+  if(do_this == 4) {
     op_04_eq(vec, do_next)
   }
-  if (do == 5) {
+  if(do_this == 5) {
     op_05_gt(vec, do_next)
   }
-  if (do == 6) {
+  if(do_this == 6) {
     op_06_jmp(vec, do_next)
   }
-  if (do == 7) {
+  if(do_this == 7) {
     op_07_jt(vec, do_next)
   }
-  if (do == 8) {
+  if(do_this == 8) {
     op_08_jf(vec, do_next)
   }
-  if (do == 9) {
+  if(do_this == 9) {
     op_09_add(vec, do_next)
   }
-  if (do == 10) {
+  if(do_this == 10) {
     op_10_mult(vec, do_next)
   }
-  if (do == 11) {
+  if(do_this == 11) {
     op_11_mod(vec, do_next)
   }
-  if (do == 12) {
+  if(do_this == 12) {
     op_12_and(vec, do_next)
   }
-  if (do == 13) {
+  if(do_this == 13) {
     op_13_or(vec, do_next)
   }
-  if (do == 14) {
+  if(do_this == 14) {
     op_14_not(vec, do_next)
   }
-  if (do == 15) {
+  if(do_this == 15) {
     op_15_rmem(vec, do_next)
   }
-  if (do == 16) {
+  if(do_this == 16) {
     op_16_wmem(vec, do_next)
   }
-  if (do == 17) {
+  if(do_this == 17) {
     op_17_call(vec, do_next)
   }
-  if (do == 18) {
+  if(do_this == 18) {
     op_18_ret(vec, do_next)
   }
-  if (do == 19) {
+  if(do_this == 19) {
     op_19_out(vec, do_next)
   }
-  if (do == 20) {
+  if(do_this == 20) {
     op_20_in(vec, do_next)
   }
-  if (do == 21) {
-    op_21_noop(vec, do_next)
+  if (do_this == 21) {
+    op_21_noop(do_next)
   }
   return(invisible(NULL))
 }
 
-understandeR <- function(cmds) { #comma-separated list of integers unbinaried from binary goes here (as a vector! vectorize it!)
+understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unbinaried from binary goes here (as a vector! vectorize it!)
   stopifnot(is.integer(cmds)) #stop if the input vector isn't made of numbers
   stopifnot(cmds[1] >= 0)
   stopifnot(cmds[1] <= 21) #stop if the first argument isn't a legal command that we know 
@@ -433,20 +555,25 @@ understandeR <- function(cmds) { #comma-separated list of integers unbinaried fr
     #THIS ONE /DOES/ GET CUT DOWN LATER! 
     z = 0:32767, #compensate for 0-indexing
     cmd = memories, #fill out memory space 
-    do = rep(FALSE, 32768), #add a boolean column to find commands 
+    do = rep(as.logical(NA), 32768), #add a boolean column to find commands 
     done = rep(as.logical(NA), 32768) #mark commands that have been executed
   )
   rm(pad, memories)
   setkey(memory, z)
   setorder(memory, z)
   memory[cmd >= 32776, cmd := 0] #remove illegal numbers 
-  memory[cmd <= 21 & cmd >= 0, do := TRUE] #label legal commands 
+#  memory[cmd <= 21 & cmd >= 0, do := TRUE] #label legal commands 
 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
   do_next <- 0 
+  stop_at <- 0 
   while (do_next < 32768) {
     sendeR(memory)
   }
   return(invisible(NULL))
 }
+```
+
+```{r}
+understandeR(cmdlist)
 ```
