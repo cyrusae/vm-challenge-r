@@ -15,10 +15,11 @@ cmdlist <- readBin(raw, integer(), n = 32678, size = 2,
                    endian = "little", signed = FALSE)
 rm(raw)
 
+## use for bitwise not 
 bin_const <- 2^(0:14)
-```
 
-```{r}
+######
+## Places for data to live
 stack <- c()
 printqueue <- c()
 
@@ -35,8 +36,10 @@ memory <- data.table(z = 0:32767,
                      done = c(rep(as.logical(NA), 32768))
                      )
 setkey(memory, z)
-```
-```{r}
+
+#########
+## General-purpose functions
+
 finish <- \(loc, args = 0) { #expect z-indexed
   memory[((loc) + 1):((loc) + 1 + (args)), done := TRUE]
   doing <<- (loc + args)
@@ -83,25 +86,49 @@ pop_stack <- \() {
   stack <<- stack[-1]
   x
 }
-```
-```{r}
+
+##########
+## Controller
+#run within while loop for doing < 32768
+
 dispatcheR <- \() {
   work <- start(doing)
   perform <- work[1]
-  use <- work[-1]
+  stopifnot(perform <= 21) 
+  with <- work[-1]
   if (perform != 19 & length(printqueue) > 0) {
-    print(paste0("PRINT QUEUE: \n", printqueue, "\n END PRINT QUEUE"))
+    print(paste0("PRINT QUEUE: \n", 
+                 printqueue, "\n END PRINT QUEUE"))
     printqueue <<- c()
   }
   if (perform == 0) { op_00_halt() }
-  if (perform == 1) { op_01_set(use) }
-  if (perform == 2) { op_02_push(use) }
-  
+  if (perform == 1) { op_01_set(with) }
+  if (perform == 2) { op_02_push(with) }
+  if (perform == 3) { op_03_pop(with) }
+  if (perform == 4) { op_04_eq(with) }
+  if (perform == 5) { op_05_gt(with) }
+  if (perform == 6) { op_06_jmp(with) }
+  if (perform == 7) { op_07_jt(with) }
+  if (perform == 8) { op_08_jf(with) }
+  if (perform == 9) { op_09_add(with) }
+  if (perform == 10) { op_10_mult(with) }
+  if (perform == 11) { op_11_mod(with) }
+  if (perform == 12) { op_12_and(with) }
+  if (perform == 13) { op_13_or(with) }
+  if (perform == 14) { op_14_not(with) }
+  if (perform == 15) { op_15_rmem(with) }
+  if (perform == 16) { op_16_wmem(with) }
+  if (perform == 17) { op_17_call(with) }
+  if (perform == 18) { op_18_ret() }
+  if (perform == 19) { op_19_out(with) }
+  if (perform == 20) { op_20_in(with) }
+  if (perform == 21) { op_21_noop() }
   return(invisible(NULL))
 }
-```
 
-```{r}
+##### 
+## Opcodes:
+
 op_00_halt <- \() {
   print(paste0("Program halted by z-index ", doing))
   finish(doing)
@@ -304,5 +331,14 @@ op_21_noop <- \() {
   return(invisible(NULL))
 }
 
+```
+```{r echo=FALSE}
+doing <- 0
+tic("starting machine...")
+while (doing < 32768) {
+  dispatcheR()
+}
+print("Counter set to 32768; execution ended.")
+toc()
 ```
 
