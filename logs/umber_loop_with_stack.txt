@@ -1,0 +1,344 @@
+[1] "[END MESSAGE.]"
+[1] "!!:: opcode 6 jmp called at doing = 322 to change doing to <a> = 347 as read by use_integer()."
+
+[1] "..."
+[1] "..."
+[1] "..."
+[1] "..."
+[1] "..."
+
+[1] "!!:: opcode 6 jmp called at doing = 354 to change doing to <a> = 358 as read by use_integer()."
+
+[1] "!!:: opcode 6 jmp called at doing = 360 to change doing to <a> = 484 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 484 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 487 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 490 with <a> = 1 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 495 as read by use_integer()."
+
+[1] "!!:: opcode 7 jf called by doing = 495 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 500 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 500 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 503 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 506 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 509 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 512 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 515 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 518 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 521 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 527 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 533 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 540 with <a> = 2 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 564 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 568 with <a> = 1 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 590 as read by use_integer()."
+
+[1] "!!:: push (opcode 2) performed at doing = 590. Stack contains:"
+> 2
+
+[1] "!!:: push (opcode 2) performed at doing = 592. Stack contains:"
+> 1 2
+
+[1] "x = 1 was popped out of the stack! Stack contains: "
+> 2
+[1] "!!:: opcode 3 pop with <a> = 32768 and popped value = 1 was called by doing = 594; calling write_loc() follows."
+
+[1] "x = 2 was popped out of the stack! Stack contains: "
+[1] "!!:: opcode 3 pop with <a> = 32769 and popped value = 2 was called by doing = 596; calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 602 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 609 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 616 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 623 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 630 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: [opcode 12 and at doing = 633 with <a> = 32768, <b> = 28912, and <c> = 19626 calling write_loc() with bits = 16544follows.]"
+
+[1] "!!:: opcode 7 jf called by doing = 641 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: [opcode 13 or at doing = 644 with <a> = 32769, <b> = 28912, and <c> = 19626 calling write_loc() with bits = 31994follows.]"
+
+[1] "!!:: opcode 7 jt called by doing = 652 with <a> = 1 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 684 as read by use_integer()."
+
+[1] "!!:: [opcode 14 not at doing = 684 with <a> = 32768 and <b> = 0 calling write_loc() with bits = 32767follows.]"
+
+[1] "!!:: opcode 7 jf called by doing = 691 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: [opcode 14 not at doing = 694 with <a> = 32768 and <b> = 21845 calling write_loc() with bits = 10922follows.]"
+
+[1] "!!:: opcode 7 jf called by doing = 701 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: 17 call called by doing = 704 with <a> = 1285(use_integer(1285))."
+[1] "The stack now contains:"
+> 706
+
+[1] "!!:: opcode 6 jmp called at doing = 1287 to change doing to <a> = 708 as read by use_integer()."
+
+[1] "x = 706 was popped out of the stack! Stack contains: "
+[1] "!!:: opcode 3 pop with <a> = 32768 and popped value = 706 was called by doing = 708; calling write_loc() follows."
+
+[1] "!!:: opcode 7 jt called by doing = 714 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 721 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: 17 call called by doing = 727 with <a> = 1287(use_integer(32768))."
+[1] "The stack now contains:"
+> 729
+
+[1] "!!:: opcode 6 jmp called at doing = 1289 to change doing to <a> = 731 as read by use_integer()."
+
+[1] "x = 729 was popped out of the stack! Stack contains: "
+[1] "!!:: opcode 3 pop with <a> = 32768 and popped value = 729 was called by doing = 731; calling write_loc() follows."
+
+[1] "!!:: opcode 7 jt called by doing = 737 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 744 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 755 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 762 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 769 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 776 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 787 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 794 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 805 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 816 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 827 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 838 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 6 jmp called at doing = 843 to change doing to <a> = 845 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 845 with <a> = 32768 (unaltered param) and <b> = 20000 (read_loc(use_integer(843)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 852 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: 15 rmem at 859 with <a> = 32768 (unaltered param) and <b> = 10000 (read_loc(use_integer(32770)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 866 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+[1] "!!:: 16 wmem at 872 with <a> = 843 (use_integer(32768)) and <b> = 30000 (use_integer(30000)) calling write_loc() follows."
+
+[1] "!!:: 15 rmem at 875 with <a> = 32770 (unaltered param) and <b> = 30000 (read_loc(use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 882 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: 17 call called by doing = 885 with <a> = 1723(use_integer(1723))."
+[1] "The stack now contains:"
+> 887
+
+[1] "!!:: push (opcode 2) performed at doing = 1723. Stack contains:"
+> 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 1725. Stack contains:"
+> 1 843 887
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 6095 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: push (opcode 2) performed at doing = 1733. Stack contains:"
+> 6068 1 843 887
+
+[1] "!!:: 17 call called by doing = 1739 with <a> = 2125(use_integer(2125))."
+[1] "The stack now contains:"
+> 1741 6068 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2125. Stack contains:"
+> 22160 1741 6068 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2127. Stack contains:"
+> 30000 22160 1741 6068 1 843 887
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 6095, and <c> = 22160 calling write_loc() with bits = 5760follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 5760 calling write_loc() with bits = 27007follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 6095, and <c> = 22160 calling write_loc() with bits = 22495follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 22495, and <c> = 27007 calling write_loc() with bits = 16735follows.]"
+
+[1] "x = 30000 was popped out of the stack! Stack contains: "
+> 22160 1741 6068 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32770 and popped value = 30000 was called by doing = 2144; calling write_loc() follows."
+
+[1] "x = 22160 was popped out of the stack! Stack contains: "
+> 1741 6068 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32769 and popped value = 22160 was called by doing = 2146; calling write_loc() follows."
+
+[1] "x = 1741 was popped out of the stack! Stack contains: "
+> 6068 1 843 887
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 1 repetitions thereof."
+
+[1] "!!:: 17 call called by doing = 1744 with <a> = 2125(use_integer(2125))."
+[1] "The stack now contains:"
+> 1746 6068 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2125. Stack contains:"
+> 16724 1746 6068 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2127. Stack contains:"
+> 30000 16724 1746 6068 1 843 887
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16735, and <c> = 16724 calling write_loc() with bits = 16724follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16724 calling write_loc() with bits = 16043follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16735, and <c> = 16724 calling write_loc() with bits = 16735follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16735, and <c> = 16043 calling write_loc() with bits = 11follows.]"
+
+[1] "x = 30000 was popped out of the stack! Stack contains: "
+> 16724 1746 6068 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32770 and popped value = 30000 was called by doing = 2144; calling write_loc() follows."
+
+[1] "x = 16724 was popped out of the stack! Stack contains: "
+> 1746 6068 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32769 and popped value = 16724 was called by doing = 2146; calling write_loc() follows."
+
+[1] "x = 1746 was popped out of the stack! Stack contains: "
+> 6068 1 843 887
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 1 repetitions thereof."
+
+[1] "x = 6068 was popped out of the stack! Stack contains: "
+> 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32769 and popped value = 6068 was called by doing = 1746; calling write_loc() follows."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6068 (use_integer(32769)) and <b> = 11 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 17625 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: push (opcode 2) performed at doing = 1733. Stack contains:"
+> 6069 1 843 887
+
+[1] "!!:: 17 call called by doing = 1739 with <a> = 2125(use_integer(2125))."
+[1] "The stack now contains:"
+> 1741 6069 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2125. Stack contains:"
+> 1529 1741 6069 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2127. Stack contains:"
+> 30000 1529 1741 6069 1 843 887
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 17625, and <c> = 1529 calling write_loc() with bits = 1241follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 1241 calling write_loc() with bits = 31526follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 17625, and <c> = 1529 calling write_loc() with bits = 17913follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 17913, and <c> = 31526 calling write_loc() with bits = 16672follows.]"
+
+[1] "x = 30000 was popped out of the stack! Stack contains: "
+> 1529 1741 6069 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32770 and popped value = 30000 was called by doing = 2144; calling write_loc() follows."
+
+[1] "x = 1529 was popped out of the stack! Stack contains: "
+> 1741 6069 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32769 and popped value = 1529 was called by doing = 2146; calling write_loc() follows."
+
+[1] "x = 1741 was popped out of the stack! Stack contains: "
+> 6069 1 843 887
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 2 repetitions thereof."
+
+[1] "!!:: 17 call called by doing = 1744 with <a> = 2125(use_integer(2125))."
+[1] "The stack now contains:"
+> 1746 6069 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2125. Stack contains:"
+> 16724 1746 6069 1 843 887
+
+[1] "!!:: push (opcode 2) performed at doing = 2127. Stack contains:"
+> 30000 16724 1746 6069 1 843 887
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16640follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16640 calling write_loc() with bits = 16127follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16756follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16756, and <c> = 16127 calling write_loc() with bits = 116follows.]"
+
+[1] "x = 30000 was popped out of the stack! Stack contains: "
+> 16724 1746 6069 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32770 and popped value = 30000 was called by doing = 2144; calling write_loc() follows."
+
+[1] "x = 16724 was popped out of the stack! Stack contains: "
+> 1746 6069 1 843 887
+[1] "!!:: opcode 3 pop with <a> = 32769 and popped value = 16724 was called by doing = 2146; calling write_loc() follows."
+
+[1] "x = 1746 was popped out of the stack! Stack contains: "
+> 6069 1 843 887
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 2 repetitions thereof."
+
+[1] "Terminating at <doing> = 1746 after a total of: 2 ret iterations on 1741 && 2 ret iterations on 1746."
+[1] "Counter set to 32768; execution ended."
+starting machine...: 3.66 sec elapsed
