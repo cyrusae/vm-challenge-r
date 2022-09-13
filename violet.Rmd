@@ -105,10 +105,9 @@ dispatcheR <- \() {
   work <<- start(doing)
   perform <- work[1]
   if (perform != 19 & length(printqueue) > 0) {
-    msg <- c("[MESSAGE:] ", 
-             paste0("> *", capture.output
+    msg <- c("[MESSAGE:] ", " ", paste0("> *", capture.output
                     (cat(printqueue, sep = "")), "*"), 
-             "[END MESSAGE]", " ")
+            " ", "[END MESSAGE]", " ")
     writeLines(msg)
     loglines <<- c(loglines, " ", msg, " ")
     printqueue <<- c()
@@ -125,7 +124,8 @@ dispatcheR <- \() {
 op_00_halt <- \(...) { #take and ignore arbitrary arguments
   print("Halting!")
   loglines <- c(loglines, " ", 
-                (paste0("HALT :: Program halted by z-index `",
+                (paste0(
+                  "**HALT ::** Program halted by z-index `",
                         doing, "`")), 
                 " ")
   finish(doing)
@@ -137,9 +137,9 @@ op_01_set <- \(...) {
   a <- ..1
   b <- use_integer(..2)
   ###:: 
-#####  print(paste0("!!:: [opcode 1 set at doing = ",
-#####               doing, "with {a} = ", a, 
-#####               "and {b} = ", b, 
+#####  print(paste0("!!:: [opcode 1 set at `doing` = ",
+#####               doing, "with `{a}` = ", a, 
+#####               "and `{b}` = ", b, 
     #####           "calling write_loc() follows.]"))
   write_loc(value = b, to = a)
   finish(doing, 2)
@@ -151,7 +151,7 @@ op_02_push <- \(...) {
   stack <<- c(a, stack)
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `push` (opcode 2) performed at doing = `",
+    "!!:: `push` (opcode 2) performed at `doing` = `",
                doing, "`. Stack contains:")), " ", 
                paste0("> ", paste(stack, sep = ", ")), " ")
   finish(doing, 1)
@@ -163,9 +163,9 @@ op_03_pop <- \(...) {
   val <- pop_stack()
   ###::
   loglines <<- c(loglines, (paste0(
-    "!!:: `pop` (opcode 3) with {a} = `", a,
+    "!!:: `pop` (opcode 3) with `{a}` = `", a,
                "` and popped value = `", val, 
-               "` was called by doing = `", doing, 
+               "` was called by `doing` = `", doing, 
                "`; calling `write_loc(val, a)` follows.")), 
     " ")
   write_loc(value = val, to = a)
@@ -179,8 +179,8 @@ op_04_eq <- \(...) {
   c <- use_integer(..3)
   ###::
 #####  print(paste0("!!:: [opcode 4 eq at ", doing,
-     #####          " with {a} = ", a, ", {b} = ", b,
-      #####         " and <c> = ", c,
+     #####          " with `{a}` = ", a, ", `{b}` = ", b,
+      #####         " and `{c}` = ", c,
   #####             " calling write_loc() follows.]")) 
   if (identical(b, c)) {
     write_loc(value = 1, to = a)
@@ -197,8 +197,8 @@ op_05_gt <- \(...) {
   c <- use_integer(..3)
   ###::
 #####  print(paste0("!!:: [opcode 5 gt at ", doing,
-    #####           " with {a} = ", a, ", {b} = ", b,
- #####              " and <c> = ", c,
+    #####           " with `{a}` = ", a, ", `{b}` = ", b,
+ #####              " and `{c}` = ", c,
       #####         " calling write_loc() follows.]"))
   if (isTRUE(b > c)) {
     write_loc(value = 1, to = a)
@@ -214,8 +214,8 @@ op_06_jmp <- \(...) {
   finish(doing, 1)
   ###:: 
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `jmp` (opcode 6) called at doing = `",
-               doing, "` to change doing to {a} = `",
+    "!!:: `jmp` (opcode 6) called at `doing` = `",
+               doing, "` to change doing to `{a}` = `",
                a, "` as read by `use_integer(", ..1, ")`.")),
     " ")
   doing <<- a 
@@ -227,14 +227,14 @@ op_07_jt <- \(...) {
   b <- use_integer(..2)
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `jt` (opcode 7) called by doing = `",
-      doing, "` with {a} = `", a, 
+    "!!:: `jt` (opcode 7) called by `doing` = `",
+      doing, "` with `{a}` = `", a, 
       "` as read by `use_integer(", ..1, ")`.")), " ")
   finish(doing, 2)
   if (isTRUE(a > 0)) {
     ###::
     loglines <<- c(loglines, (paste0(
-      "...!!:: jt found **TRUE**. Changing doing to {b} = `", 
+      "...!!:: jt found **TRUE**. Changing doing to `{b}` = `", 
       b, "` as read by `use_integer(", ..2, ")`.")), 
       " ")
     doing <<- b
@@ -252,14 +252,14 @@ op_08_jf <- \(...) {
   b <- use_integer(..2)
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `jf` (opcode 7) was called by doing = `",
-    doing, "` with {a} = `", a, 
+    "!!:: `jf` (opcode 7) was called by `doing` = `",
+    doing, "` with `{a}` = `", a, 
     "` as read by ` use_integer(", ..1, "`).")), " ")
   finish(doing, 2)
   if (a == 0) {
     ###::
     loglines <<- c(loglines, (paste0(
-      "...!!:: jf found **FALSE**. Changing doing to {b} = `",
+      "...!!:: jf found **FALSE**. Changing doing to `{b}` = `",
       b, "` as read by `use_integer(", ..2, "`).")), " ")
     doing <<- b
   } else {
@@ -276,9 +276,9 @@ op_09_add <- \(...) {
   c <- use_integer(..3)
   got <- (b + c) %% 32768
   ###::
-#####  print(paste0("!!:: [opcode 9 add at doing = ",
-     #####          doing, " with {a} = ", a, 
-    #####           ", {b} = ", b, ", and <c> = ", c,  
+#####  print(paste0("!!:: [opcode 9 add at `doing` = ",
+     #####          doing, " with `{a}` = ", a, 
+    #####           ", `{b}` = ", b, ", and `{c}` = ", c,  
    #####            " calling write_loc() follows.]"))
   write_loc(value = got, to = a)
   finish(doing, 3)
@@ -291,9 +291,9 @@ op_10_mult <- \(...) {
   c <- use_integer(..3)
   got <- (b * c) %% 32768
   ###::
-#####  print(paste0("!!:: [opcode 10 mult at doing = ",
-#####               doing, " with {a} = ", a, 
-      #####         ", {b} = ", b, ", and <c> = ", c,  
+#####  print(paste0("!!:: [opcode 10 mult at `doing` = ",
+#####               doing, " with `{a}` = ", a, 
+      #####         ", `{b}` = ", b, ", and `{c}` = ", c,  
  #####              " calling write_loc() follows.]"))
   write_loc(value = got, to = a)
   finish(doing, 3)
@@ -306,9 +306,9 @@ op_11_mod <- \(...) {
   c <- use_integer(..3)
   got <- b %% c
   ###::
-#####  print(paste0("!!:: [opcode 11 mod at doing = ",
- #####              doing, " with {a} = ", a, 
-    #####           ", {b} = ", b, ", and <c> = ", c,  
+#####  print(paste0("!!:: [opcode 11 mod at `doing` = ",
+ #####              doing, " with `{a}` = ", a, 
+    #####           ", `{b}` = ", b, ", and `{c}` = ", c,  
    #####            " calling write_loc() follows.]"))
   write_loc(value = got, to = a)
   finish(doing, 3)
@@ -322,9 +322,9 @@ op_12_and <- \(...) {
   bits <- bitwAnd(b, c)
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `and` (opcode 12) at doing = `", doing, 
-    "` with {a} = `", a, "`, {b} = `", b, 
-    "` (`use_integer(", ..2, ")`), and <c> = `", 
+    "!!:: `and` (opcode 12) at `doing` = `", doing, 
+    "` with `{a}` = `", a, "`, `{b}` = `", b, 
+    "` (`use_integer(", ..2, ")`), and `{c}` = `", 
     c, "` (`use_integer(", ..3, 
     ")`), calling `write_loc()` with bits = `", bits, "`")), 
     " ")
@@ -340,9 +340,9 @@ op_13_or <- \(...) {
   bits <- bitwOr(b, c)
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `or` (opcode 13) at doing = `", doing, 
-    "` with {a} = `", a, ", {b} = `", b, 
-    "` (`use_integer(`,", ..2, ")`), and <c> = `", c, 
+    "!!:: `or` (opcode 13) at `doing` = `", doing, 
+    "` with `{a}` = `", a, ", `{b}` = `", b, 
+    "` (`use_integer(`,", ..2, ")`), and `{c}` = `", c, 
     "` (`use_integer(`,", ..3, 
     ")`), calling `write_loc()` with bits = `", bits, "`")),
     " ")
@@ -359,8 +359,8 @@ op_14_not <- \(...) {
   bits <- sum(bin_const[bt])
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `not` (opcode 4) at doing = `",
-    doing, "` with {a} = `", a, "` and {b} = `", b,  
+    "!!:: `not` (opcode 4) at `doing` = `",
+    doing, "` with `{a}` = `", a, "` and `{b}` = `", b,  
     "(`use_integer(", ..2, 
     ")`), calling `write_loc()` with bits = `", bits, "`")), 
     " ")
@@ -374,8 +374,8 @@ op_15_rmem <- \(...) {
   b <- read_loc(use_integer(..2)) 
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `rmem` (opcode 15) at `", doing, "` with {a} = `",
-    ..1, "` and {b} = `", b, "` (`read_loc(use_integer(", ..2, 
+    "!!:: `rmem` (opcode 15) at `", doing, "` with `{a}` = `",
+    ..1, "` and `{b}` = `", b, "` (`read_loc(use_integer(", ..2, 
     ")`) calling `write_loc()`.")),
     " ")
   write_loc(value = b, to = a)
@@ -388,8 +388,8 @@ op_16_wmem <- \(...) {
   b <- use_integer(..2)
   ###::
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `wmem` (opcode 16) at `", doing, "` with {a} = `", 
-    a, "` (`use_integer(", ..1, ")`) and {b} = `", b,
+    "!!:: `wmem` (opcode 16) at `", doing, "` with `{a}` = `", 
+    a, "` (`use_integer(", ..1, ")`) and `{b}` = `", b,
     "` (`use_integer(", ..2, ")`) calling `write_loc()`.")),
                  " ")
   write_loc(value = b, to = a)
@@ -401,8 +401,8 @@ op_17_call <- \(...) {
   a <- use_integer(..1)
   ###:: 
   loglines <<- c(loglines, " ", (paste0(
-    "!!:: `call` (opcode 17) called by doing = `", doing, 
-    "` with {a} = `", a, "` (`use_integer(", ..1, ")`).")), 
+    "!!:: `call` (opcode 17) called by `doing` = `", doing, 
+    "` with `{a}` = `", a, "` (`use_integer(", ..1, ")`).")), 
     " ")
   finish(doing, 1) #update doing to find stack value
   stack <<- c(doing, stack) #push to stack
@@ -416,7 +416,7 @@ op_18_ret <- \(...) {
   if (isTRUE(length(stack) < 1)) {
     ###::
     loglines <<- c(loglines, " ", (paste0(
-      "!!:: `ret` (opcode 18) at doing = `", doing, 
+      "!!:: `ret` (opcode 18) at `doing` = `", doing, 
       "` found an empty stack; calling halt.")), " ")
     finish(doing, 0)
     op_00_halt()
@@ -424,7 +424,7 @@ op_18_ret <- \(...) {
     place <- use_integer(pop_stack())
     ###::
     loglines <<- c(loglines, " ", (
-      paste0("!!:: `ret` (opcode 18) at doing = `",
+      paste0("!!:: `ret` (opcode 18) at `doing` = `",
              doing, "` found stack. Going to `", place, "`")),
       " ")
     if (place == 1741) {
