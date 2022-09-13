@@ -1,0 +1,497 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(data.table)
+library(stringr)
+
+library(tictoc)
+library(profvis)
+
+raw <- file("./materiel/challenge.bin", "rb")
+cmdlist <- readBin(raw, integer(), n = 32678, size = 2, 
+                   endian = "little", signed = FALSE)
+rm(raw)
+
+## use for bitwise not 
+bin_const <- 2^(0:14)
+
+
+#########
+## General-purpose functions
+
+finish <- \(loc, args = 0) { #expect z-indexed
+  line <- loc + 1
+  memory[(line):((line) + (args)), done := TRUE]
+  doing <<- (line + args)
+  return(invisible(NULL))
+}
+
+start <- \(loc) { #expect z-indexed
+  memory[((loc) + 1), do := TRUE]
+  memory[((loc) + 2):((loc) + 4), do := FALSE]
+  work <- memory[((loc) + 1):((loc) + 4), cmd]
+  work
+}
+
+read_register <- \(x) { #accepts reg z-index or reserved number
+  if (x >= 32768) { val <- registers[mod == x, val]
+  } else { val <- registers[z == x, val] }
+  val
+}
+
+read_loc <- \(x) { #equivalent to do_place()
+  if (x >= 32768) { val <- read_register(x)
+  } else { val <- memory[z == (x), cmd] }
+  val
+}
+
+use_integer <- \(x) { #equivalent to do_read()
+  if (x >= 32768) { 
+    val <- read_register(x)
+  } else { val <- x }
+  val
+}
+
+write_loc <- \(value, to) {
+  if (to >= 32768) {
+    registers[mod == (to), val := (value)]
+    ###:: TROUBLESHOOTING:
+#####    print(paste0("...!!::  ", doing, 
+    #####             " triggered a write_loc() to register z-index ",
+    #####             to, "with value ", value, 
+    #####             ". New register contents (val):"))
+    ##### print(registers$val)
+  } else {
+    memory[z == (to), cmd := (value)]
+    ###:: TROUBLESHOOTING:
+  #####  print(paste0("...!!::  ", doing, " triggered a write_loc() to memory z-index ",
+    #####             to, "with value ", value, 
+        #####         ". Memory +/- one row there reads:"))
+  #####  print(memory[to:(to+2)]$z)
+ #####   print(memory[to:(to+2)]$cmd)
+ #####   print("(z-index and cmd column, respectively.)")
+  }
+  return(invisible(NULL))
+}
+
+pop_stack <- \() {
+  stopifnot(length(stack) > 0) 
+  x <- stack[1]
+  stack <<- stack[-1]
+  ###::
+  print(paste0("x = ", x, " was popped out of the stack! Stack contains: "))
+  print(stack)
+  x
+}
+
+##########
+## Controller
+#run within while loop for doing < 32768
+
+opcodes <- data.table(
+  code = 0:21,
+  fun = c("op_00_halt", "op_01_set", "op_02_push", "op_03_pop", "op_04_eq", "op_05_gt", "op_06_jmp", "op_07_jt", "op_08_jf", "op_09_add", "op_10_mult", "op_11_mod", "op_12_and", "op_13_or", "op_14_not", "op_15_rmem", "op_16_wmem", "op_17_call", "op_18_ret", "op_19_out", "op_20_in", "op_21_noop")
+)
+setkey(opcodes, code)
+
+dispatcheR <- \() {
+  work <<- start(doing)
+  perform <- work[1]
+  if (perform != 19 & length(printqueue) > 0) {
+    print("[MESSAGE:]")
+    cat(printqueue, sep = "")
+    print("[END MESSAGE.]")
+    printqueue <<- c()
+  } 
+  stopifnot(perform <= 21) #stop for illegal commands
+  with <- work[-1] |> as.list()
+  do.call(what = opcodes[code == (perform), fun], args = with)
+  return(invisible(NULL))
+}
+
+##### 
+## Opcodes:
+
+op_00_halt <- \(...) { #take and ignore arbitrary arguments
+  print(paste0("Program halted by z-index ", doing))
+  finish(doing)
+  doing <<- 32768
+  return(invisible(NULL))
+}
+
+op_01_set <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  ###:: 
+#####  print(paste0("!!:: [opcode 1 set at doing = ",
+#####               doing, "with <a> = ", a, 
+#####               "and <b> = ", b, 
+    #####           "calling write_loc() follows.]"))
+  write_loc(value = b, to = a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_02_push <- \(...) {
+  a <- use_integer(..1)
+  stack <<- c(a, stack)
+  ###::
+  print(paste0("!!:: push (opcode 2) performed at doing = ",
+               doing, ". Stack contains:"))
+  cat(stack)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_03_pop <- \(...) {
+  a <- ..1
+  val <- pop_stack()
+  ###::
+  print(paste0("!!:: opcode 3 pop with <a> = ", a,
+               " and popped value = ", val, 
+               " was called by doing = ", doing, 
+               "; calling write_loc() follows."))
+  write_loc(value = val, to = a)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_04_eq <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  ###::
+#####  print(paste0("!!:: [opcode 4 eq at ", doing,
+     #####          " with <a> = ", a, ", <b> = ", b,
+      #####         " and <c> = ", c,
+  #####             " calling write_loc() follows.]")) 
+  if (identical(b, c)) {
+    write_loc(value = 1, to = a)
+  } else {
+    write_loc(value = 0, to = a)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_05_gt <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  ###::
+#####  print(paste0("!!:: [opcode 5 gt at ", doing,
+    #####           " with <a> = ", a, ", <b> = ", b,
+ #####              " and <c> = ", c,
+      #####         " calling write_loc() follows.]"))
+  if (isTRUE(b > c)) {
+    write_loc(value = 1, to = a)
+  } else {
+    write_loc(value = 0, to = a)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_06_jmp <- \(...) {
+  a <- use_integer(..1)
+  finish(doing, 1)
+  ###:: 
+  print(paste0("!!:: opcode 6 jmp called at doing = ",
+               doing, " to change doing to <a> = ",
+               a, " as read by use_integer()."))
+  doing <<- a 
+  return(invisible(NULL))
+}
+
+op_07_jt <- \(...) {
+  a <- use_integer(..1)
+  b <- use_integer(..2)
+  ###::
+  print(paste0("!!:: opcode 7 jt called by doing = ", 
+                 doing, " with <a> = ", a, 
+                 " as read by use_integer()."))
+  finish(doing, 2)
+  if (isTRUE(a > 0)) {
+    ###::
+    print(paste0("... !!:: Changing doing to <b> = ", b, 
+                 " as read by use_integer()."))
+    doing <<- b
+  } else {
+    ###::
+    print("... !!:: jt found FALSE. No jump.")
+  }
+  return(invisible(NULL))
+}
+
+op_08_jf <- \(...) {
+  a <- use_integer(..1)
+  b <- use_integer(..2)
+  ###::
+  print(paste0("!!:: opcode 7 jf called by doing = ", 
+                 doing, " with <a> = ", a, 
+                 " as read by use_integer()."))
+  finish(doing, 2)
+  if (a == 0) {
+    ###::
+    print(paste0("...!!:: Changing doing to <b> = ", b, 
+                 " as read by use_integer()."))
+    doing <<- b
+  } else {
+    ###::
+    print("...!!:: jf found TRUE. No jump.")
+  }
+} 
+
+op_09_add <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  got <- (b + c) %% 32768
+  ###::
+#####  print(paste0("!!:: [opcode 9 add at doing = ",
+     #####          doing, " with <a> = ", a, 
+    #####           ", <b> = ", b, ", and <c> = ", c,  
+   #####            " calling write_loc() follows.]"))
+  write_loc(value = got, to = a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_10_mult <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  got <- (b * c) %% 32768
+  ###::
+#####  print(paste0("!!:: [opcode 10 mult at doing = ",
+#####               doing, " with <a> = ", a, 
+      #####         ", <b> = ", b, ", and <c> = ", c,  
+ #####              " calling write_loc() follows.]"))
+  write_loc(value = got, to = a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_11_mod <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  got <- b %% c
+  ###::
+#####  print(paste0("!!:: [opcode 11 mod at doing = ",
+ #####              doing, " with <a> = ", a, 
+    #####           ", <b> = ", b, ", and <c> = ", c,  
+   #####            " calling write_loc() follows.]"))
+  write_loc(value = got, to = a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_12_and <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  bits <- bitwAnd(b, c)
+  ###::
+  print(paste0("!!:: [opcode 12 and at doing = ",
+               doing, " with <a> = ", a, 
+               ", <b> = ", b, ", and <c> = ", c,  
+               " calling write_loc() with bits = ",
+               bits, "follows.]"))
+  write_loc(bits, a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_13_or <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  bits <- bitwOr(b, c)
+  ###::
+  print(paste0("!!:: [opcode 13 or at doing = ",
+               doing, " with <a> = ", a, 
+               ", <b> = ", b, ", and <c> = ", c,  
+               " calling write_loc() with bits = ",
+               bits, "follows.]"))
+  write_loc(bits, a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_14_not <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  bb <- as.integer(intToBits(b))[1:15]
+  bt <- bb == 0
+  bits <- sum(bin_const[bt])
+  ###::
+  print(paste0("!!:: [opcode 14 not at doing = ",
+               doing, " with <a> = ", a, 
+               " and <b> = ", b,  
+               " calling write_loc() with bits = ",
+               bits, "follows.]"))
+  write_loc(bits, a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_15_rmem <- \(...) {
+  a <- ..1
+  b <- read_loc(use_integer(..2)) 
+  ###:: TROUBLESHOOTING ADDED:
+  ###::
+  print(paste0("!!:: 15 rmem at ", doing, 
+               " with <a> = ", ..1, 
+               " (unaltered param) and <b> = ", b, 
+               " (read_loc(use_integer(", ..2, 
+               ")) calling write_loc() follows."))
+  write_loc(value = b, to = a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_16_wmem <- \(...) {
+  a <- use_integer(..1)
+  b <- use_integer(..2)
+  ###::
+  print(paste0("!!:: 16 wmem at ", doing, 
+               " with <a> = ", a, 
+               " (use_integer(", ..1,
+               ")) and <b> = ", b,
+               " (use_integer(", ..2,
+               ")) calling write_loc() follows."))
+  write_loc(value = b, to = a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_17_call <- \(...) {
+  a <- use_integer(..1)
+  ###:: 
+  print(paste0("!!:: 17 call called by doing = ",
+               doing, " with <a> = ", a, 
+               "(use_integer(", ..1, "))."))
+  finish(doing, 1) #update doing to find stack value
+  stack <<- c(doing, stack) #push to stack
+  print("The stack now contains:")
+  cat(stack)
+  doing <<- a #update doing again to find real destination
+  return(invisible(NULL))
+}
+
+op_18_ret <- \(...) {
+  if (isTRUE(length(stack) < 1)) {
+    ###::
+    print(paste0("!!:: opcode 18 ret at doing = ",
+                 doing, " calling halt."))
+    finish(doing, 0)
+    op_00_halt()
+  } else {
+    place <- use_integer(pop_stack())
+    ###::
+    print(paste0("!!:: opcode 18 ret at doing = ",
+                 doing, " found stack. Going to ",
+                 place))
+    if (place == 1741) {
+      loop41 <<- loop41 + 1
+      print(paste0("...!!:: For n = ", loop41, " repetitions thereof."))
+    }
+    if (place == 1746) {
+      loop46 <<- loop46 + 1
+      print(paste0("...!!:: For n = ", loop46, " repetitions thereof."))
+    }
+    finish(doing, 0)
+    doing <<- place 
+  }
+  return(invisible(NULL))
+}
+
+op_19_out <- \(...) {
+  a <- use_integer(..1)
+  ch <- rawToChar(as.raw(a))
+###::  print(ch) ###:: remove to check individual characters
+  printqueue <<- c(printqueue, ch)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_20_in <- \(...) {
+  a <- use_integer(..1)
+  str <- readline() |> strsplit()
+  ###::
+  print(paste0("!!:: opcode 20 in received this string input: {", str, "} and is now parsing."))
+  raw_str <- charToRaw(str)
+  print("!!:: opcode 20 in found these values:")
+  cat(raw_str)
+  for (i in seq_len(length(str))) {
+    go <- a + (i - 1)
+    ch <- raw_str[i]
+    write_loc(value = ch, to = go)
+  }
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_21_noop <- \(...) {
+  print("...")
+  finish(doing, 0)
+  return(invisible(NULL))
+}
+
+```
+
+```{r, echo=FALSE}
+## initialize (and avoid previous runs throwing us off)
+stack <- c()
+registers <- data.table(z = 0:7,
+                        val = c(rep(0, 8)),
+                        mod = 0:7+32768)
+setkey(registers, mod)
+setorder(registers, z)
+
+printqueue <- c()
+
+tic("Logging time taken to initialize memory table for umber...")
+memory <- data.table(z = 0:32767,
+                     cmd = c(cmdlist, 
+                             rep(0, (32768 - length(cmdlist)))),
+                     do = c(rep(as.logical(NA), 32768)),
+                     done = c(rep(as.logical(NA), 32768))
+                     )
+setkey(memory, z)
+toc()
+
+### start at memory z-index 0 
+doing <- 0
+
+###::
+loop46 <- 0
+loop41 <- 0
+
+tic("starting machine...")
+while (doing < 32768) {
+  if (isFALSE(length(doing) == 1)) {
+    print(paste0("Error: value of <doing> is ", 
+                 doing, ". Setting to 32768 to exit."))
+    doing <<- 32768
+  }  
+  if (isTRUE((loop46 + loop41) > 3)) {
+    print(paste0("Terminating at <doing> = ",
+                 doing, " after a total of: ",
+                 loop41, " ret iterations on 1741 && ",
+                 loop46, " ret iterations on 1746."))
+    doing <<- 32768
+  } else {
+    dispatcheR()
+  }
+}
+fwrite(memory, 
+       file = "./logs/violet_latest_run.csv",
+       yaml = TRUE)
+print("Counter set to 32768; execution ended.")
+toc()
+```
