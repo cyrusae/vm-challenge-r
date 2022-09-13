@@ -1,0 +1,486 @@
+Logging time taken to initialize memory table for umber...: 0.05 sec elapsed
+[1] "..."
+[1] "..."
+[1] "[MESSAGE:]"
+Welcome to the Synacor Challenge!
+Please record your progress by putting codes like
+this one into the challenge website: SJDPGAYLFxce
+
+Executing self-test...
+
+[1] "[END MESSAGE.]"
+[1] "!!:: opcode 6 jmp called at doing = 322 to change doing to <a> = 347 as read by use_integer()."
+[1] "..."
+[1] "..."
+[1] "..."
+[1] "..."
+[1] "..."
+
+[1] "!!:: opcode 6 jmp called at doing = 354 to change doing to <a> = 358 as read by use_integer()."
+[1] "!!:: opcode 6 jmp called at doing = 360 to change doing to <a> = 484 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 484 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 487 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 490 with <a> = 1 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 495 as read by use_integer()."
+
+[1] "!!:: opcode 7 jf called by doing = 495 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 500 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 500 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 503 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 506 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 509 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 512 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 515 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 518 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 521 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 527 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 533 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 540 with <a> = 2 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 564 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 568 with <a> = 1 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 590 as read by use_integer()."
+
+[1] "!!:: opcode 7 jf called by doing = 602 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 609 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 616 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 623 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 630 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: [opcode 12 and at doing = 633 with <a> = 32768, <b> = 28912, and <c> = 19626 calling write_loc() with bits = 16544follows.]"
+
+[1] "!!:: opcode 7 jf called by doing = 641 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: [opcode 13 or at doing = 644 with <a> = 32769, <b> = 28912, and <c> = 19626 calling write_loc() with bits = 31994follows.]"
+
+[1] "!!:: opcode 7 jt called by doing = 652 with <a> = 1 as read by use_integer()."
+[1] "... !!:: Changing doing to <b> = 684 as read by use_integer()."
+
+[1] "!!:: [opcode 14 not at doing = 684 with <a> = 32768 and <b> = 0 calling write_loc() with bits = 32767follows.]"
+
+[1] "!!:: opcode 7 jf called by doing = 691 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: [opcode 14 not at doing = 694 with <a> = 32768 and <b> = 21845 calling write_loc() with bits = 10922follows.]"
+
+[1] "!!:: opcode 7 jf called by doing = 701 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 6 jmp called at doing = 1287 to change doing to <a> = 708 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 714 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 721 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 6 jmp called at doing = 1289 to change doing to <a> = 731 as read by use_integer()."
+
+[1] "!!:: opcode 7 jt called by doing = 737 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 744 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 755 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 762 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 769 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 776 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jt called by doing = 787 with <a> = 0 as read by use_integer()."
+[1] "... !!:: jt found FALSE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 794 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 805 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 816 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 827 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 7 jf called by doing = 838 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: opcode 6 jmp called at doing = 843 to change doing to <a> = 845 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 845 with <a> = 32768 (unaltered param) and <b> = 20000 (read_loc(use_integer(843)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 852 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: 15 rmem at 859 with <a> = 32768 (unaltered param) and <b> = 10000 (read_loc(use_integer(32770)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 866 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+[1] "!!:: 16 wmem at 872 with <a> = 843 (use_integer(32768)) and <b> = 30000 (use_integer(30000)) calling write_loc() follows."
+
+[1] "!!:: 15 rmem at 875 with <a> = 32770 (unaltered param) and <b> = 30000 (read_loc(use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 882 with <a> = 1 as read by use_integer()."
+[1] "...!!:: jf found TRUE. No jump."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 6095 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 6095, and <c> = 22160 calling write_loc() with bits = 5760follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 5760 calling write_loc() with bits = 27007follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 6095, and <c> = 22160 calling write_loc() with bits = 22495follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 22495, and <c> = 27007 calling write_loc() with bits = 16735follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 1 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16735, and <c> = 16724 calling write_loc() with bits = 16724follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16724 calling write_loc() with bits = 16043follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16735, and <c> = 16724 calling write_loc() with bits = 16735follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16735, and <c> = 16043 calling write_loc() with bits = 11follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 1 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6068 (use_integer(32769)) and <b> = 11 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 17625 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 17625, and <c> = 1529 calling write_loc() with bits = 1241follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 1241 calling write_loc() with bits = 31526follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 17625, and <c> = 1529 calling write_loc() with bits = 17913follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 17913, and <c> = 31526 calling write_loc() with bits = 16672follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 2 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16640follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16640 calling write_loc() with bits = 16127follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16756follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16756, and <c> = 16127 calling write_loc() with bits = 116follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 2 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6069 (use_integer(32769)) and <b> = 116 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 29781 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 29781, and <c> = 13668 calling write_loc() with bits = 13380follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 13380 calling write_loc() with bits = 19387follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 29781, and <c> = 13668 calling write_loc() with bits = 30069follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 30069, and <c> = 19387 calling write_loc() with bits = 16689follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 3 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16689, and <c> = 16724 calling write_loc() with bits = 16656follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16656 calling write_loc() with bits = 16111follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16689, and <c> = 16724 calling write_loc() with bits = 16757follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16757, and <c> = 16111 calling write_loc() with bits = 101follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 3 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6070 (use_integer(32769)) and <b> = 101 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 9718 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 9718, and <c> = 25809 calling write_loc() with bits = 9424follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 9424 calling write_loc() with bits = 23343follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 9718, and <c> = 25809 calling write_loc() with bits = 26103follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 26103, and <c> = 23343 calling write_loc() with bits = 16679follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 4 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16679, and <c> = 16724 calling write_loc() with bits = 16644follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16644 calling write_loc() with bits = 16123follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16679, and <c> = 16724 calling write_loc() with bits = 16759follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16759, and <c> = 16123 calling write_loc() with bits = 115follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 4 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6071 (use_integer(32769)) and <b> = 115 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 21856 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 21856, and <c> = 5184 calling write_loc() with bits = 5184follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 5184 calling write_loc() with bits = 27583follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 21856, and <c> = 5184 calling write_loc() with bits = 21856follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 21856, and <c> = 27583 calling write_loc() with bits = 16672follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 5 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16640follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16640 calling write_loc() with bits = 16127follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16756follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16756, and <c> = 16127 calling write_loc() with bits = 116follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 5 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6072 (use_integer(32769)) and <b> = 116 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 709 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 709, and <c> = 17329 calling write_loc() with bits = 641follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 641 calling write_loc() with bits = 32126follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 709, and <c> = 17329 calling write_loc() with bits = 17397follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 17397, and <c> = 32126 calling write_loc() with bits = 16756follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 6 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16756, and <c> = 16724 calling write_loc() with bits = 16724follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16724 calling write_loc() with bits = 16043follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16756, and <c> = 16724 calling write_loc() with bits = 16756follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16756, and <c> = 16043 calling write_loc() with bits = 32follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 6 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6073 (use_integer(32769)) and <b> = 32 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 12803 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 12803, and <c> = 29476 calling write_loc() with bits = 12800follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 12800 calling write_loc() with bits = 19967follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 12803, and <c> = 29476 calling write_loc() with bits = 29479follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 29479, and <c> = 19967 calling write_loc() with bits = 16679follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 7 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16679, and <c> = 16724 calling write_loc() with bits = 16644follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16644 calling write_loc() with bits = 16123follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16679, and <c> = 16724 calling write_loc() with bits = 16759follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16759, and <c> = 16123 calling write_loc() with bits = 115follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 7 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6074 (use_integer(32769)) and <b> = 115 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 25529 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 25529, and <c> = 8857 calling write_loc() with bits = 8857follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 8857 calling write_loc() with bits = 23910follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 25529, and <c> = 8857 calling write_loc() with bits = 25529follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 25529, and <c> = 23910 calling write_loc() with bits = 16672follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 8 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16640follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16640 calling write_loc() with bits = 16127follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16672, and <c> = 16724 calling write_loc() with bits = 16756follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16756, and <c> = 16127 calling write_loc() with bits = 116follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 8 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6075 (use_integer(32769)) and <b> = 116 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 4918 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 4918, and <c> = 21008 calling write_loc() with bits = 4624follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 4624 calling write_loc() with bits = 28143follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 4918, and <c> = 21008 calling write_loc() with bits = 21302follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 21302, and <c> = 28143 calling write_loc() with bits = 16678follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 9 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16678, and <c> = 16724 calling write_loc() with bits = 16644follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16644 calling write_loc() with bits = 16123follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16678, and <c> = 16724 calling write_loc() with bits = 16758follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16758, and <c> = 16123 calling write_loc() with bits = 114follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 9 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6076 (use_integer(32769)) and <b> = 114 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 16564 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16564, and <c> = 393 calling write_loc() with bits = 128follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 128 calling write_loc() with bits = 32639follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16564, and <c> = 393 calling write_loc() with bits = 16829follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16829, and <c> = 32639 calling write_loc() with bits = 16701follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 10 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16701, and <c> = 16724 calling write_loc() with bits = 16660follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16660 calling write_loc() with bits = 16107follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16701, and <c> = 16724 calling write_loc() with bits = 16765follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16765, and <c> = 16107 calling write_loc() with bits = 105follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 10 repetitions thereof."
+
+[1] "!!:: 16 wmem at 1748 with <a> = 6077 (use_integer(32769)) and <b> = 105 (use_integer(32768)) calling write_loc() follows."
+
+[1] "!!:: opcode 7 jf called by doing = 1759 with <a> = 0 as read by use_integer()."
+[1] "...!!:: Changing doing to <b> = 1730 as read by use_integer()."
+
+[1] "!!:: 15 rmem at 1730 with <a> = 32768 (unaltered param) and <b> = 28734 (read_loc(use_integer(32769)) calling write_loc() follows."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 28734, and <c> = 12548 calling write_loc() with bits = 12292follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 12292 calling write_loc() with bits = 20475follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 28734, and <c> = 12548 calling write_loc() with bits = 28990follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 28990, and <c> = 20475 calling write_loc() with bits = 16698follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1741"
+[1] "...!!:: For n = 11 repetitions thereof."
+
+[1] "!!:: [opcode 12 and at doing = 2129 with <a> = 32770, <b> = 16698, and <c> = 16724 calling write_loc() with bits = 16656follows.]"
+
+[1] "!!:: [opcode 14 not at doing = 2133 with <a> = 32770 and <b> = 16656 calling write_loc() with bits = 16111follows.]"
+
+[1] "!!:: [opcode 13 or at doing = 2136 with <a> = 32768, <b> = 16698, and <c> = 16724 calling write_loc() with bits = 16766follows.]"
+
+[1] "!!:: [opcode 12 and at doing = 2140 with <a> = 32768, <b> = 16766, and <c> = 16111 calling write_loc() with bits = 110follows.]"
+
+[1] "!!:: opcode 18 ret at doing = 2148 found stack. Going to 1746"
+[1] "...!!:: For n = 11 repetitions thereof."
+
+[1] "Terminating at <doing> = 1746 due to a total of: 11 ret loops on 1741 && 11 ret loops on 1746."
+
+[1] "Counter set to 32768; execution ended."
+starting machine...: 6.34 sec elapsed
