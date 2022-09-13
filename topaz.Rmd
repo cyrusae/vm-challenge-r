@@ -185,7 +185,6 @@ do_place <- function(x) {  #either interpret a literal value, or read from the r
     a
   } else {
     a <- x
-#    print(paste("do_place interpreted", as.character(a)))
     a
   }
   a
