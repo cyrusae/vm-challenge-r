@@ -396,8 +396,14 @@ op_16_wmem <- \(work) {
 
 op_17_call <- \(work) {
   a <- use_integer(work[1])
+  ###:: 
+  print(paste0("!!:: 17 call called by doing = ",
+               doing, " with <a> = ", a, 
+               "(use_integer(", work[1], "))."))
   finish(doing, 1) #update doing to find stack value
   stack <<- c(doing, stack) #push to stack
+  print("The stack now contains:")
+  cat(stack)
   doing <<- a #update doing again to find real destination
   return(invisible(NULL))
 }
