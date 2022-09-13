@@ -92,6 +92,12 @@ pop_stack <- \() {
 ## Controller
 #run within while loop for doing < 32768
 
+opcodes <- data.table(
+  code = 0:21,
+  fun = c("op_00_halt", "op_01_set", "op_02_push", "op_03_pop", "op_04_eq", "op_05_gt", "op_06_jmp", "op_07_jt", "op_08_jf", "op_09_add", "op_10_mult", "op_11_mod", "op_12_and", "op_13_or", "op_14_not", "op_15_rmem", "op_16_wmem", "op_17_call", "op_18_ret", "op_19_out", "op_20_in", "op_21_noop")
+)
+setkey(opcodes, code)
+
 dispatcheR <- \() {
   work <<- start(doing)
   perform <- work[1]
@@ -101,16 +107,29 @@ dispatcheR <- \() {
     print("[END MESSAGE.]")
     printqueue <<- c()
   } 
-  stopifnot(perform <= 21) 
+  stopifnot(perform <= 21) #stop for illegal commands
+  # check for commands with no arguments before making a with vector at all:
+  if (perform == 21) { 
+    op_21_noop() 
+    return(invisible(NULL))
+  }
+  if (perform == 18) { 
+    op_18_ret() 
+    return(invisible(NULL))
+  }
+  if (perform == 0) { 
+    op_00_halt() 
+    return(invisible(NULL))
+  }
+  # oh well, looks like we need arguments 
   with <- work[-1]
   #game the system slightly 
   ### to make checking perform take fewer iterations 
   ### for higher numbers 
-  ### at least until I figure out a way to store 
-  ### numbered strings that can be forcibly 
+  ### at least until I figure out the right way to 
+  ### keep numbered strings that can be forcibly 
   ### evaluated as function calls, anyway
-  if (perform <= 10) { 
-    if (perform == 0) { op_00_halt() }
+  if (perform < 10) { 
     if (perform == 1) { op_01_set(with) }
     if (perform == 2) { op_02_push(with) }
     if (perform == 3) { op_03_pop(with) }
@@ -129,10 +148,8 @@ dispatcheR <- \() {
     if (perform == 15) { op_15_rmem(with) }
     if (perform == 16) { op_16_wmem(with) }
     if (perform == 17) { op_17_call(with) }
-    if (perform == 18) { op_18_ret() }
     if (perform == 19) { op_19_out(with) }
     if (perform == 20) { op_20_in(with) }
-    if (perform == 21) { op_21_noop() }
   }
   return(invisible(NULL))
 }
@@ -140,7 +157,7 @@ dispatcheR <- \() {
 ##### 
 ## Opcodes:
 
-op_00_halt <- \() {
+op_00_halt <- \(work = NULL) {
   print(paste0("Program halted by z-index ", doing))
   finish(doing)
   doing <<- 32768
@@ -408,7 +425,7 @@ op_17_call <- \(work) {
   return(invisible(NULL))
 }
 
-op_18_ret <- \() {
+op_18_ret <- \(work = NULL) {
   if (isTRUE(length(stack) < 1)) {
     ###::
     print(paste0("!!:: opcode 18 ret at doing = ",
@@ -461,7 +478,7 @@ op_20_in <- \(work) {
   return(invisible(NULL))
 }
 
-op_21_noop <- \() {
+op_21_noop <- \(work = NULL) {
   print("...")
   finish(doing, 0)
   return(invisible(NULL))
