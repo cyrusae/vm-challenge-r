@@ -82,11 +82,10 @@ pop_stack <- \() {
   x <- stack[1]
   stack <<- stack[-1]
   ###::
-  loglines <<- c(
-    loglines, " ", (paste0(
+  loglines <<- c(loglines, " ", "---", " ", (paste0(
       "`x = ", x, 
       "` was popped out of the stack! Stack contains: ")), " ",
-      paste0("[ ", paste(stack, sep = ", "), " ]."), 
+      paste0("[ ", capture.output(cat(stack, sep = ", ")), " ]."), 
     " ")
   x
 }
@@ -153,7 +152,9 @@ op_02_push <- \(...) {
   loglines <<- c(loglines, " ", "---", " ", (paste0(
     "!!:: `push` (opcode 2) performed at `doing` = `",
                doing, "`. Stack contains:")), " ", 
-               paste0("[ ", paste(stack, sep = ", ")), " ].")
+               paste0("[ ", 
+                      capture.output(cat(stack, sep = ", ")), 
+                      " ]."), " ")
   finish(doing, 1)
   return(invisible(NULL))
 }
@@ -162,7 +163,7 @@ op_03_pop <- \(...) {
   a <- ..1
   val <- pop_stack()
   ###::
-  loglines <<- c(loglines, " ", "---", (paste0(
+  loglines <<- c(loglines, " ", (paste0(
     "!!:: `pop` (opcode 3) with `{a}` = `", a,
                "` and popped value = `", val, 
                "` was called by `doing` = `", doing, 
@@ -342,8 +343,8 @@ op_13_or <- \(...) {
   loglines <<- c(loglines, " ", "---", " ", (paste0(
     "!!:: `or` (opcode 13) at `doing` = `", doing, 
     "` with `{a}` = `", a, "`, `{b}` = `", b, 
-    "` (`use_integer(`,", ..2, 
-    ")`), and `{c}` = `", c, "` (`use_integer(`,", ..3, 
+    "` (`use_integer(,", ..2, ")`), and `{c}` = `", 
+    c, "` (`use_integer(,", ..3, 
     ")`), calling `write_loc()` with bits = `", bits, "`")),
     " ")
   write_loc(bits, a)
@@ -407,7 +408,10 @@ op_17_call <- \(...) {
   finish(doing, 1) #update doing to find stack value
   stack <<- c(doing, stack) #push to stack
   loglines <<- c(loglines, "The stack now contains:", " ", 
-                 paste0("[ ", paste(stack, sep = ", ")), " ]")
+                 paste0("[ ", 
+                        capture.output(
+                          cat(stack, sep = ", ")), " ]"), 
+                 " ")
   doing <<- a #update doing again to find real destination
   return(invisible(NULL))
 }
