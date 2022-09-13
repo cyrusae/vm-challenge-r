@@ -1,3 +1,9 @@
+[1] "............"
+[1] "............"
+Welcome to the Synacor Challenge!
+Please record your progress by putting codes like
+this one into the challenge website: SJDPGAYLFxce
+
 Executing self-test...
 
 [1] "[End printing.]"
@@ -36,12 +42,14 @@ Executing self-test...
 [1] "At do_next = 533 registers:"
 [1] 0 0 0 0 0 0 0 0
 [1] "Took 0 for use in opcode 7"
+[1] "do_write wrote value 2 to registers at address z = 0 as a result of opcode 9 at line 536"
 [1] "At do_next = 540 registers:"
 [1] 2 0 0 0 0 0 0 0
 [1] "Took 0 for use in opcode 7"
 [1] "At do_next = 564 registers:"
 [1] 2 0 0 0 0 0 0 0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 564"
 [1] "At do_next = 568 registers:"
 [1] 2 1 0 0 0 0 0 0
 [1] "Took 1 for use in opcode 7"
@@ -51,15 +59,19 @@ Executing self-test...
 [1] "At do_next = 592 registers:"
 [1] 2 1 0 0 0 0 0 0
 [1] "Took 1 for use in opcode 2"
+[1] "do_write wrote value 1 to registers at address z = 0 as a result of opcode 3 at line 594"
+[1] "do_write wrote value 2 to registers at address z = 1 as a result of opcode 3 at line 596"
 [1] "At do_next = 598 registers:"
 [1] 1 2 0 0 0 0 0 0
 [1] "Took 1 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 2 as a result of opcode 4 at line 598"
 [1] "At do_next = 602 registers:"
 [1] 1 2 1 0 0 0 0 0
 [1] "Took 2 for use in opcode 8"
 [1] "At do_next = 605 registers:"
 [1] 1 2 1 0 0 0 0 0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 2 as a result of opcode 4 at line 605"
 [1] "At do_next = 609 registers:"
 [1] 1 2 1 0 0 0 0 0
 [1] "Took 2 for use in opcode 8"
@@ -69,6 +81,7 @@ Executing self-test...
 [1] "At do_next = 612 registers:"
 [1] 1 2 1 0 0 0 0 0
 [1] "Took 0 for use in opcode 5"
+[1] "do_write wrote value 1 to registers at address z = 2 as a result of opcode 5 at line 612"
 [1] "At do_next = 616 registers:"
 [1] 1 2 1 0 0 0 0 0
 [1] "Took 2 for use in opcode 8"
@@ -78,129 +91,166 @@ Executing self-test...
 [1] "At do_next = 619 registers:"
 [1] 1 2 1 0 0 0 0 0
 [1] "Took 1 for use in opcode 5"
+[1] "do_write wrote value 0 to registers at address z = 2 as a result of opcode 5 at line 619"
 [1] "At do_next = 623 registers:"
 [1] 1 2 0 0 0 0 0 0
 [1] "Took 2 for use in opcode 7"
+[1] "do_write wrote value 0 to registers at address z = 2 as a result of opcode 5 at line 626"
 [1] "At do_next = 630 registers:"
 [1] 1 2 0 0 0 0 0 0
 [1] "Took 2 for use in opcode 7"
+[1] "do_write wrote value 16544 to registers at address z = 0 as a result of opcode 12 at line 633"
 [1] "At do_next = 637 registers:"
 [1] 16544     2     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 637"
 [1] "At do_next = 641 registers:"
 [1] 16544     1     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 31994 to registers at address z = 1 as a result of opcode 13 at line 644"
 [1] "At do_next = 648 registers:"
 [1] 16544 31994     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 0 as a result of opcode 4 at line 648"
 [1] "At do_next = 652 registers:"
 [1]     1 31994     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 7"
+[1] "do_write wrote value 32767 to registers at address z = 0 as a result of opcode 14 at line 684"
 [1] "At do_next = 687 registers:"
 [1] 32767 31994     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 687"
 [1] "At do_next = 691 registers:"
 [1] 32767     1     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 10922 to registers at address z = 0 as a result of opcode 14 at line 694"
 [1] "At do_next = 697 registers:"
 [1] 10922     1     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 697"
 [1] "At do_next = 701 registers:"
 [1] 10922     1     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 706 to registers at address z = 0 as a result of opcode 3 at line 708"
 [1] "At do_next = 710 registers:"
 [1] 706   1   0   0   0   0   0   0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 0 to registers at address z = 1 as a result of opcode 4 at line 710"
 [1] "At do_next = 714 registers:"
 [1] 706   0   0   0   0   0   0   0
 [1] "Took 1 for use in opcode 7"
 [1] "At do_next = 717 registers:"
 [1] 706   0   0   0   0   0   0   0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 717"
 [1] "At do_next = 721 registers:"
 [1] 706   1   0   0   0   0   0   0
 [1] "Took 1 for use in opcode 8"
 [1] "At do_next = 727 registers:"
 [1] 1287    1    0    0    0    0    0    0
 [1] "Took 0 for use in opcode 17"
+[1] "do_write wrote value 729 to registers at address z = 0 as a result of opcode 3 at line 731"
 [1] "At do_next = 733 registers:"
 [1] 729   1   0   0   0   0   0   0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 0 to registers at address z = 1 as a result of opcode 4 at line 733"
 [1] "At do_next = 737 registers:"
 [1] 729   0   0   0   0   0   0   0
 [1] "Took 1 for use in opcode 7"
 [1] "At do_next = 740 registers:"
 [1] 729   0   0   0   0   0   0   0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 740"
 [1] "At do_next = 744 registers:"
 [1] 729   1   0   0   0   0   0   0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 32766 to registers at address z = 0 as a result of opcode 9 at line 747"
 [1] "At do_next = 751 registers:"
 [1] 32766     1     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 751"
 [1] "At do_next = 755 registers:"
 [1] 32766     1     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
 [1] "At do_next = 758 registers:"
 [1] 32766     1     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 758"
 [1] "At do_next = 762 registers:"
 [1] 32766     1     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 0 to registers at address z = 0 as a result of opcode 9 at line 765"
 [1] "At do_next = 769 registers:"
 [1] 0 1 0 0 0 0 0 0
 [1] "Took 0 for use in opcode 7"
+[1] "do_write wrote value 0 to registers at address z = 0 as a result of opcode 9 at line 772"
 [1] "At do_next = 776 registers:"
 [1] 0 1 0 0 0 0 0 0
 [1] "Took 0 for use in opcode 7"
+[1] "do_write wrote value 54 to registers at address z = 0 as a result of opcode 10 at line 779"
 [1] "At do_next = 783 registers:"
 [1] 54  1  0  0  0  0  0  0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 0 to registers at address z = 1 as a result of opcode 4 at line 783"
 [1] "At do_next = 787 registers:"
 [1] 54  0  0  0  0  0  0  0
 [1] "Took 1 for use in opcode 7"
 [1] "At do_next = 790 registers:"
 [1] 54  0  0  0  0  0  0  0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 790"
 [1] "At do_next = 794 registers:"
 [1] 54  1  0  0  0  0  0  0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 99 to registers at address z = 0 as a result of opcode 10 at line 797"
 [1] "At do_next = 801 registers:"
 [1] 99  1  0  0  0  0  0  0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 801"
 [1] "At do_next = 805 registers:"
 [1] 99  1  0  0  0  0  0  0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 0 to registers at address z = 0 as a result of opcode 11 at line 808"
 [1] "At do_next = 812 registers:"
 [1] 0 1 0 0 0 0 0 0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 812"
 [1] "At do_next = 816 registers:"
 [1] 0 1 0 0 0 0 0 0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 4 to registers at address z = 0 as a result of opcode 11 at line 819"
 [1] "At do_next = 823 registers:"
 [1] 4 1 0 0 0 0 0 0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 823"
 [1] "At do_next = 827 registers:"
 [1] 4 1 0 0 0 0 0 0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 32738 to registers at address z = 0 as a result of opcode 10 at line 830"
 [1] "At do_next = 834 registers:"
 [1] 32738     1     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 834"
 [1] "At do_next = 838 registers:"
 [1] 32738     1     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 20000 to registers at address z = 0 as a result of opcode 15 at line 845"
 [1] "At do_next = 848 registers:"
 [1] 20000     1     0     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 848"
 [1] "At do_next = 852 registers:"
 [1] 20000     1     0     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
+[1] "do_write wrote value 844 to registers at address z = 2 as a result of opcode 9 at line 855"
 [1] "At do_next = 859 registers:"
 [1] 20000     1   844     0     0     0     0     0
 [1] "Took 2 for use in opcode 15"
+[1] "do_write wrote value 10000 to registers at address z = 0 as a result of opcode 15 at line 859"
 [1] "At do_next = 862 registers:"
 [1] 10000     1   844     0     0     0     0     0
 [1] "Took 0 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 862"
 [1] "At do_next = 866 registers:"
 [1] 10000     1   844     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
@@ -210,9 +260,11 @@ Executing self-test...
 [1] "At do_next = 875 registers:"
 [1] 843   1 844   0   0   0   0   0
 [1] "Took 0 for use in opcode 15"
+[1] "do_write wrote value 30000 to registers at address z = 2 as a result of opcode 15 at line 875"
 [1] "At do_next = 878 registers:"
 [1]   843     1 30000     0     0     0     0     0
 [1] "Took 2 for use in opcode 4"
+[1] "do_write wrote value 1 to registers at address z = 1 as a result of opcode 4 at line 878"
 [1] "At do_next = 882 registers:"
 [1]   843     1 30000     0     0     0     0     0
 [1] "Took 1 for use in opcode 8"
@@ -225,6 +277,7 @@ Executing self-test...
 [1] "At do_next = 1730 registers:"
 [1]   843  6068 30000     0     0     0     0     0
 [1] "Took 1 for use in opcode 15"
+[1] "do_write wrote value 6095 to registers at address z = 0 as a result of opcode 15 at line 1730"
 [1] "At do_next = 1733 registers:"
 [1]  6095  6068 30000     0     0     0     0     0
 [1] "Took 1 for use in opcode 2"
@@ -234,6 +287,7 @@ Executing self-test...
 [1] "At do_next = 1735 registers:"
 [1]  6095  6068 30000     0     0     0     0     0
 [1] "Took 1 for use in opcode 10"
+[1] "do_write wrote value 22160 to registers at address z = 1 as a result of opcode 10 at line 1735"
 [1] "At do_next = 2125 registers:"
 [1]  6095 22160 30000     0     0     0     0     0
 [1] "Took 1 for use in opcode 2"
@@ -246,22 +300,28 @@ Executing self-test...
 [1] "At do_next = 2129 registers:"
 [1]  6095 22160 30000     0     0     0     0     0
 [1] "Took 1 for use in opcode 12"
+[1] "do_write wrote value 5760 to registers at address z = 2 as a result of opcode 12 at line 2129"
 [1] "At do_next = 2133 registers:"
 [1]  6095 22160  5760     0     0     0     0     0
 [1] "Took 2 for use in opcode 14"
+[1] "do_write wrote value 27007 to registers at address z = 2 as a result of opcode 14 at line 2133"
 [1] "At do_next = 2136 registers:"
 [1]  6095 22160 27007     0     0     0     0     0
 [1] "Took 0 for use in opcode 13"
 [1] "At do_next = 2136 registers:"
 [1]  6095 22160 27007     0     0     0     0     0
 [1] "Took 1 for use in opcode 13"
+[1] "do_write wrote value 22495 to registers at address z = 0 as a result of opcode 13 at line 2136"
 [1] "At do_next = 2140 registers:"
 [1] 22495 22160 27007     0     0     0     0     0
 [1] "Took 0 for use in opcode 12"
 [1] "At do_next = 2140 registers:"
 [1] 22495 22160 27007     0     0     0     0     0
 [1] "Took 2 for use in opcode 12"
+[1] "do_write wrote value 16735 to registers at address z = 0 as a result of opcode 12 at line 2140"
+[1] "do_write wrote value 30000 to registers at address z = 2 as a result of opcode 3 at line 2144"
+[1] "do_write wrote value 22160 to registers at address z = 1 as a result of opcode 3 at line 2146"
 [1] "18 ret at 2148 found 1741 on the stack; moving."
 [1] "Program is terminating at location 2148 for opcode 0"
 [1] "Counter set to 32768; program ends."
-5.88 sec elapsed
+15.4 sec elapsed
