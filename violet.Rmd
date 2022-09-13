@@ -58,6 +58,16 @@ use_integer <- \(x) { #equivalent to do_read()
 write_loc <- \(value, to) {
   if (to >= 32768) {
     registers[mod == (to), val := (value)]
+    ###::
+    regmsg <- c(
+      "> *Note:* Change in register contents!", " ", 
+      paste0("Code executing on line `doing = ", doing, 
+             "` has changed the value of register `z = ", 
+             (to %% 32678), "`"), " ", 
+      "Current register contents:", " ", 
+      paste0("[ ", capture.output
+             (cat(registers$val, sep = ", ")), " ]."), " ")
+    loglines <<- c(loglines, " ", regmsg)
     ###:: TROUBLESHOOTING:
 #####    print(paste0("...!!::  ", doing, 
     #####             " triggered a write_loc() to register z-index ",
@@ -66,6 +76,14 @@ write_loc <- \(value, to) {
     ##### print(registers$val)
   } else {
     memory[z == (to), cmd := (value)]
+    ###::
+    memmsg <- c("> *Note:* Change in memory!", " ", 
+      paste0(
+        "Code executed from line `doing = ", doing, 
+        "` has changed the value of memory at location `z = ", 
+        to, "` such that **cmd** = `", value, "`."), 
+      " ")
+    loglines <<- c(loglines, " ", memmsg)
     ###:: TROUBLESHOOTING:
   #####  print(paste0("...!!::  ", doing, " triggered a write_loc() to memory z-index ",
     #####             to, "with value ", value, 
@@ -343,8 +361,8 @@ op_13_or <- \(...) {
   loglines <<- c(loglines, " ", "---", " ", (paste0(
     "!!:: `or` (opcode 13) at `doing` = `", doing, 
     "` with `{a}` = `", a, "`, `{b}` = `", b, 
-    "` (`use_integer(,", ..2, ")`), and `{c}` = `", 
-    c, "` (`use_integer(,", ..3, 
+    "` (`use_integer(", ..2, ")`), and `{c}` = `", 
+    c, "` (`use_integer(", ..3, 
     ")`), calling `write_loc()` with bits = `", bits, "`")),
     " ")
   write_loc(bits, a)
@@ -419,7 +437,7 @@ op_17_call <- \(...) {
 op_18_ret <- \(...) {
   if (isTRUE(length(stack) < 1)) {
     ###::
-    loglines <<- c(loglines, " ", "---", " ", (paste0(
+    loglines <<- c(loglines, " ", (paste0(
       "!!:: `ret` (opcode 18) at `doing` = `", doing, 
       "` found an empty stack; calling halt.")), " ")
     finish(doing, 0)
