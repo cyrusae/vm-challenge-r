@@ -275,16 +275,12 @@ op_02_push <- \(a, loc) { #expect a and loc
 
 #remove the top element from the stack and write it into <a>; empty stack = error
 op_03_pop <- \(a, loc) {
-#  if (isTRUE(length(stack) < 2)) {
-#    print("Skipping pop due to single-item stack.")
-#    finish()
-#  } else {
-    obj <- meta_pop()
+  obj <- meta_pop()
 #    print(paste("Popping value", 
 #                as.character(obj), 
 #                "out of the stack and into position z = ",
 #                as.character(a)))
-    do_write(obj, a)
+  do_write(obj, a)
 #    if (isTRUE(length(stack) < 1)) {
 #      print("The stack has been emptied.")
 #    }
@@ -336,7 +332,7 @@ op_06_jmp <- function(a, loc) {
 #              "from:", as.character(loc))
   finish()
   find(after = x) 
-  print(jmpmsg)
+#  print(jmpmsg)
   return(invisible(NULL))
 }
 
@@ -475,7 +471,6 @@ op_15_rmem <- \(vec, loc) { #expect numeric vector of length 2 that breaks into 
 
 #  write the value from <b> into memory at address <a>
 op_16_wmem <- \(vec, loc) { # expect numeric vector of length 2 that breaks into a, b
-  #allegedly b will reliably be a register address this time. #lmao nope
   a <- do_place(vec[1])
 #  bloc <- interpret(vec[2]) #change to do_read() if that's a lie though
   bval <- do_place(vec[2])
@@ -502,35 +497,35 @@ op_17_call <- \(a, loc) {
 #              ". Jumping to <a> = ", 
 #              as.character(aval)))
   finish()
-  do_next <<- aval
-  counteR()
+  ###NEW:: 
+  find(after = aval)
+#  do_next <<- aval
+#  counteR()
   return(invisible(NULL))
 }
 
 chk_RETLOG <- 0 
-rets <- 0 
+rets <- c()
 op_18_ret <- \(loc) {
   if (isTRUE(length(stack) < 1)) { 
     finish()
     op_00_halt(loc) #call existing halt
-    #alternately: #if the stack is empty, set main up to halt 
-  #  memory[z < 32767, done := TRUE]
-  #  memory[z == 32767, `:=` (done = FALSE,
-                          #   cmd = 0)]
   } else { 
-#    print(paste0("18 ret at ", 
-#                 as.character(loc), 
-#                 " found a non-empty stack; moving."))
-    place <- meta_pop() # |> do_place() # is this needed?
+    ##NEW::
+    memory[z == (loc), done := TRUE]
+    place <- meta_pop() |> do_place() # is this needed?
 #    find(place)
-    print(paste("Location found is:", place))
-    if (isFALSE(place == chk_RETLOG)) {
-      chk_RETLOG <<- place
-    } else {
-      rets <<- c((rets[1] + 1), place)
+    print(paste0("18 ret at ", 
+                 as.character(loc), 
+                 " found ", as.character(place), 
+                 " on the stack; moving."))
+    chk_RETLOG <<- chk_RETLOG + 1
+    rets <<- c(rets, (chk_RETLOG + 1), place)
+    find(after = place)
+    ##TEMP::
+    if (loc == 2148) {
+      op_00_halt(loc)
     }
-    finish()
-    do_next <<- place
 #    counteR()
   }
 #  finish() # mark this as done to avoid loops
@@ -564,7 +559,7 @@ op_20_in <- \(a, loc) {
 }
 
 op_21_noop <- \(loc) {
-#  print("......pausing to note noop.......")
+  print("............")
   finish()
   return(invisible(NULL))
 }
@@ -689,23 +684,23 @@ understandeR <- function(cmds = cmdlist) { #comma-separated list of integers unb
   do_next <<- 0 
   stop_at <<- 0 
   #big magic wherein we actually go through the table in an unavoidable while loop happens here 
-  if (isFALSE(do_next == 0) | isFALSE(length(do_next) > 0)) {
-    do_next <- 0 
-    stop_at <- 0 
-  }
+##  if (isFALSE(do_next == 0) | isFALSE(length(do_next) > 0)) {
+##    do_next <- 0 
+##    stop_at <- 0 
+##  }
   while (do_next < 32768) {
-    if (isTRUE(stop_at < 32768)) {
+###::    if (isTRUE(stop_at < 32768)) {
       sendeR(memory)
-    }
+###::    }
   }
   fwrite(memory, file = "C:/Users/cyrus/GitHere/vm-challenge-r/logs/latest_run.csv")
-  print("Counter reached 32768; program ends.") #log last known iteration 
+  print("Counter set to 32768; program ends.") #log last known iteration 
   return(invisible(NULL))
 }
 toc()
 ```
 
-```{r}
+```{r echo=FALSE}
 tic()
 understandeR(cmdlist)
 toc()
