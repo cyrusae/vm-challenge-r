@@ -59,11 +59,11 @@ write_loc <- \(value, to) {
   if (to >= 32768) {
     registers[mod == (to), val := (value)]
     ###::
-    regmsg <- c(
+    regmsg <- c("...", " ",
       "> *Note:* Change in register contents!", " ", 
       paste0("Code executing on line `doing = ", doing, 
              "` has changed the value of register `z = ", 
-             (to %% 32678), "`"), " ", 
+             (to %% 37688), "` to `", value, "`."), " ", 
       "Current register contents:", " ", 
       paste0("[ ", capture.output
              (cat(registers$val, sep = ", ")), " ]."), " ")
@@ -77,7 +77,8 @@ write_loc <- \(value, to) {
   } else {
     memory[z == (to), cmd := (value)]
     ###::
-    memmsg <- c("> *Note:* Change in memory!", " ", 
+    memmsg <- c(
+      "...", " ", "> *Note:* Change in memory!", " ", 
       paste0(
         "Code executed from line `doing = ", doing, 
         "` has changed the value of memory at location `z = ", 
