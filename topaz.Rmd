@@ -179,12 +179,15 @@ do_place <- function(x) {  #either interpret a literal value, or read from the r
   if (isTRUE(x >= 32768)) {
     xval <- interpret(x)
     a <- registers[z == (xval), val]
+    print(paste("At do_next =", do_next, "registers:"))
+    print(registers$val)
+    print(paste("Took", xval, "for use in opcode", memory[z==do_next,cmd]))
 #    print(paste("do_place retrieved", as.character(a), 
 #                "from the registers at position z =",
 #                as.character(xval)))
     a
   } else {
-    a <- interpret(x)
+    a <- x
 #    print(paste("do_place interpreted", as.character(a)))
     a
   }
