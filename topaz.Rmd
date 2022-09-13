@@ -100,24 +100,21 @@ keyboard and trust that they will be fully read
 
 no operation
 
-```{r}
-raw <- file(
-  "C:/Users/cyrus/GitHere/vm-challenge-r/materiel/challenge.bin", "rb")
-cmdlist <- readBin(raw, 
-                   integer(), 
-                   n = 100000, 
-                   size = 2, 
+```{r setup}
+raw <- file("./materiel/challenge.bin", "rb")
+cmdlist <- readBin(raw, integer(), 
+                   n = 32678, size = 2, 
                    endian = "little", 
                    signed = FALSE)
 rm(raw)
-```
 
-```{r}
 library(data.table)
 library(stringr)
-library(tictoc)
-tic()
 
+library(tictoc)
+library(profvis)
+
+tic()
 stack <- NULL 
 #binary converter
 bin_const <- 2^(0:14)
@@ -179,9 +176,9 @@ do_place <- function(x) {  #either interpret a literal value, or read from the r
   if (isTRUE(x >= 32768)) {
     xval <- interpret(x)
     a <- registers[z == (xval), val]
-    print(paste("At do_next =", do_next, "registers:"))
-    print(registers$val)
-    print(paste("Took", xval, "for use in opcode", memory[z==do_next,cmd]))
+##    print(paste("At do_next =", do_next, "registers:"))
+##    print(registers$val)
+##    print(paste("Took", xval, "for use in opcode", memory[z==do_next,cmd]))
 #    print(paste("do_place retrieved", as.character(a), 
 #                "from the registers at position z =",
 #                as.character(xval)))
@@ -218,8 +215,11 @@ do_write <- function(value, to) {
   } else {
     toval <- interpret(to)
     registers[z == (toval), val := (value)]
-#    print(paste("do_write wrote value", value, 
-#                "to registers at address z =", toval))
+##    print(paste("do_write wrote value", value, 
+##                "to registers at address z =", toval,
+##                "as a result of opcode",
+##                memory[z==do_next,cmd],
+##                "at line", do_next))
   }
   return(invisible(NULL))
 }
@@ -518,10 +518,10 @@ op_18_ret <- \(loc) {
     memory[z == (loc), done := TRUE]
     place <- meta_pop() |> do_place() # is this needed?
 #    find(place)
-    print(paste0("18 ret at ", 
-                 as.character(loc), 
-                 " found ", as.character(place), 
-                 " on the stack; moving."))
+#    print(paste0("18 ret at ", 
+#                 as.character(loc), 
+#                 " found ", as.character(place), 
+#                 " on the stack; moving."))
     chk_RETLOG <<- chk_RETLOG + 1
     rets <<- c(rets, (chk_RETLOG + 1), place)
     find(after = place)
@@ -549,9 +549,9 @@ op_20_in <- \(a, loc) {
     as.character(loc))
   str <- readline(prompt = op20prompt)
   split <- strsplit(str)
-  for (i in seq_len(length(str))) {
+  for (i in seq_len(length(split))) {
     go <- a + (i - 1)
-    char <- charToRaw(str[[i]])
+    char <- charToRaw(split[[i]])
     do_write(char, go)
   }
 #  print(paste0("Last character from input string (",
@@ -704,7 +704,46 @@ toc()
 ```
 
 ```{r echo=FALSE}
-tic()
-understandeR(cmdlist)
-toc()
+library(profvis)
+#tic()
+profvis({ understandeR(cmdlist) })
+#toc() 
 ```
+```{r}
+library(profvis)
+profvis({
+  cmdcnt <- length(cmdlist)
+  pad <- 32678 - cmdcnt
+  memories <- c(cmdlist, rep(0, pad))
+  memtest <- data.table(
+    z = 0:32677,
+    cmd = memories,
+#      mbop = mightbe,
+    do = c(rep(as.logical(NA), 32678)),
+    do1 = c(rep(as.logical(NA), 32678)),
+    do2 = c(rep(as.logical(NA), 32678)),
+    do3 = c(rep(as.logical(NA), 32678)),
+    done = c(rep(FALSE, 32678)),
+    args = c(rep(as.integer(NA), 32678))
+  )
+  takes0 <- c(21,18,0)
+  memtest[cmd %in% (takes0), args := 0]
+  takes1 <- c(2,3,6,19,17,20)
+  memtest[cmd %in% (takes1), args := 1]
+  takes2 <- c(1,7,8,14,15,16) 
+  memtest[cmd %in% (takes2), args := 2]
+  takes3 <- c(13,12,11,10,9,5,4)  
+  memtest[cmd %in% (takes3), args := 3]
+  is0 <- memtest$args == 0
+  is1 <- memtest$args == 1
+  is2 <- memtest$args == 2
+  is3 <- memtest$args == 3
+  what <- data.table(
+    is0 = is0,
+    is1 = is1,
+    is2 = is2,
+    is3 = is3
+  )
+  })
+```
+
