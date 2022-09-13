@@ -1,0 +1,267 @@
+Executing self-test...
+
+[1] "[End printing.]"
+[1] "............"
+[1] "............"
+[1] "............"
+[1] "............"
+[1] "............"
+[1] "At do_next = 500 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 7"
+[1] "At do_next = 503 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 1 for use in opcode 7"
+[1] "At do_next = 506 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 2 for use in opcode 7"
+[1] "At do_next = 509 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 3 for use in opcode 7"
+[1] "At do_next = 512 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 4 for use in opcode 7"
+[1] "At do_next = 515 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 5 for use in opcode 7"
+[1] "At do_next = 518 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 6 for use in opcode 7"
+[1] "At do_next = 521 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 7 for use in opcode 7"
+[1] "At do_next = 527 registers:"
+[1] 1 0 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 8"
+[1] "At do_next = 533 registers:"
+[1] 0 0 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 7"
+[1] "At do_next = 540 registers:"
+[1] 2 0 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 7"
+[1] "At do_next = 564 registers:"
+[1] 2 0 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 568 registers:"
+[1] 2 1 0 0 0 0 0 0
+[1] "Took 1 for use in opcode 7"
+[1] "At do_next = 590 registers:"
+[1] 2 1 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 2"
+[1] "At do_next = 592 registers:"
+[1] 2 1 0 0 0 0 0 0
+[1] "Took 1 for use in opcode 2"
+[1] "At do_next = 598 registers:"
+[1] 1 2 0 0 0 0 0 0
+[1] "Took 1 for use in opcode 4"
+[1] "At do_next = 602 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 2 for use in opcode 8"
+[1] "At do_next = 605 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 609 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 2 for use in opcode 8"
+[1] "At do_next = 612 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 1 for use in opcode 5"
+[1] "At do_next = 612 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 0 for use in opcode 5"
+[1] "At do_next = 616 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 2 for use in opcode 8"
+[1] "At do_next = 619 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 0 for use in opcode 5"
+[1] "At do_next = 619 registers:"
+[1] 1 2 1 0 0 0 0 0
+[1] "Took 1 for use in opcode 5"
+[1] "At do_next = 623 registers:"
+[1] 1 2 0 0 0 0 0 0
+[1] "Took 2 for use in opcode 7"
+[1] "At do_next = 630 registers:"
+[1] 1 2 0 0 0 0 0 0
+[1] "Took 2 for use in opcode 7"
+[1] "At do_next = 637 registers:"
+[1] 16544     2     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 641 registers:"
+[1] 16544     1     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 648 registers:"
+[1] 16544 31994     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 4"
+[1] "At do_next = 652 registers:"
+[1]     1 31994     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 7"
+[1] "At do_next = 687 registers:"
+[1] 32767 31994     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 691 registers:"
+[1] 32767     1     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 697 registers:"
+[1] 10922     1     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 701 registers:"
+[1] 10922     1     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 710 registers:"
+[1] 706   1   0   0   0   0   0   0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 714 registers:"
+[1] 706   0   0   0   0   0   0   0
+[1] "Took 1 for use in opcode 7"
+[1] "At do_next = 717 registers:"
+[1] 706   0   0   0   0   0   0   0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 721 registers:"
+[1] 706   1   0   0   0   0   0   0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 727 registers:"
+[1] 1287    1    0    0    0    0    0    0
+[1] "Took 0 for use in opcode 17"
+[1] "At do_next = 733 registers:"
+[1] 729   1   0   0   0   0   0   0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 737 registers:"
+[1] 729   0   0   0   0   0   0   0
+[1] "Took 1 for use in opcode 7"
+[1] "At do_next = 740 registers:"
+[1] 729   0   0   0   0   0   0   0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 744 registers:"
+[1] 729   1   0   0   0   0   0   0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 751 registers:"
+[1] 32766     1     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 755 registers:"
+[1] 32766     1     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 758 registers:"
+[1] 32766     1     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 762 registers:"
+[1] 32766     1     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 769 registers:"
+[1] 0 1 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 7"
+[1] "At do_next = 776 registers:"
+[1] 0 1 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 7"
+[1] "At do_next = 783 registers:"
+[1] 54  1  0  0  0  0  0  0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 787 registers:"
+[1] 54  0  0  0  0  0  0  0
+[1] "Took 1 for use in opcode 7"
+[1] "At do_next = 790 registers:"
+[1] 54  0  0  0  0  0  0  0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 794 registers:"
+[1] 54  1  0  0  0  0  0  0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 801 registers:"
+[1] 99  1  0  0  0  0  0  0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 805 registers:"
+[1] 99  1  0  0  0  0  0  0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 812 registers:"
+[1] 0 1 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 816 registers:"
+[1] 0 1 0 0 0 0 0 0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 823 registers:"
+[1] 4 1 0 0 0 0 0 0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 827 registers:"
+[1] 4 1 0 0 0 0 0 0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 834 registers:"
+[1] 32738     1     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 838 registers:"
+[1] 32738     1     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 848 registers:"
+[1] 20000     1     0     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 852 registers:"
+[1] 20000     1     0     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 859 registers:"
+[1] 20000     1   844     0     0     0     0     0
+[1] "Took 2 for use in opcode 15"
+[1] "At do_next = 862 registers:"
+[1] 10000     1   844     0     0     0     0     0
+[1] "Took 0 for use in opcode 4"
+[1] "At do_next = 866 registers:"
+[1] 10000     1   844     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 872 registers:"
+[1] 843   1 844   0   0   0   0   0
+[1] "Took 0 for use in opcode 16"
+[1] "At do_next = 875 registers:"
+[1] 843   1 844   0   0   0   0   0
+[1] "Took 0 for use in opcode 15"
+[1] "At do_next = 878 registers:"
+[1]   843     1 30000     0     0     0     0     0
+[1] "Took 2 for use in opcode 4"
+[1] "At do_next = 882 registers:"
+[1]   843     1 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 8"
+[1] "At do_next = 1723 registers:"
+[1]   843     1 30000     0     0     0     0     0
+[1] "Took 0 for use in opcode 2"
+[1] "At do_next = 1725 registers:"
+[1]   843     1 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 2"
+[1] "At do_next = 1730 registers:"
+[1]   843  6068 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 15"
+[1] "At do_next = 1733 registers:"
+[1]  6095  6068 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 2"
+[1] "At do_next = 1735 registers:"
+[1]  6095  6068 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 10"
+[1] "At do_next = 1735 registers:"
+[1]  6095  6068 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 10"
+[1] "At do_next = 2125 registers:"
+[1]  6095 22160 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 2"
+[1] "At do_next = 2127 registers:"
+[1]  6095 22160 30000     0     0     0     0     0
+[1] "Took 2 for use in opcode 2"
+[1] "At do_next = 2129 registers:"
+[1]  6095 22160 30000     0     0     0     0     0
+[1] "Took 0 for use in opcode 12"
+[1] "At do_next = 2129 registers:"
+[1]  6095 22160 30000     0     0     0     0     0
+[1] "Took 1 for use in opcode 12"
+[1] "At do_next = 2133 registers:"
+[1]  6095 22160  5760     0     0     0     0     0
+[1] "Took 2 for use in opcode 14"
+[1] "At do_next = 2136 registers:"
+[1]  6095 22160 27007     0     0     0     0     0
+[1] "Took 0 for use in opcode 13"
+[1] "At do_next = 2136 registers:"
+[1]  6095 22160 27007     0     0     0     0     0
+[1] "Took 1 for use in opcode 13"
+[1] "At do_next = 2140 registers:"
+[1] 22495 22160 27007     0     0     0     0     0
+[1] "Took 0 for use in opcode 12"
+[1] "At do_next = 2140 registers:"
+[1] 22495 22160 27007     0     0     0     0     0
+[1] "Took 2 for use in opcode 12"
+[1] "18 ret at 2148 found 1741 on the stack; moving."
+[1] "Program is terminating at location 2148 for opcode 0"
+[1] "Counter set to 32768; program ends."
+5.88 sec elapsed
