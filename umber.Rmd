@@ -160,6 +160,10 @@ op_01_set <- \(work) {
 op_02_push <- \(work) {
   a <- use_integer(work[1])
   stack <<- c(a, stack)
+  ###::
+  print(paste0("!!:: push (opcode 2) performed at doing = ",
+               doing, ". Stack contains:"))
+  cat(stack)
   finish(doing, 1)
   return(invisible(NULL))
 }
@@ -168,9 +172,10 @@ op_03_pop <- \(work) {
   a <- work[1]
   val <- pop_stack()
   ###::
-#####  print(paste0("!!:: [opcode 3 pop with <a> = ", a,
-  #####             " and popped value = ", val, 
-  #####             " calling write_loc() follows.]"))
+  print(paste0("!!:: opcode 3 pop with <a> = ", a,
+               " and popped value = ", val, 
+               " was called by doing = ", doing, 
+               "; calling write_loc() follows."))
   write_loc(value = val, to = a)
   finish(doing, 1)
   return(invisible(NULL))
@@ -490,7 +495,7 @@ while (doing < 32768) {
                  doing, ". Setting to 32768 to exit."))
     doing <<- 32768
   }  
-  if (isTRUE((loop46 + loop41) > 21)) {
+  if (isTRUE((loop46 + loop41) > 4)) {
     print(paste0("Terminating at <doing> = ",
                  doing, " due to a total of: ",
                  loop41, " ret loops on 1741 && ",
