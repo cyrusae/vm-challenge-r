@@ -100,29 +100,37 @@ dispatcheR <- \() {
     print(paste0("PRINT QUEUE: \n", 
                  printqueue, "\n END PRINT QUEUE"))
     printqueue <<- c()
+  } #game the system slightly 
+  ### to make checking perform take fewer iterations 
+  ### for higher numbers 
+  ### at least until I figure out a way to store 
+  ### numbered strings that can be forcibly 
+  ### evaluated as function calls, anyway
+  if (perform <= 10) { 
+    if (perform == 0) { op_00_halt() }
+    if (perform == 1) { op_01_set(with) }
+    if (perform == 2) { op_02_push(with) }
+    if (perform == 3) { op_03_pop(with) }
+    if (perform == 4) { op_04_eq(with) }
+    if (perform == 5) { op_05_gt(with) }
+    if (perform == 6) { op_06_jmp(with) }
+    if (perform == 7) { op_07_jt(with) }
+    if (perform == 8) { op_08_jf(with) }
+    if (perform == 9) { op_09_add(with) }
+    if (perform == 10) { op_10_mult(with) }
+  } else {
+    if (perform == 11) { op_11_mod(with) }
+    if (perform == 12) { op_12_and(with) }
+    if (perform == 13) { op_13_or(with) }
+    if (perform == 14) { op_14_not(with) }
+    if (perform == 15) { op_15_rmem(with) }
+    if (perform == 16) { op_16_wmem(with) }
+    if (perform == 17) { op_17_call(with) }
+    if (perform == 18) { op_18_ret() }
+    if (perform == 19) { op_19_out(with) }
+    if (perform == 20) { op_20_in(with) }
+    if (perform == 21) { op_21_noop() }
   }
-  if (perform == 0) { op_00_halt() }
-  if (perform == 1) { op_01_set(with) }
-  if (perform == 2) { op_02_push(with) }
-  if (perform == 3) { op_03_pop(with) }
-  if (perform == 4) { op_04_eq(with) }
-  if (perform == 5) { op_05_gt(with) }
-  if (perform == 6) { op_06_jmp(with) }
-  if (perform == 7) { op_07_jt(with) }
-  if (perform == 8) { op_08_jf(with) }
-  if (perform == 9) { op_09_add(with) }
-  if (perform == 10) { op_10_mult(with) }
-  if (perform == 11) { op_11_mod(with) }
-  if (perform == 12) { op_12_and(with) }
-  if (perform == 13) { op_13_or(with) }
-  if (perform == 14) { op_14_not(with) }
-  if (perform == 15) { op_15_rmem(with) }
-  if (perform == 16) { op_16_wmem(with) }
-  if (perform == 17) { op_17_call(with) }
-  if (perform == 18) { op_18_ret() }
-  if (perform == 19) { op_19_out(with) }
-  if (perform == 20) { op_20_in(with) }
-  if (perform == 21) { op_21_noop() }
   return(invisible(NULL))
 }
 
@@ -138,12 +146,15 @@ op_00_halt <- \() {
 
 op_01_set <- \(work) {
   a <- work[1]
-  finish(doing, 1)
+  b <- use_integer(work[2])
+  write_loc(value = b, to = a)
+  finish(doing, 2)
   return(invisible(NULL))
 }
 
 op_02_push <- \(work) {
-  a <- work[1]
+  a <- use_integer(work[1])
+  stack <<- c(a, stack)
   finish(doing, 1)
   return(invisible(NULL))
 }
