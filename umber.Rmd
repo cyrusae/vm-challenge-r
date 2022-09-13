@@ -349,6 +349,8 @@ tic("starting machine...")
 while (doing < 32768) {
   dispatcheR()
 }
+fwrite(memory, file = "./logs/umber_latest_run.csv",
+       yaml = TRUE, verbose = TRUE)
 print("Counter set to 32768; execution ended.")
 toc()
 ```
