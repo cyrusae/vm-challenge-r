@@ -535,7 +535,7 @@ print("Counter set to 32768; execution ended. Logs:")
 writeLines(loglines)
 fwrite(list(loglines), 
        file = paste0("./logs/violet_loglines_", 
-                     Sys.Date(), ".md"))
+                     Sys.time(), ".md"))
 toc()
 ```
 
