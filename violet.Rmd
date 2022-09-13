@@ -101,11 +101,9 @@ dispatcheR <- \() {
   work <<- start(doing)
   perform <- work[1]
   if (perform != 19 & length(printqueue) > 0) {
-    print("[MESSAGE:]")
-    cat(printqueue, sep = "")
-    print("[END MESSAGE.]")
-    loglines <<- c(loglines, "", "[PRINTED:]",
-                   paste0(printqueue), "")
+    msg <- c("[MESSAGE:", capture.output(cat(printqueue, sep = "")), "[END MESSAGE]", "")
+    writeLines(msg)
+    loglines <<- c(loglines, "", msg)
     printqueue <<- c()
   } 
   stopifnot(perform <= 21) #stop for illegal commands
@@ -480,7 +478,7 @@ setorder(registers, z)
 printqueue <- c()
 loglines <- c()
 
-tic("Logging time taken to initialize memory table for umber...")
+tic("Logging time taken to initialize memory table for violet...")
 memory <- data.table(z = 0:32767,
                      cmd = c(cmdlist, 
                              rep(0, (32768 - length(cmdlist)))),
@@ -517,10 +515,11 @@ while (doing < 32768) {
 fwrite(memory, 
        file = "./logs/violet_latest_run.csv",
        yaml = TRUE)
-fwrite(loglines, 
-       file = paste0("./logs/violet_logs_", 
-                     Sys.Date(), ".txt"))
 print("Counter set to 32768; execution ended. Logs:")
 writeLines(loglines)
+fwrite(list(loglines), 
+       file = paste0("./logs/violet_loglines_", 
+                     Sys.Date(), ".txt"))
 toc()
 ```
+
