@@ -65,15 +65,15 @@ write_loc <- \(value, to) {
   if (to >= 32768) {
     registers[mod == (to), val := (value)]
     ###::
-    regmsg <- c("...", " ",
-      "> *Note:* Change in register contents!", " ", 
-      paste0("Code executing on line `doing = ", doing, 
-             "` has changed the value of register `z = ", 
-             (to %% 37688), "` to `", value, "`."), " ", 
-      "Current register contents:", " ", 
-      paste0("[ ", capture.output
-             (cat(registers$val, sep = ", ")), " ]."), " ")
-    loglines <<- c(loglines, " ", regmsg)
+#####    regmsg <- c("...", " ",
+#####      "> *Note:* Change in register contents!", " ", 
+#####      paste0("Code executing on line `doing = ", doing, 
+#####             "` has changed the value of register `z = ", 
+#####             (to %% 37688), "` to `", value, "`."), " ", 
+#####      "Current register contents:", " ", 
+#####      paste0("[ ", capture.output
+#####             (cat(registers$val, sep = ", ")), " ]."), " ")
+#####    loglines <<- c(loglines, " ", regmsg)
     ###:: TROUBLESHOOTING:
 #####    print(paste0("...!!::  ", doing, 
     #####             " triggered a write_loc() to register z-index ",
@@ -84,7 +84,8 @@ write_loc <- \(value, to) {
     memory[z == (to), cmd := (value)]
     ###::
     memmsg <- c(
-      "...", " ", "> *Note:* Change in memory!", " ", 
+      "...", " ", 
+#####      "> *Note:* Change in memory!", " ", 
       paste0(
         "Code executed from line `doing = ", doing, 
         "` has changed the value of memory at location `z = ", 
@@ -453,10 +454,10 @@ op_18_ret <- \(...) {
   } else {
     place <- use_integer(pop_stack())
     ###::
-    loglines <<- c(loglines, " ", "---", " ", (
-      paste0("!!:: `ret` (opcode 18) at `doing` = `",
-             doing, "` found stack. Going to `", place, "`")),
-      " ")
+#####    loglines <<- c(loglines, " ", "---", " ", (
+#####      paste0("!!:: `ret` (opcode 18) at `doing` = `",
+#####             doing, "` found stack. Going to `", place, "`")),
+#####      " ")
     if (place == 1741) {
       loop41 <<- loop41 + 1
 #####      loglines <<- c(loglines, " ", (paste0(
@@ -526,12 +527,15 @@ setorder(registers, z)
 printqueue <- c()
 loglines <- c()
 
+cmdlen <- length(cmdlist)
 tic("Logging time taken to initialize memory table for violet...")
-memory <- data.table(z = 0:32767,
-                     cmd = c(cmdlist, 
-                             rep(0, (32768 - length(cmdlist)))),
-                     do = c(rep(as.logical(NA), 32768)),
-                     done = c(rep(as.logical(NA), 32768))
+memory <- data.table(z = 0:(cmdlen-1),
+                     cmd = c(cmdlist
+#####                             , 
+#####                             rep(0, (32768 - length(cmdlist)))
+                             ),
+                     do = c(rep(as.logical(NA), cmdlen)),
+                     done = c(rep(as.logical(NA), cmdlen))
                      )
 setkey(memory, z)
 toc()
@@ -550,7 +554,7 @@ while (doing < 32768) {
                  doing, ". Setting to 32768 to exit."))
     doing <<- 32768
   }  
-  if (isTRUE((loop46 + loop41) > 201)) {
+  if (isTRUE((loop46 + loop41) > 10001)) {
     print(paste0("STOP :: Terminating at <doing> = ",
                  doing, " after a total of: ",
                  loop41, " ret iterations on 1741 && ",
