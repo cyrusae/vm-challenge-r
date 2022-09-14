@@ -420,12 +420,15 @@ doeR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
   }
   if (!is.na(from) & from < modulo) {
     doing <<- from
+    if (play = TRUE) {
+      go(action = action, write = write, finish = from)
+    }
   } else {
     doing <<- 0
   }
-  if (play = TRUE) {
+  if (play = TRUE & !is.na(from)) {
     go(action = action, write = write, finish = from)
-  }
+  } 
   challengeR()
   return(invisible(NULL))
 }
