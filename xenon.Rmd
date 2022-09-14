@@ -1,5 +1,5 @@
 ---
-title: "vm - wisteria"
+title: "vm - xenon"
 output: html_notebook
 ---
 
@@ -113,7 +113,7 @@ op_00_halt <- \(...) {
   print(
     "Counter set to 32768; execution ended. Default logs...")
   fwrite(list(loglines), 
-       file = paste0("./logs/wisteria_loglines_", 
+       file = paste0("./logs/xenon_loglines_", 
                      as.integer(Sys.time()), ".md"))
   print("...have been saved.")
   return(invisible(NULL))
@@ -343,8 +343,13 @@ go <- \(action = NA, write = NA, finish = NA) {
     writeLines(ergo)
     break
   } else {
+    if (length(printqueue) > 0) {
+      cat(printqueue, sep = "")
+      printqueue <<- c()
+    }
     while (is.na(action)) {
-      action <- readline(prompt = "Enter command...")
+      action <- readline(
+        prompt = "Enter command...")
     }
     str <- strsplit(action)
     seq <- seq_along(str) - 1
@@ -401,7 +406,7 @@ challengeR <- \(doing = 0) {
     dispatcheR()
   }
   fwrite(memory, 
-       file = "./logs/wisteria_latest_run.csv",
+       file = "./logs/xenon_latest_run.csv",
        yaml = TRUE)
   toc()
   print(paste0("STOP :: Run ends at ", Sys.time()))
@@ -430,7 +435,7 @@ doeR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
 
 ```{r manual_logging}
 fwrite(list(loglines), 
-       file = paste0("./logs/wisteria_loglines_", 
+       file = paste0("./logs/xenon_loglines_", 
                      as.integer(Sys.time()), ".md"))
 fwrite(memory, file = paste0(
   "./logs/", as.integer(Sys.time()), ".csv"))
