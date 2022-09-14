@@ -16,6 +16,9 @@ library(profvis) #profiling
 ## use for bitwise not 
 bin_const <- 2^(0:14)
 
+## makes logs more readable 
+logbrk <- c(" ", "---", " ") 
+
 ## use for less dyslexia mod errors
 modulo <- 32768
 magic <- 32776 ## total number of possible locations 
@@ -57,14 +60,6 @@ write_loc <- \(value, to = NULL) {
     to <- work[1] ### default to assuming  that
       ### we may want to write to the register 
   }
-  if (to >= modulo) { 
-    ### track register due to nonzero reg error
-    reglog <- paste0("**Register change:** writing value = ",
-                     value, " to = ", to)
-    writeLines(reglog)
-    loglines <- append(loglines, 
-                       c(" ", "---", " ", reglog, " "))
-  }
   memory[z %in% (to), cmd := (value)] ### update address
   return(invisible(NULL))
 }
@@ -73,9 +68,6 @@ pop_stack <- \() {
   stopifnot(length(stack) > 0) 
   x <- stack[1] 
   stack <<- stack[-1] ### superassign pop top off stack
-  stacklog <- paste0("Popped value x = ", x, " off of the stack. Remaining stack contents: ", capture.output(cat(as.character(stack))))
-  print(stacklog)
-  loglines <<- append(loglines, c(" ", stacklog, " "))
   x ### return
 }
 ```
@@ -83,7 +75,6 @@ pop_stack <- \() {
 ```{r dispatcheR}
 ## Controller
 #run within while loop for doing < 32768
-logbrk <- c(" ", "---", " ")
 
 dispatcheR <- \() {
   perform <- memory[z == (doing), cmd] 
@@ -105,28 +96,6 @@ dispatcheR <- \() {
                         c(logbrk, msg, " "))
     printqueue <<- c()
   } 
-  if (!(perform %in% c(0, 19, 21))) { 
-    ### no argument logging for print,  noop, or halt
-    track <- c(paste0("Doing: ", 
-                  as.character(
-                   .subset2(opnames, (perform + 1))), 
-                   " at z = ", doing), 
-               (paste0("... [work] contains:",
-                      capture.output(
-                        cat(as.character(work))))))
-    loglines <<- append(loglines, c(logbrk, track))
-    writeLines(track)
-    if (identical(args, work)) {
-      alog <- "... and [args] match [work]."
-    } else {
-      alog <- (paste0("... [args] contains:",
-                        capture.output(
-                          cat(as.character(args)))))
-    }
-    writeLines(alog)
-    loglines <<- append(loglines, c(alog, logbrk))
-    print("...")
-  }
   stopifnot(perform <= 21) #stop for illegal commands
   if (perform == 0) {
     op_00_halt()
@@ -142,7 +111,7 @@ dispatcheR <- \() {
 
 ```{r opcodes}
 op_00_halt <- \(...) { 
-  writeLines(paste0(
+  print(paste0(
     "ALERT :: Halting at z = ", doing, "!"))
   loglines <<- append(
     loglines, c(" ", "---", " ", 
@@ -184,7 +153,6 @@ op_03_pop <- \(...) {
 op_04_eq <- \(...) {
   b <- ..2
   c <- ..3
-  print(paste0("Eq trying: ", b, "==", c))
   if (b == c) {
     write_loc(value = 1)
   } else {
@@ -197,7 +165,6 @@ op_04_eq <- \(...) {
 op_05_gt <- \(...) {
   b <- ..2
   c <- ..3
-  print(paste0("Gt trying: ", b, " > ", c))
   if (isTRUE(b > c)) {
     write_loc(value = 1)
   } else {
@@ -246,7 +213,7 @@ op_09_add <- \(...) {
 op_10_mult <- \(...) {
   b <- ..2
   c <- ..3
-  got <- (b * c) %% 32768
+  got <- (b * c) %% modulo
   write_loc(value = got)
   finish(doing, 3)
   return(invisible(NULL))
@@ -371,7 +338,7 @@ op_20_in <- \(...) {
            " ", "Resume with `go(action = {command}, write = "
            , into, ", finish = ", resume, ")` to continue!")
   writeLines(msg)
-  loglines <<- append(loglines, c(" ", "---", " "), msg)
+  loglines <<- append(loglines, c(logbrk, msg))
   fwrite(list(loglines), file = ofn)
   fwrite(memory, file = sfn)
   doing <<- modulo
