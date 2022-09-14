@@ -49,8 +49,6 @@ finish <- \(loc, args = 0) { #expect z-indexed
 }
 
 start <- \(loc) { 
-#####  memory[((loc) + 1), do := TRUE]
-#####  memory[((loc) + 2):((loc) + 4), do := FALSE]
   work <- memory[((loc) + 1):((loc) + 4), cmd]
   work
 }
@@ -103,19 +101,21 @@ dispatcheR <- \() {
 
 ```{r opcodes}
 op_00_halt <- \(...) { 
-  print(paste0("ALERT :: Halting at z = ", doing, "!"))
+  writeLines(paste0(
+    "ALERT :: Halting at z = ", doing, "!"))
   loglines <<- append(
     loglines, c(" ", "---", " ", 
-    (paste0("**HALT ::** Program halted by z-index `",
+    (paste0(
+      "**HALT ::** Program halted by z-index `",
             doing, "`")), " "))
   finish(doing)
   doing <<- modulo
-  print(
-    "Counter set to 32768; execution ended. Default logs...")
-  fwrite(list(loglines), 
-       file = paste0("./logs/xenon_loglines_", 
-                     as.integer(Sys.time()), ".md"))
-  print("...have been saved.")
+  lfn <- paste0("./logs/xenon_loglines_", 
+                     as.integer(Sys.time()), ".md")
+  fwrite(list(loglines), file = lfn)
+  writeLines(c(
+    "Counter set to 32768; execution ended. Default logs...", 
+    paste0("...have been saved to ", lfn)))
   return(invisible(NULL))
 }
 
@@ -172,9 +172,8 @@ op_06_jmp <- \(...) {
 }
 
 op_07_jt <- \(...) {
-  args <- memory[z %in% c((..1), (..2)), cmd]
-  a <- args[1]
-  b <- args[2]
+  a <- ..1
+  b <- ..2
   finish(doing, 2)
   if (isTRUE(a > 0)) {
     doing <<- b
@@ -183,9 +182,8 @@ op_07_jt <- \(...) {
 }
 
 op_08_jf <- \(...) {
-  args <- memory[z %in% c((..1), (..2)), cmd]
-  a <- args[1]
-  b <- args[2]
+  a <- ..1
+  b <- ..2
   finish(doing, 2)
   if (a == 0) {
     doing <<- b
@@ -222,7 +220,7 @@ op_11_mod <- \(...) {
 
 op_12_and <- \(...) {
   b <- ..2
-  c <- ..2
+  c <- ..3
   bits <- bitwAnd(b, c)
   write_loc(value = bits)
   finish(doing, 3)
@@ -392,7 +390,7 @@ restore <- \() {
 ```{r machin}
 challengeR <- \(doing = 0) {
   tic("starting machine...")
-  print(paste0("START :: Run starts at ", Sys.time()))
+  writeLines(paste0("START :: Run starts at ", Sys.time()))
   stopifnot(nrow(memory) >= 1)
   while (doing < 32768) {
     if (isFALSE(length(doing) == 1)) {
@@ -400,7 +398,7 @@ challengeR <- \(doing = 0) {
                  ". Setting to 32768 to exit.")
       loglines <<- append(
         loglines, c(" ", "---", " ", stopmsg))
-      print(stopmsg)
+      writeLines(stopmsg)
       doing <<- modulo
     }  
     dispatcheR()
@@ -409,7 +407,7 @@ challengeR <- \(doing = 0) {
        file = "./logs/xenon_latest_run.csv",
        yaml = TRUE)
   toc()
-  print(paste0("STOP :: Run ends at ", Sys.time()))
+  writeLines(paste0("STOP :: Run ends at ", Sys.time()))
 }
 ```
 
@@ -431,6 +429,10 @@ doeR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
   challengeR()
   return(invisible(NULL))
 }
+```
+
+```{r try_it}
+profvis( { doeR() } )
 ```
 
 ```{r manual_logging}
