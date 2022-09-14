@@ -1,0 +1,437 @@
+---
+title: "vm - wisteria"
+output: html_notebook
+---
+
+```{r setup}
+library(data.table) #table
+library(stringr) #string wrangling
+
+library(tictoc) #timer
+library(profvis) #profiling
+
+##build constants:
+
+## use for bitwise not 
+bin_const <- 2^(0:14)
+
+## use for less dyslexia mod errors
+modulo <- 32768
+magic <- 32776 ## total number of possible locations 
+
+## use for finding opcodes 
+opnames <- c(
+  "op_00_halt", "op_01_set", "op_02_push",
+  "op_03_pop", "op_04_eq", "op_05_gt", 
+  "op_06_jmp", "op_07_jt", "op_08_jf", "op_09_add",
+  "op_10_mult", "op_11_mod", "op_12_and",
+  "op_13_or", "op_14_not", "op_15_rmem",
+  "op_16_wmem", "op_17_call", "op_18_ret",
+  "op_19_out", "op_20_in", "op_21_noop")
+
+#get commands
+raw <- file("./materiel/challenge.bin", "rb")
+cmdlist <- readBin(raw, integer(), n = modulo, 
+                   size = 2, endian = "little",
+                   signed = FALSE)
+rm(raw)
+```
+
+```{r utility_funcs}
+#########
+## General-purpose functions
+
+finish <- \(loc, args = 0) { #expect z-indexed
+  line <- loc + 1
+  doing <<- (line + args)
+  memory[(line):(doing), done := TRUE]
+  return(invisible(NULL))
+}
+
+start <- \(loc) { 
+#####  memory[((loc) + 1), do := TRUE]
+#####  memory[((loc) + 2):((loc) + 4), do := FALSE]
+  work <- memory[((loc) + 1):((loc) + 4), cmd]
+  work
+}
+
+write_loc <- \(value, to = NA) {
+  if (is.na(to)) {
+    to <- with[1] 
+  }
+  memory$to <- value
+  return(invisible(NULL))
+}
+
+pop_stack <- \() {
+  stopifnot(length(stack) > 0) 
+  x <- stack[1]
+  stack <<- stack[-1]
+  x
+}
+```
+
+```{r dispatcheR}
+## Controller
+#run within while loop for doing < 32768
+
+dispatcheR <- \() {
+  work <<- start(doing)
+  perform <- work[1]
+  if ((length(printqueue) > 0) & 
+       (perform == 0 | perform <= 21)) { 
+    msg <- c(capture.output(cat
+                            (printqueue, sep = "")), 
+             paste0(" // ", Sys.time()))
+    writeLines(msg)
+    loglines <<- append(loglines, 
+                        c(" ", "---", " ", msg, " "))
+    printqueue <<- c()
+  } 
+  stopifnot(perform <= 21) #stop for illegal commands
+  if (perform == 0) {
+    op_00_halt()
+  } else {
+    with <- work[-1] |> as.list()
+    args <- memory[z %in% (with), cmd] |> as.list()
+    do.call(what = .subset2(opnames, (perform + 1)), 
+          args = args)
+  }
+  return(invisible(NULL))
+}
+```
+
+```{r opcodes}
+op_00_halt <- \(...) { 
+  print(paste0("ALERT :: Halting at z = ", doing, "!"))
+  loglines <<- append(
+    loglines, c(" ", "---", " ", 
+    (paste0("**HALT ::** Program halted by z-index `",
+            doing, "`")), " "))
+  finish(doing)
+  doing <<- modulo
+  print(
+    "Counter set to 32768; execution ended. Default logs...")
+  fwrite(list(loglines), 
+       file = paste0("./logs/wisteria_loglines_", 
+                     as.integer(Sys.time()), ".md"))
+  print("...have been saved.")
+  return(invisible(NULL))
+}
+
+op_01_set <- \(...) {
+  b <- ..2
+  write_loc(value = b)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_02_push <- \(...) {
+  a <- ..1
+  stack <<- append(a, stack)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_03_pop <- \(...) {
+  val <- pop_stack()
+  write_loc(value = val)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_04_eq <- \(...) {
+  b <- ..2
+  c <- ..3
+  if (identical(b, c)) {
+    write_loc(value = 1)
+  } else {
+    write_loc(value = 0)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_05_gt <- \(...) {
+  b <- ..2
+  c <- ..3
+  if (isTRUE(b > c)) {
+    write_loc(value = 1)
+  } else {
+    write_loc(value = 0)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_06_jmp <- \(...) {
+  a <- memory[z == (..1), cmd]
+  finish(doing, 1)
+  doing <<- a 
+  return(invisible(NULL))
+}
+
+op_07_jt <- \(...) {
+  args <- memory[z %in% c((..1), (..2)), cmd]
+  a <- args[1]
+  b <- args[2]
+  finish(doing, 2)
+  if (isTRUE(a > 0)) {
+    doing <<- b
+  }
+  return(invisible(NULL))
+}
+
+op_08_jf <- \(...) {
+  args <- memory[z %in% c((..1), (..2)), cmd]
+  a <- args[1]
+  b <- args[2]
+  finish(doing, 2)
+  if (a == 0) {
+    doing <<- b
+  } 
+  return(invisible(NULL))
+} 
+
+op_09_add <- \(...) {
+  b <- ..2
+  c <- ..3
+  got <- (b + c) %% modulo
+  write_loc(value = got)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_10_mult <- \(...) {
+  b <- ..2
+  c <- ..3
+  got <- (b * c) %% 32768
+  write_loc(value = got)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_11_mod <- \(...) {
+  b <- ..2
+  c <- ..3
+  got <- b %% c
+  write_loc(value = got)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_12_and <- \(...) {
+  b <- ..2
+  c <- ..2
+  bits <- bitwAnd(b, c)
+  write_loc(value = bits)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_13_or <- \(...) {
+  b <- ..2
+  c <- ..3
+  bits <- bitwOr(b, c)
+  write_loc(value = bits)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_14_not <- \(...) {
+  b <- as.integer(intToBits(..2))[1:15]
+  bt <- b == 0
+  bits <- sum(bin_const[bt])
+  write_loc(value = bits)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_15_rmem <- \(...) {
+  b <- read_loc(..2) 
+  write_loc(value = b)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_16_wmem <- \(...) {
+  a <- ..1
+  b <- ..2
+  write_loc(value = b)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_17_call <- \(...) {
+  a <- ..1
+  finish(doing, 1) 
+  stack <<- append(doing, stack) 
+  doing <<- a #update doing again to find real destination
+  return(invisible(NULL))
+}
+
+op_18_ret <- \(...) {
+  if (isTRUE(length(stack) < 1)) {
+    loglines <<- append( ## note error.
+      loglines, c(" ", (paste0(
+      "!!:: `ret` (opcode 18) at `doing` = `",
+      doing, 
+      "` found an empty stack; calling halt.")), 
+      " "))
+    op_00_halt()
+  } else {
+    finish(doing, 0)
+    top <- pop_stack()
+    doing <<- memory[z == (top), cmd]
+  }
+  return(invisible(NULL))
+}
+
+op_19_out <- \(...) {
+  a <- ..1
+  ch <- rawToChar(as.raw(a))
+  printqueue <<- append(printqueue, ch)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_20_in <- \(...) {
+  ti <- Sys.time()
+  d <- Sys.Date()
+  into <<- ..1
+  resume <<- doing
+  ofn <- paste0("./logs/saves/", d, 
+                "_logs_dump.md")
+  sfn <- paste0("./logs/saves/", d, 
+                "_memloc_", doing, 
+                "_into_", ..1, ".csv")
+  msg <- c(paste0(ti, " || Saving logs to `", ofn,
+                "` with savefile at `", sfn, 
+                "` now."), 
+           " ", "...", " ", "PROMPT: ", " ",
+           capture.output(cat(printqueue, sep = "")),
+           " ", "Resume with `go(action = {command}, write = "
+           , into, ", finish = ", resume, ")` to continue!")
+  writeLines(msg)
+  loglines <<- append(loglines, c(" ", "---", " "), msg)
+  fwrite(list(loglines), file = ofn)
+  fwrite(memory, file = sfn)
+  doing <<- modulo
+  return(invisible(NULL))
+}
+
+op_21_noop <- \(...) {
+  writeLines(".....................")
+  finish(doing, 0)
+  return(invisible(NULL))
+}
+```
+
+```{r interact}
+go <- \(action = NA, write = NA, finish = NA) {
+  if (is.na(write) & !(is.na(into))) {
+    write <- into
+  }
+  if (is.na(finish) & !is.na(resume)) {
+    finish <- resume
+  }
+  if (is.na(write) | is.na(finish)) {
+    ergo <- c(" ", "...", 
+              "ERROR :: Cannot execute `go(action = ", 
+              action, ", write = ", write, 
+              "finish = ", finish, "`.")
+    writeLines(ergo)
+    break
+  } else {
+    while (is.na(action)) {
+      action <- readline(prompt = "Enter command...")
+    }
+    str <- strsplit(action)
+    seq <- seq_along(str) - 1
+    chs <- lapply(str, charToRaw)
+    write_loc(value = chs, to = seq)
+    finish(finish, args = 1)
+  }
+  return(invisible(NULL))
+}
+```
+
+```{r scratch}
+scratch <- \() {
+  stack <- c()
+  printqueue <- c()
+  loglines <- c()
+
+  cmdlen <- length(cmdlist)
+  memory <- data.table(
+    z = 0:(magic - 1),
+    cmd = c(cmdlist, rep(0, (magic - cmdlen))),
+    done = c(rep(as.logical(NA), magic)),
+    is = c(rep("mem", modulo), rep("reg", 8))
+  )
+  setkey(memory, z)
+}
+```
+
+```{r load_save}
+restore <- \() {
+  if (is.null(sfn)) {
+    memory <- file.choose() |> fread()
+  } else {
+    memory <- fread(sfn)
+  }
+  setkey(memory, z)
+}
+```
+
+```{r machin}
+challengeR <- \(doing = 0) {
+  tic("starting machine...")
+  print(paste0("START :: Run starts at ", Sys.time()))
+  stopifnot(nrow(memory) >= 1)
+  while (doing < 32768) {
+    if (isFALSE(length(doing) == 1)) {
+      stopmsg <- paste0("STOP :: Error: <doing> is ", doing, 
+                 ". Setting to 32768 to exit.")
+      loglines <<- append(
+        loglines, c(" ", "---", " ", stopmsg))
+      print(stopmsg)
+      doing <<- modulo
+    }  
+    dispatcheR()
+  }
+  fwrite(memory, 
+       file = "./logs/wisteria_latest_run.csv",
+       yaml = TRUE)
+  toc()
+  print(paste0("STOP :: Run ends at ", Sys.time()))
+}
+```
+
+```{r coalesce}
+doeR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
+  if (resume = TRUE) {
+    restore()
+  } else {
+    scratch()
+  }
+  if (!is.na(from) & from < modulo) {
+    doing <<- from
+  } else {
+    doing <<- 0
+  }
+  if (play = TRUE) {
+    go(action = action, write = write, finish = from)
+  }
+  challengeR()
+  return(invisible(NULL))
+}
+```
+
+```{r manual_logging}
+fwrite(list(loglines), 
+       file = paste0("./logs/wisteria_loglines_", 
+                     as.integer(Sys.time()), ".md"))
+fwrite(memory, file = paste0(
+  "./logs/", as.integer(Sys.time()), ".csv"))
+```
