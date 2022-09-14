@@ -49,11 +49,6 @@ finish <- \(loc, n = 0) { #expect z-indexed
   return(invisible(NULL))
 }
 
-start <- \(loc) { 
-  work <- memory[z %in% ((loc)+1):((loc)+3), cmd]
-  work
-}
-
 write_loc <- \(value, to = NULL) {
   if (is.null(to)) {
     to <- work[1]
@@ -437,7 +432,7 @@ goeR <- \(action = NA, write = NA, finish = NA) {
 ```
 
 ```{r starteR}
-starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
+starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA, quit = 32768) {
   if (isTRUE(resume)) {
     restore()
   } else {
@@ -451,10 +446,12 @@ starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
   } else {
     doing <- 0
   }
-  if (doing > modulo) {
+  if (doing > quit) {
+    writeLines("Nothing left to do.")
     break
+  } else {
+    challengeR()
   }
-  challengeR()
   return(invisible(NULL))
 }
 ```
