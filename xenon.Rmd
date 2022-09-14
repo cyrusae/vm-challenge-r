@@ -53,7 +53,12 @@ write_loc <- \(value, to = NULL) {
   if (is.null(to)) {
     to <- work[1]
   }
-  print(paste0("To: ", to, value))
+  if (to >= modulo) {
+    reglog <- paste0("**Register change:** writing value = ",
+                     value, " to = ", to)
+    writeLines(reglog)
+    loglines <- append(loglines, " ", "---", " ", reglog, " ")
+  }
   memory[z %in% (to), cmd := (value)]
   return(invisible(NULL))
 }
@@ -79,14 +84,9 @@ dispatcheR <- \() {
                      y <- memory[z == (x), cmd]
                    } else { y <- x }
                  })
-  if (perform != 19) {
-    print(doing)
-    print(perform)
-  print(work)
-  print(as.list(args))}
   if ((length(printqueue) > 0) & 
        (perform == 0 | perform == 21) |
-      (length(printqueue) > 50) & (perform != 19)) { 
+      (length(printqueue) > 50) & !(perform %in% c(6:8, 17:19))) { 
     msg <- c(capture.output(cat
                             (printqueue, sep = "")))
     writeLines(msg)
@@ -94,17 +94,20 @@ dispatcheR <- \() {
                         c(" ", "---", " ", msg, " "))
     printqueue <<- c()
   } 
-  if (perform > 21) { 
-    print(paste0(.subset2(opnames, (perform + 1))))
-    print(perform)
-    print(doing)
-    print(work)
-    print(args)
+  if (perform > 21 & perform > 0) { 
+    print(c(paste0("Doing: ", .subset2(opnames, (perform + 1)), " at z = ", doing),
+            paste0("[work] contains: ", work)))
+    if (identical(args, work)) {
+      print("[args] match [work].")
+    } else {
+      print(paste0("[args]: ", args))
+    }
+    print("...")
   }
   stopifnot(perform <= 21) #stop for illegal commands
   if (perform == 0) {
     op_00_halt()
-    break
+#    break
   } else {
     do.call(what = 
               .subset2(opnames, (perform + 1)), 
@@ -158,7 +161,7 @@ op_03_pop <- \(...) {
 op_04_eq <- \(...) {
   b <- ..2
   c <- ..3
-  print(paste0("Eq trying: ", b, c))
+  print(paste0("Eq trying: ", b, "==", c))
   if (b == c) {
     write_loc(value = 1)
   } else {
@@ -171,6 +174,7 @@ op_04_eq <- \(...) {
 op_05_gt <- \(...) {
   b <- ..2
   c <- ..3
+  print(paste0("Gt trying: ", b, " > ", c))
   if (isTRUE(b > c)) {
     write_loc(value = 1)
   } else {
