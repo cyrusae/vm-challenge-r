@@ -31,43 +31,48 @@ opnames <- c(
   "op_19_out", "op_20_in", "op_21_noop")
 
 #get commands
-raw <- file("./materiel/challenge.bin", "rb")
+raw <- file("./materiel/challenge.bin", "rb") 
+    ## rb = "read binary"
 cmdlist <- readBin(raw, integer(), n = modulo, 
+      ### n kind of irrelevant but must be arbitrarily specified; assume program is no longer than memory 
+      ### the rest of these are very important 
                    size = 2, endian = "little",
                    signed = FALSE)
 rm(raw)
 ```
 
 ```{r utility_funcs}
-#########
 ## General-purpose functions
+#### called by the opcodes for repetitive tasks
 
 finish <- \(loc, n = 0) { #expect z-indexed
-  line <- loc + 1
-  doing <<- (line + n)
-  memory[(line):(doing), done := TRUE]
+  line <- loc + 1 ### location of current z 
+  doing <<- (line + n) ### doubles for moving to next z 
+  memory[(line):(doing), done := TRUE] ### mark done 
   return(invisible(NULL))
 }
 
 write_loc <- \(value, to = NULL) {
   if (is.null(to)) {
-    to <- work[1]
+    to <- work[1] ### default to assuming  that
+      ### we may want to write to the register 
   }
-  if (to >= modulo) {
+  if (to >= modulo) { 
+    ### track register due to nonzero reg error
     reglog <- paste0("**Register change:** writing value = ",
                      value, " to = ", to)
     writeLines(reglog)
     loglines <- append(loglines, " ", "---", " ", reglog, " ")
   }
-  memory[z %in% (to), cmd := (value)]
+  memory[z %in% (to), cmd := (value)] ### update address
   return(invisible(NULL))
 }
 
 pop_stack <- \() {
   stopifnot(length(stack) > 0) 
-  x <- stack[1]
-  stack <<- stack[-1]
-  x
+  x <- stack[1] 
+  stack <<- stack[-1] ### superassign pop top off stack
+  x ### return
 }
 ```
 
@@ -76,17 +81,18 @@ pop_stack <- \() {
 #run within while loop for doing < 32768
 
 dispatcheR <- \() {
-  perform <- memory[z == (doing), cmd]
+  perform <- memory[z == (doing), cmd] 
   work <<- memory[z %in% ((doing)+1):((doing)+3), cmd] 
-  args <- lapply(work, 
-                 \(x) {
-                   if (x >= modulo) {
+  args <- lapply(work, ### read register values... 
+                 \(x) { if (x >= modulo) { ### iff reg memloc
                      y <- memory[z == (x), cmd]
-                   } else { y <- x }
-                 })
+                   } else { y <- x } })
   if ((length(printqueue) > 0) & 
+      ### always print before halt or noop
        (perform == 0 | perform == 21) |
-      (length(printqueue) > 50) & !(perform %in% c(6:8, 17:19))) { 
+      (length(printqueue) > 50) ### arbitrary cutoff here 
+      ### print if not about to move elsewhere 
+        & !(perform %in% c(6:8, 17:19))) { 
     msg <- c(capture.output(cat
                             (printqueue, sep = "")))
     writeLines(msg)
@@ -94,20 +100,23 @@ dispatcheR <- \() {
                         c(" ", "---", " ", msg, " "))
     printqueue <<- c()
   } 
-  if (perform > 21 & perform > 0) { 
-    print(c(paste0("Doing: ", .subset2(opnames, (perform + 1)), " at z = ", doing),
-            paste0("[work] contains: ", work)))
+  if (!(perform %in% c(0, 19, 21))) { 
+    ### no argument logging for print,  noop, or halt
+    writeLines(c(paste0("Doing: ", 
+                   .subset2(opnames, (perform + 1)), 
+                   " at z = ", doing)), 
+               paste0("[work] contains:", as.character(work)))
     if (identical(args, work)) {
-      print("[args] match [work].")
+      writeLines("and [args] match [work].")
     } else {
-      print(paste0("[args]: ", args))
+      writeLines(paste0("[args] contains:", as.character(args)))
     }
     print("...")
   }
   stopifnot(perform <= 21) #stop for illegal commands
   if (perform == 0) {
     op_00_halt()
-#    break
+#    break ### check if break is needed still 
   } else {
     do.call(what = 
               .subset2(opnames, (perform + 1)), 
@@ -370,11 +379,11 @@ restore <- \() {
 ```
 
 ```{r machin}
-challengeR <- \(doing = 0) {
+challengeR <- \(doing = 0, quit = 32768) {
   tic("starting machine...")
   writeLines(paste0("START :: Run starts at ", Sys.time()))
   stopifnot(nrow(memory) >= 1)
-  while (doing < 32768) {
+  while (doing < quit) {
     if (isFALSE(length(doing) == 1)) {
       stopmsg <- paste0("STOP :: Error: <doing> is ", doing, 
                  ". Setting to 32768 to exit.")
@@ -382,12 +391,21 @@ challengeR <- \(doing = 0) {
         loglines, c(" ", "---", " ", stopmsg))
       writeLines(stopmsg)
       doing <<- modulo
-    }  
-    dispatcheR()
+    } else {
+      dispatcheR()
+    }
+  }
+  if (quit < modulo) {
+    writeLines(paste0(
+      "QUIT :: Stopped early for <quit> = ", quit))
   }
   fwrite(memory, 
        file = "./logs/xenon_latest_run.csv",
        yaml = TRUE)
+  if (length(stack) > 0) {
+    fwrite(list(stack),
+           file = "./logs/xenon_latest_stack.txt")
+  }
   toc()
   writeLines(paste0("STOP :: Run ends at ", Sys.time()))
 }
@@ -454,7 +472,7 @@ starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA, q
     writeLines("Nothing left to do.")
     break
   } else {
-    challengeR()
+    challengeR(doing = doing, quit = quit)
   }
   return(invisible(NULL))
 }
