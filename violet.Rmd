@@ -83,15 +83,15 @@ write_loc <- \(value, to) {
   } else {
     memory[z == (to), cmd := (value)]
     ###::
-    memmsg <- c(
-      "...", " ", 
+#####    memmsg <- c(
+#####      "...", " ", 
 #####      "> *Note:* Change in memory!", " ", 
-      paste0(
-        "Code executed from line `doing = ", doing, 
-        "` has changed the value of memory at location `z = ", 
-        to, "` such that **cmd** = `", value, "`."), 
-      " ")
-    loglines <<- c(loglines, " ", memmsg)
+#####      paste0(
+#####        "Code executed from line `doing = ", doing, 
+#####        "` has changed the value of memory at location `z = ", 
+#####        to, "` such that **cmd** = `", value, "`."), 
+#####      " ")
+#####    loglines <<- c(loglines, " ", memmsg)
     ###:: TROUBLESHOOTING:
   #####  print(paste0("...!!::  ", doing, " triggered a write_loc() to memory z-index ",
     #####             to, "with value ", value, 
@@ -148,11 +148,11 @@ dispatcheR <- \() {
 
 op_00_halt <- \(...) { #take and ignore arbitrary arguments
   print("Halting!")
-  loglines <- c(loglines, " ", "---", " ", 
-                (paste0(
-                  "**HALT ::** Program halted by z-index `",
-                        doing, "`")), 
-                " ")
+  loglines <- c(
+    loglines, " ", "---", " ", 
+    (paste0(
+      "**HALT ::** Program halted by z-index `",
+      doing, "`")), " ")
   finish(doing)
   doing <<- 32768
   return(invisible(NULL))
@@ -458,18 +458,18 @@ op_18_ret <- \(...) {
 #####      paste0("!!:: `ret` (opcode 18) at `doing` = `",
 #####             doing, "` found stack. Going to `", place, "`")),
 #####      " ")
-    if (place == 1741) {
-      loop41 <<- loop41 + 1
+#####    if (place == 1741) {
+#####      loop41 <<- loop41 + 1
 #####      loglines <<- c(loglines, " ", (paste0(
 #####        "***...LOOP?*** :: For n = `", loop41, 
 #####        "` repetitions thereof.")), " ")
-    }
-    if (place == 1746) {
-      loop46 <<- loop46 + 1
+#####    }
+#####    if (place == 1746) {
+#####      loop46 <<- loop46 + 1
 #####      loglines <<- c(loglines, " ", (paste0(
 #####        "***...LOOP?*** :: For n = ", loop46, 
 #####        " repetitions thereof.")), " ")
-    }
+#####    }
     finish(doing, 0)
     doing <<- place 
   }
@@ -508,7 +508,8 @@ op_20_in <- \(...) {
 }
 
 op_21_noop <- \(...) {
-  loglines <<- c(loglines, " ", ".....................", " ")
+######  loglines <<- c(loglines, " ", ".....................", " ")
+  print(".....................")
   finish(doing, 0)
   return(invisible(NULL))
 }
@@ -544,8 +545,8 @@ toc()
 doing <- 0
 
 ###::
-loop46 <- 0
-loop41 <- 0
+#####loop46 <- 0
+#####loop41 <- 0
 
 tic("starting machine...")
 while (doing < 32768) {
@@ -554,15 +555,15 @@ while (doing < 32768) {
                  doing, ". Setting to 32768 to exit."))
     doing <<- 32768
   }  
-  if (isTRUE((loop46 + loop41) > 10001)) {
-    print(paste0("STOP :: Terminating at <doing> = ",
-                 doing, " after a total of: ",
-                 loop41, " ret iterations on 1741 && ",
-                 loop46, " ret iterations on 1746."))
-    doing <<- 32768
-  } else {
+#####  if (isTRUE((loop46 + loop41) > 10001)) {
+#####    print(paste0("STOP :: Terminating at <doing> = ",
+#####                 doing, " after a total of: ",
+#####                 loop41, " ret iterations on 1741 && ",
+#####                 loop46, " ret iterations on 1746."))
+#####    doing <<- 32768
+#####  } else {
     dispatcheR()
-  }
+#####  }
 }
 fwrite(memory, 
        file = "./logs/violet_latest_run.csv",
