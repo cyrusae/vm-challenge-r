@@ -107,8 +107,7 @@ pop_stack <- \() {
 dispatcheR <- \() {
   work <<- start(doing)
   perform <- work[1]
-  if ((!(perform %in% c(6, 7, 8, 17, 18, 19, 21)) 
-       & length(printqueue) > 20) | 
+  if ((perform != 19 & length(printqueue) > 100) | 
       (length(printqueue) > 0 & 
        (perform == 20 | perform == 0))) { 
     msg <- c(capture.output(cat
@@ -337,7 +336,7 @@ op_20_in <- \(...) {
     " ", paste0("Saving current state to `", ofn,
                 "` now."), " ", "...", " ")
   loglines <<- append(loglines, msg)
-  fwrite(loglines, file = ofn)
+  fwrite(list(loglines), file = ofn)
   a <- use_integer(..1)
   str <- readline() 
   if (length(str) > 0) {
@@ -354,7 +353,7 @@ op_20_in <- \(...) {
     }
     finish(doing, 1)
   } 
-  return(invisible(NULL))
+  return(doing)
 }
 
 op_21_noop <- \(...) {
@@ -412,7 +411,7 @@ fwrite(memory,
        yaml = TRUE)
 print(
   "Counter set to 32768; execution ended. Logs...")
-fwrite(loglines, 
+fwrite(list(loglines), 
        file = paste0("./logs/wisteria_loglines_", 
                      as.integer(Sys.time()), ".md"))
 print("...have been saved.")
@@ -420,3 +419,9 @@ toc()
 
 print(paste0("STOP :: Run ends at ", Sys.time()))
 ```
+```{r manual_logging}
+fwrite(list(loglines), 
+       file = paste0("./logs/wisteria_loglines_", 
+                     as.integer(Sys.time()), ".md"))
+```
+
