@@ -11,7 +11,7 @@ library(tictoc)
 library(profvis)
 
 raw <- file("./materiel/challenge.bin", "rb")
-cmdlist <- readBin(raw, integer(), n = 32678, size = 2, 
+cmdlist <- readBin(raw, integer(), n = 32677, size = 2, 
                    endian = "little", signed = FALSE)
 rm(raw)
 
@@ -37,21 +37,27 @@ start <- \(loc) { #expect z-indexed
 }
 
 read_register <- \(x) { #accepts reg z-index or reserved number
-  if (x >= 32768) { val <- registers[mod == x, val]
-  } else { val <- registers[z == x, val] }
+  if (x >= 32768) { val <- 
+    registers[mod == (x), val]
+  } else { 
+    val <- registers[z == (x), val] }
   val
 }
 
 read_loc <- \(x) { #equivalent to do_place()
-  if (x >= 32768) { val <- read_register(x)
-  } else { val <- memory[z == (x), cmd] }
+  if (x >= 32768) { 
+    val <- read_register(x)
+  } else { 
+    val <- memory[z == (x), cmd] }
   val
 }
 
 use_integer <- \(x) { #equivalent to do_read()
   if (x >= 32768) { 
     val <- read_register(x)
-  } else { val <- x }
+  } else { 
+    val <- x 
+  }
   val
 }
 
@@ -543,7 +549,7 @@ while (doing < 32768) {
                  doing, ". Setting to 32768 to exit."))
     doing <<- 32768
   }  
-  if (isTRUE((loop46 + loop41) > 2)) {
+  if (isTRUE((loop46 + loop41) > 101)) {
     print(paste0("STOP :: Terminating at <doing> = ",
                  doing, " after a total of: ",
                  loop41, " ret iterations on 1741 && ",
@@ -557,10 +563,11 @@ fwrite(memory,
        file = "./logs/violet_latest_run.csv",
        yaml = TRUE)
 print("Counter set to 32768; execution ended. Logs:")
-writeLines(loglines)
+#writeLines(loglines)
 fwrite(list(loglines), 
        file = paste0("./logs/violet_loglines_", 
                      as.integer(Sys.time()), ".md"))
+print("have been saved.")
 toc()
 ```
 
