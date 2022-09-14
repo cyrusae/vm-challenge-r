@@ -129,12 +129,15 @@ setkey(opcodes, code)
 dispatcheR <- \() {
   work <<- start(doing)
   perform <- work[1]
-  if (perform != 19 & length(printqueue) > 0) {
-    msg <- c("[MESSAGE:] ", " ", paste0("> *", capture.output
-                    (cat(printqueue, sep = "")), "*"), 
-            " ", "[END MESSAGE]", " ")
+  if ((!(perform %in% c(6, 7, 8, 17, 18, 19, 21)) 
+       & length(printqueue) > 10) | 
+      (length(printqueue) > 0 & perform == 20)) {
+    msg <- c(capture.output(cat
+                          (printqueue, sep = "")),
+             paste0(" // ", Sys.time()))
     writeLines(msg)
-    loglines <<- c(loglines, " ", "---", " ", msg, " ")
+    loglines <<- c(loglines, 
+                   " ", "---", " ", msg, " ")
     printqueue <<- c()
   } 
   stopifnot(perform <= 21) #stop for illegal commands
