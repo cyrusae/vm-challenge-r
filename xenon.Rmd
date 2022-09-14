@@ -1,5 +1,6 @@
 ---
 title: "vm - xenon"
+author: "Cyrus"
 output: html_notebook
 ---
 
@@ -92,8 +93,9 @@ dispatcheR <- \() {
   } else {
     with <- work[-1] |> as.list()
     args <- memory[z %in% (with), cmd] |> as.list()
-    do.call(what = .subset2(opnames, (perform + 1)), 
-          args = args)
+    do.call(what = 
+              .subset2(opnames, (perform + 1)), 
+            args = args)
   }
   return(invisible(NULL))
 }
@@ -325,40 +327,6 @@ op_21_noop <- \(...) {
 }
 ```
 
-```{r interact}
-go <- \(action = NA, write = NA, finish = NA) {
-  if (is.na(write) & !(is.na(into))) {
-    write <- into
-  }
-  if (is.na(finish) & !is.na(resume)) {
-    finish <- resume
-  }
-  if (is.na(write) | is.na(finish)) {
-    ergo <- c(" ", "...", 
-              "ERROR :: Cannot execute `go(action = ", 
-              action, ", write = ", write, 
-              "finish = ", finish, "`.")
-    writeLines(ergo)
-    break
-  } else {
-    if (length(printqueue) > 0) {
-      cat(printqueue, sep = "")
-      printqueue <<- c()
-    }
-    while (is.na(action)) {
-      action <- readline(
-        prompt = "Enter command...")
-    }
-    str <- strsplit(action)
-    seq <- seq_along(str) - 1
-    chs <- lapply(str, charToRaw)
-    write_loc(value = chs, to = seq)
-    finish(finish, args = 1)
-  }
-  return(invisible(NULL))
-}
-```
-
 ```{r scratch}
 scratch <- \() {
   stack <- c()
@@ -411,31 +379,74 @@ challengeR <- \(doing = 0) {
 }
 ```
 
-```{r coalesce}
-doeR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
-  if (resume = TRUE) {
-    restore()
+```{r interact}
+go <- \(action = NA, write = NA, finish = NA) {
+  if (is.na(write) & !(is.na(into))) {
+    write <- into
+  }
+  if (is.na(finish) & !is.na(resume)) {
+    finish <- resume
+  }
+  if (is.na(write) | is.na(finish)) {
+    ergo <- c(" ", "...", 
+              "ERROR :: Cannot execute `go(action = ", 
+              action, ", write = ", write, 
+              "finish = ", finish, "`.")
+    writeLines(ergo)
+    break
   } else {
+    if (length(printqueue) > 0) {
+      cat(printqueue, sep = "")
+      printqueue <<- c()
+    }
+    while (is.na(action)) {
+      action <- readline(
+        prompt = "Enter command...")
+    }
+    str <- strsplit(action)
+    seq <- seq_along(str) - 1
+    chs <- lapply(str, charToRaw)
+    write_loc(value = chs, to = seq)
+    finish(finish, args = 1)
+  }
+  return(invisible(NULL))
+}
+```
+
+```{r goeR}
+goeR <- \(action = NA, write = NA, finish = NA) {
+  go(action = action, write = write, finish = finish)
+  challengeR()
+  return(invisible(NULL))
+}
+```
+
+```{r starteR}
+starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
+  if (isTRUE(resume)) {
+    tic("Restoring game...")
+    restore()
+    toc()
+  } else {
+    tic("Restarting game...")
     scratch()
+    toc()
   }
   if (!is.na(from) & from < modulo) {
     doing <<- from
-    if (play = TRUE) {
-      go(action = action, write = write, finish = from)
+    if (isTRUE(play)) {
+      goeR(action = action, write = write, finish = from)
     }
   } else {
     doing <<- 0
   }
-  if (play = TRUE & !is.na(from)) {
-    go(action = action, write = write, finish = from)
-  } 
   challengeR()
   return(invisible(NULL))
 }
 ```
 
 ```{r try_it}
-profvis( { doeR() } )
+profvis( { starteR() } )
 ```
 
 ```{r manual_logging}
