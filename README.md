@@ -45,9 +45,9 @@ As of **umber**:
 
 **Timeline:** 
 
-> Started: ~11pm September 10th, 2022.
+> Started: >= 11pm September 10th, 2022.
 > 
-> ...Virtual machine self-test runs successfully: ~1pm September 12th
+> ...Virtual machine self-test runs successfully: =< 1pm September 12th
 > 
 > ...I actually *realize* it's running successfully: ~9pm September 13th
 > 
