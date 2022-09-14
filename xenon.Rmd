@@ -42,23 +42,24 @@ rm(raw)
 #########
 ## General-purpose functions
 
-finish <- \(loc, args = 0) { #expect z-indexed
+finish <- \(loc, n = 0) { #expect z-indexed
   line <- loc + 1
-  doing <<- (line + args)
+  doing <<- (line + n)
   memory[(line):(doing), done := TRUE]
   return(invisible(NULL))
 }
 
 start <- \(loc) { 
-  work <- memory[((loc) + 1):((loc) + 4), cmd]
+  work <- memory[z %in% ((loc)+1):((loc)+3), cmd]
   work
 }
 
-write_loc <- \(value, to = NA) {
-  if (is.na(to)) {
-    to <- with[1] 
+write_loc <- \(value, to = NULL) {
+  if (is.null(to)) {
+    to <- work[1]
   }
-  memory$to <- value
+  print(paste0("To: ", to, value))
+  memory[z %in% (to), cmd := (value)]
   return(invisible(NULL))
 }
 
@@ -75,27 +76,44 @@ pop_stack <- \() {
 #run within while loop for doing < 32768
 
 dispatcheR <- \() {
-  work <<- start(doing)
-  perform <- work[1]
+  perform <- memory[z == (doing), cmd]
+  work <<- memory[z %in% ((doing)+1):((doing)+3), cmd] 
+  args <- lapply(work, 
+                 \(x) {
+                   if (x >= modulo) {
+                     y <- memory[z == (x), cmd]
+                   } else { y <- x }
+                 })
+  if (perform != 19) {
+    print(doing)
+    print(perform)
+  print(work)
+  print(as.list(args))}
   if ((length(printqueue) > 0) & 
-       (perform == 0 | perform <= 21)) { 
+       (perform == 0 | perform == 21) |
+      (length(printqueue) > 50) & (perform != 19)) { 
     msg <- c(capture.output(cat
-                            (printqueue, sep = "")), 
-             paste0(" // ", Sys.time()))
+                            (printqueue, sep = "")))
     writeLines(msg)
     loglines <<- append(loglines, 
                         c(" ", "---", " ", msg, " "))
     printqueue <<- c()
   } 
+  if (perform > 21) { 
+    print(paste0(.subset2(opnames, (perform + 1))))
+    print(perform)
+    print(doing)
+    print(work)
+    print(args)
+  }
   stopifnot(perform <= 21) #stop for illegal commands
   if (perform == 0) {
     op_00_halt()
+    break
   } else {
-    with <- work[-1] |> as.list()
-    args <- memory[z %in% (with), cmd] |> as.list()
     do.call(what = 
               .subset2(opnames, (perform + 1)), 
-            args = args)
+            args = as.list(args))
   }
   return(invisible(NULL))
 }
@@ -145,7 +163,8 @@ op_03_pop <- \(...) {
 op_04_eq <- \(...) {
   b <- ..2
   c <- ..3
-  if (identical(b, c)) {
+  print(paste0("Eq trying: ", b, c))
+  if (b == c) {
     write_loc(value = 1)
   } else {
     write_loc(value = 0)
@@ -167,7 +186,7 @@ op_05_gt <- \(...) {
 }
 
 op_06_jmp <- \(...) {
-  a <- memory[z == (..1), cmd]
+  a <- ..1
   finish(doing, 1)
   doing <<- a 
   return(invisible(NULL))
@@ -248,7 +267,7 @@ op_14_not <- \(...) {
 }
 
 op_15_rmem <- \(...) {
-  b <- read_loc(..2) 
+  b <- memory[z == (..2), cmd] 
   write_loc(value = b)
   finish(doing, 2)
   return(invisible(NULL))
@@ -257,7 +276,7 @@ op_15_rmem <- \(...) {
 op_16_wmem <- \(...) {
   a <- ..1
   b <- ..2
-  write_loc(value = b)
+  write_loc(value = b, to = a)
   finish(doing, 2)
   return(invisible(NULL))
 }
@@ -329,12 +348,8 @@ op_21_noop <- \(...) {
 
 ```{r scratch}
 scratch <- \() {
-  stack <- c()
-  printqueue <- c()
-  loglines <- c()
-
   cmdlen <- length(cmdlist)
-  memory <- data.table(
+  memory <<- data.table(
     z = 0:(magic - 1),
     cmd = c(cmdlist, rep(0, (magic - cmdlen))),
     done = c(rep(as.logical(NA), magic)),
@@ -347,9 +362,9 @@ scratch <- \() {
 ```{r load_save}
 restore <- \() {
   if (is.null(sfn)) {
-    memory <- file.choose() |> fread()
+    memory <<- file.choose() |> fread()
   } else {
-    memory <- fread(sfn)
+    memory <<- fread(sfn)
   }
   setkey(memory, z)
 }
@@ -407,7 +422,7 @@ go <- \(action = NA, write = NA, finish = NA) {
     seq <- seq_along(str) - 1
     chs <- lapply(str, charToRaw)
     write_loc(value = chs, to = seq)
-    finish(finish, args = 1)
+    finish(finish, n = 1)
   }
   return(invisible(NULL))
 }
@@ -424,21 +439,20 @@ goeR <- \(action = NA, write = NA, finish = NA) {
 ```{r starteR}
 starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
   if (isTRUE(resume)) {
-    tic("Restoring game...")
     restore()
-    toc()
   } else {
-    tic("Restarting game...")
     scratch()
-    toc()
   }
   if (!is.na(from) & from < modulo) {
-    doing <<- from
+    doing <- from
     if (isTRUE(play)) {
-      goeR(action = action, write = write, finish = from)
+      go(action = action, write = write, finish = from)
     }
   } else {
-    doing <<- 0
+    doing <- 0
+  }
+  if (doing > modulo) {
+    break
   }
   challengeR()
   return(invisible(NULL))
@@ -446,7 +460,14 @@ starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA) {
 ```
 
 ```{r try_it}
-profvis( { starteR() } )
+loglines <- c()
+stack <- c()
+printqueue <- c()
+doing <- 0
+
+##profvis( { 
+  starteR() 
+##  }, interval = 0.1)
 ```
 
 ```{r manual_logging}
