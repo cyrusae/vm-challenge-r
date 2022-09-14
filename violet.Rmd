@@ -529,13 +529,13 @@ loglines <- c()
 
 cmdlen <- length(cmdlist)
 tic("Logging time taken to initialize memory table for violet...")
-memory <- data.table(z = 0:(cmdlen-1),
+memory <- data.table(z = 0:(32768-1),
                      cmd = c(cmdlist
-#####                             , 
-#####                             rep(0, (32768 - length(cmdlist)))
+                             , 
+                            rep(0, (32768 - cmdlen))
                              ),
-                     do = c(rep(as.logical(NA), cmdlen)),
-                     done = c(rep(as.logical(NA), cmdlen))
+                     do = c(rep(as.logical(NA), 32768)),
+                     done = c(rep(as.logical(NA), 32768))
                      )
 setkey(memory, z)
 toc()
