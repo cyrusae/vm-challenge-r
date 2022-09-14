@@ -38,7 +38,7 @@ cmdlist <- readBin(raw, integer(), n = modulo,
       ### the rest of these are very important 
                    size = 2, endian = "little",
                    signed = FALSE)
-rm(raw)
+close(raw)
 ```
 
 ```{r utility_funcs}
@@ -62,7 +62,8 @@ write_loc <- \(value, to = NULL) {
     reglog <- paste0("**Register change:** writing value = ",
                      value, " to = ", to)
     writeLines(reglog)
-    loglines <- append(loglines, " ", "---", " ", reglog, " ")
+    loglines <- append(loglines, 
+                       c(" ", "---", " ", reglog, " "))
   }
   memory[z %in% (to), cmd := (value)] ### update address
   return(invisible(NULL))
@@ -72,6 +73,9 @@ pop_stack <- \() {
   stopifnot(length(stack) > 0) 
   x <- stack[1] 
   stack <<- stack[-1] ### superassign pop top off stack
+  stacklog <- paste0("Popped value x = ", x, " off of the stack. Remaining stack contents: ", capture.output(cat(as.character(stack))))
+  print(stacklog)
+  loglines <<- append(loglines, c(" ", stacklog, " "))
   x ### return
 }
 ```
@@ -79,6 +83,7 @@ pop_stack <- \() {
 ```{r dispatcheR}
 ## Controller
 #run within while loop for doing < 32768
+logbrk <- c(" ", "---", " ")
 
 dispatcheR <- \() {
   perform <- memory[z == (doing), cmd] 
@@ -95,22 +100,31 @@ dispatcheR <- \() {
         & !(perform %in% c(6:8, 17:19))) { 
     msg <- c(capture.output(cat
                             (printqueue, sep = "")))
-    writeLines(msg)
+    writeLines(msg, con = stdout())
     loglines <<- append(loglines, 
-                        c(" ", "---", " ", msg, " "))
+                        c(logbrk, msg, " "))
     printqueue <<- c()
   } 
   if (!(perform %in% c(0, 19, 21))) { 
     ### no argument logging for print,  noop, or halt
-    writeLines(c(paste0("Doing: ", 
-                   .subset2(opnames, (perform + 1)), 
-                   " at z = ", doing)), 
-               paste0("[work] contains:", as.character(work)))
+    track <- c(paste0("Doing: ", 
+                  as.character(
+                   .subset2(opnames, (perform + 1))), 
+                   " at z = ", doing), 
+               (paste0("... [work] contains:",
+                      capture.output(
+                        cat(as.character(work))))))
+    loglines <<- append(loglines, c(logbrk, track))
+    writeLines(track)
     if (identical(args, work)) {
-      writeLines("and [args] match [work].")
+      alog <- "... and [args] match [work]."
     } else {
-      writeLines(paste0("[args] contains:", as.character(args)))
+      alog <- (paste0("... [args] contains:",
+                        capture.output(
+                          cat(as.character(args)))))
     }
+    writeLines(alog)
+    loglines <<- append(loglines, c(alog, logbrk))
     print("...")
   }
   stopifnot(perform <= 21) #stop for illegal commands
@@ -309,7 +323,11 @@ op_18_ret <- \(...) {
   } else {
     finish(doing, 0)
     top <- pop_stack()
-    doing <<- memory[z == (top), cmd]
+    if (top >= modulo) {
+      doing <<- memory[z == (top), cmd]
+    } else {
+      doing <<- top 
+    }
   }
   return(invisible(NULL))
 }
@@ -332,8 +350,21 @@ op_20_in <- \(...) {
   sfn <- paste0("./logs/saves/", d, 
                 "_memloc_", doing, 
                 "_into_", ..1, ".csv")
+  if (length(stack) > 0) {
+    tfn <- paste0("./logs/saves/", d, 
+                  "_memloc_", doing, 
+                  "_into_", ..1, "_stack.txt")
+    tadd <- paste0(c("`, and stack of length ", 
+                     length(stack), " (`", 
+                     capture.output(cat(as.character(stack), 
+                                        sep = ", ")), 
+                     "`) to `", tfn))
+    fwrite(list(stack), file = tfn)
+  } else {
+      tadd <- c()
+  }
   msg <- c(paste0(ti, " || Saving logs to `", ofn,
-                "` with savefile at `", sfn, 
+                "` with savefile at `", sfn, tadd,
                 "` now."), 
            " ", "...", " ", "PROMPT: ", " ",
            capture.output(cat(printqueue, sep = "")),
@@ -484,9 +515,9 @@ stack <- c()
 printqueue <- c()
 doing <- 0
 
-##profvis( { 
-  starteR() 
-##  }, interval = 0.1)
+profvis( { 
+    starteR() 
+  }, interval = 0.1)
 ```
 
 ```{r manual_logging}
