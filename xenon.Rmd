@@ -42,6 +42,7 @@ cmdlist <- readBin(raw, integer(), n = modulo,
                    size = 2, endian = "little",
                    signed = FALSE)
 close(raw)
+rm(raw)
 ```
 
 ```{r utility_funcs}
@@ -444,9 +445,10 @@ go <- \(action = NA, write = NA, finish = NA) {
 ```
 
 ```{r goeR}
+### restarts challengeR 
 goeR <- \(action = NA, write = NA, finish = NA) {
   go(action = action, write = write, finish = finish)
-  challengeR()
+  challengeR(doing = doing)
   return(invisible(NULL))
 }
 ```
