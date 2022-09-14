@@ -1,0 +1,422 @@
+---
+title: "vm - wisteria"
+output: html_notebook
+---
+
+```{r setup}
+library(data.table) #table
+library(stringr) #string wrangling
+
+library(tictoc) #timer
+library(profvis) #profiling
+
+##build constants:
+
+## use for bitwise not 
+bin_const <- 2^(0:14)
+
+## use for building opcode table 
+opnames <- c(
+  "op_00_halt", "op_01_set", "op_02_push",
+  "op_03_pop", "op_04_eq", "op_05_gt", 
+  "op_06_jmp", "op_07_jt", "op_08_jf", "op_09_add",
+  "op_10_mult", "op_11_mod", "op_12_and",
+  "op_13_or", "op_14_not", "op_15_rmem",
+  "op_16_wmem", "op_17_call", "op_18_ret",
+  "op_19_out", "op_20_in", "op_21_noop")
+
+#build directory to opcodes
+opcodes <- data.table(
+  code = 0:21,
+  fun = opnames
+)
+setkey(opcodes, code)
+
+#get commands
+raw <- file("./materiel/challenge.bin", "rb")
+cmdlist <- readBin(raw, integer(), n = 32678, 
+                   size = 2, endian = "little",
+                   signed = FALSE)
+rm(raw, opnames)
+```
+
+```{r utility_funcs}
+#########
+## General-purpose functions
+
+finish <- \(loc, args = 0) { #expect z-indexed
+  line <- loc + 1
+  memory[(line):((line) + (args)), done := TRUE]
+  doing <<- (line + args)
+  return(invisible(NULL))
+}
+
+start <- \(loc) { 
+  memory[((loc) + 1), do := TRUE]
+  memory[((loc) + 2):((loc) + 4), do := FALSE]
+  work <- memory[((loc) + 1):((loc) + 4), cmd]
+  work
+}
+
+read_register <- \(x) { #accepts reg z-index or reserved number
+  if (x >= 32768) { 
+    val <- registers[mod == (x), val]
+  } else { 
+    val <- registers[z == (x), val] }
+  val
+}
+
+read_loc <- \(x) { #read value of register or memory
+  if (x >= 32768) { 
+    val <- read_register(x)
+  } else { 
+    val <- memory[z == (x), cmd] }
+  val
+}
+
+use_integer <- \(x) { #use literal or read register
+  if (x >= 32768) { 
+    val <- read_register(x)
+  } else { 
+    val <- x 
+  }
+  val
+}
+
+write_loc <- \(value, to) {
+  if (to >= 32768) {
+    registers[mod == (to), val := (value)]
+  } else {
+    memory[z == (to), cmd := (value)]
+  }
+  return(invisible(NULL))
+}
+
+pop_stack <- \() {
+  stopifnot(length(stack) > 0) 
+  x <- stack[1]
+  stack <<- stack[-1]
+  x
+}
+```
+
+```{r dispatcheR}
+## Controller
+#run within while loop for doing < 32768
+
+dispatcheR <- \() {
+  work <<- start(doing)
+  perform <- work[1]
+  if ((!(perform %in% c(6, 7, 8, 17, 18, 19, 21)) 
+       & length(printqueue) > 20) | 
+      (length(printqueue) > 0 & 
+       (perform == 20 | perform == 0))) { 
+    msg <- c(capture.output(cat
+                            (printqueue, sep = "")), 
+             paste0(" // ", Sys.time()))
+    writeLines(msg)
+    loglines <<- append(loglines, 
+                        c(" ", "---", " ", msg, " "))
+    printqueue <<- c()
+  } 
+  stopifnot(perform <= 21) #stop for illegal commands
+  with <- work[-1] |> as.list()
+  do.call(what = 
+            opcodes[code == (perform), fun], 
+          args = with)
+  return(invisible(NULL))
+}
+```
+
+```{r opcodes}
+op_00_halt <- \(...) { 
+  print(paste0("ALERT :: Halting at z = ", doing, "!"))
+  loglines <<- append(
+    loglines, c(" ", "---", " ", 
+    (paste0("**HALT ::** Program halted by z-index `",
+            doing, "`")), " "))
+  finish(doing)
+  doing <<- 32768
+  return(invisible(NULL))
+}
+
+op_01_set <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  write_loc(value = b, to = a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_02_push <- \(...) {
+  a <- use_integer(..1)
+  stack <<- append(a, stack)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_03_pop <- \(...) {
+  a <- ..1
+  val <- pop_stack()
+  write_loc(value = val, to = a)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_04_eq <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  if (identical(b, c)) {
+    write_loc(value = 1, to = a)
+  } else {
+    write_loc(value = 0, to = a)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_05_gt <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  if (isTRUE(b > c)) {
+    write_loc(value = 1, to = a)
+  } else {
+    write_loc(value = 0, to = a)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_06_jmp <- \(...) {
+  a <- use_integer(..1)
+  finish(doing, 1)
+  doing <<- a 
+  return(invisible(NULL))
+}
+
+op_07_jt <- \(...) {
+  a <- use_integer(..1)
+  b <- use_integer(..2)
+  finish(doing, 2)
+  if (isTRUE(a > 0)) {
+    doing <<- b
+  }
+  return(invisible(NULL))
+}
+
+op_08_jf <- \(...) {
+  a <- use_integer(..1)
+  b <- use_integer(..2)
+  finish(doing, 2)
+  if (a == 0) {
+    doing <<- b
+  } 
+  return(invisible(NULL))
+} 
+
+op_09_add <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  got <- (b + c) %% 32768
+  write_loc(value = got, to = a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_10_mult <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  got <- (b * c) %% 32768
+  write_loc(value = got, to = a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_11_mod <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  got <- b %% c
+  write_loc(value = got, to = a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_12_and <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  bits <- bitwAnd(b, c)
+  write_loc(bits, a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_13_or <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  c <- use_integer(..3)
+  bits <- bitwOr(b, c)
+  write_loc(bits, a)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_14_not <- \(...) {
+  a <- ..1
+  b <- use_integer(..2)
+  bb <- as.integer(intToBits(b))[1:15]
+  bt <- bb == 0
+  bits <- sum(bin_const[bt])
+  write_loc(bits, a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_15_rmem <- \(...) {
+  a <- ..1
+  b <- read_loc(use_integer(..2)) 
+  write_loc(value = b, to = a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_16_wmem <- \(...) {
+  a <- use_integer(..1)
+  b <- use_integer(..2)
+  write_loc(value = b, to = a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_17_call <- \(...) {
+  a <- use_integer(..1)
+  finish(doing, 1) 
+  stack <<- append(doing, stack) 
+  doing <<- a #update doing again to find real destination
+  return(invisible(NULL))
+}
+
+op_18_ret <- \(...) {
+  if (isTRUE(length(stack) < 1)) {
+    loglines <<- append( ## note error.
+      loglines, c(" ", (paste0(
+      "!!:: `ret` (opcode 18) at `doing` = `",
+      doing, 
+      "` found an empty stack; calling halt.")), 
+      " "))
+    finish(doing, 0)
+    op_00_halt()
+  } else {
+    place <- use_integer(pop_stack())
+    finish(doing, 0)
+    doing <<- place 
+  }
+  return(invisible(NULL))
+}
+
+op_19_out <- \(...) {
+  a <- use_integer(..1)
+  ch <- rawToChar(as.raw(a))
+  printqueue <<- append(printqueue, ch)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_20_in <- \(...) {
+  ofn <- paste0("./logs/saves/in_waiting_", 
+                as.integer(Sys.time()), ".md")
+  msg <- c(
+    paste0("> **PAUSE::** At *", Sys.time(), 
+           "*, `doing = ", doing, 
+           "` called `in` (opcode 20)."), 
+    " ", paste0("Saving current state to `", ofn,
+                "` now."), " ", "...", " ")
+  loglines <<- append(loglines, msg)
+  fwrite(loglines, file = ofn)
+  a <- use_integer(..1)
+  str <- readline() 
+  if (length(str) > 0) {
+    str <- strsplit(str) 
+    loglines <<- append(loglines, c(
+      " ", "---", " ", (
+        paste0("!!:: `in` (opcode 20) received: { *",
+               str, "* }")), " "))
+    raw_str <- charToRaw(str)
+    for (i in seq_len(length(str))) {
+      go <- a + (i - 1)
+      ch <- raw_str[i]
+      write_loc(value = ch, to = go)
+    }
+    finish(doing, 1)
+  } 
+  return(invisible(NULL))
+}
+
+op_21_noop <- \(...) {
+  writeLines(".....................")
+  finish(doing, 0)
+  return(invisible(NULL))
+}
+```
+
+```{r, echo=FALSE}
+## initialize (and avoid previous runs throwing us off)
+print(paste0("START :: Run starts at ", Sys.time()))
+
+tic("Logging time taken to initialize spaces for wisteria...")
+
+cmdlen <- length(cmdlist)
+
+stack <- c()
+printqueue <- c()
+loglines <- c()
+
+registers <- data.table(z = 0:7,
+                        val = c(rep(0, 8)),
+                        mod = 0:7+32768)
+setkey(registers, mod)
+setorder(registers, z)
+
+memory <- data.table(z = 0:(32768-1),
+                     cmd = c(cmdlist, rep(0, 
+                                          (32768 - cmdlen))),
+                     do = c(rep(as.logical(NA), 32768)),
+                     done = c(rep(as.logical(NA), 32768))
+                     )
+setkey(memory, z)
+toc()
+
+### start at memory z-index 0 
+tic("starting machine...")
+
+doing <- 0
+
+while (doing < 32768) {
+  if (isFALSE(length(doing) == 1)) {
+    stopmsg <- paste0("STOP :: Error: <doing> is ", doing, 
+                 ". Setting to 32768 to exit.")
+    loglines <<- append(loglines, 
+                        c(" ", "---", " ", stopmsg))
+    print(stopmsg)
+    doing <<- 32768
+  }  
+  dispatcheR()
+}
+fwrite(memory, 
+       file = "./logs/wisteria_latest_run.csv",
+       yaml = TRUE)
+print(
+  "Counter set to 32768; execution ended. Logs...")
+fwrite(loglines, 
+       file = paste0("./logs/wisteria_loglines_", 
+                     as.integer(Sys.time()), ".md"))
+print("...have been saved.")
+toc()
+
+print(paste0("STOP :: Run ends at ", Sys.time()))
+```
