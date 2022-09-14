@@ -550,7 +550,7 @@ while (doing < 32768) {
                  doing, ". Setting to 32768 to exit."))
     doing <<- 32768
   }  
-  if (isTRUE((loop46 + loop41) > 2001)) {
+  if (isTRUE((loop46 + loop41) > 201)) {
     print(paste0("STOP :: Terminating at <doing> = ",
                  doing, " after a total of: ",
                  loop41, " ret iterations on 1741 && ",
