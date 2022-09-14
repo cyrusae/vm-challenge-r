@@ -9,6 +9,8 @@ See [arch-spec](materiel/arch-spec) for the original instructions.
 **To do:**
 
 > [ ] Make less slow.
+> 
+> [ ] Until then (or in general), add popup when self-test ends. (Ideally when waiting for user input after a certain amount of time *or* when self-test ends?)
 >
 > [ ] Resolve premature printqueue printing.
 >
