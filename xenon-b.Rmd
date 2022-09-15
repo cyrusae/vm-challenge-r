@@ -125,13 +125,7 @@ op_00_halt <- \(...) {
             doing, "`")), " "))
   finish(doing)
   doing <<- modulo
-  lfn <- paste0("./logs/xenon-beta_loglines_", 
-                     as.integer(Sys.time()), ".md")
-  fwrite(list(loglines), file = lfn)
-  writeLines(c(
-    "Counter set to 32768; execution ended. Default logs...", 
-    paste0("...have been saved to ", lfn)))
-  return(invisible(NULL))
+  return()
 }
 
 op_01_set <- \(...) {
@@ -316,18 +310,15 @@ op_20_in <- \(...) {
   d <- Sys.Date()
   into <<- ..1
   resume <<- doing
-  ofn <- paste0("./logs/saves/", d, 
-                "_logs_dump.md")
-  sfn <- paste0("./logs/saves/", d, 
-                "_memloc_", doing, 
+  ofn <- paste0("./logs/saves/", d, "_logs_dump.md")
+  sfn <- paste0("./logs/saves/", d, "_memloc_", doing, 
                 "_into_", ..1, ".csv")
   msg <- c(paste0(ti, " || Saving logs to `", ofn,
                 "` with savefile at `", sfn, 
                 "` now."), 
-           " ", "...", " ", "PROMPT: ", " ",
-           capture.output(
-             cat(as.character(printqueue), sep = "")), " ", 
-           paste0("Resume with `go(action = {command}, write = "
+           " ", "...", " ",  
+           paste0(
+             "Resume with `go(action = {command}, write = "
            , into, ", finish = ", resume, ")` to continue!"))
   writeLines(msg)
   loglines <<- append(loglines, c(logbrk, msg))
@@ -384,6 +375,12 @@ challengeR <- \(doing = 0, quit = 32768) {
     writeLines(paste0(
       "QUIT :: Stopped early for <quit> = ", quit))
   }
+  lfn <- paste0("./logs/xenon-beta_loglines_", 
+                     as.integer(Sys.time()), ".md")
+  fwrite(list(loglines), file = lfn)
+  writeLines(c(
+    "Counter set to 32768; execution ended. Default logs...", 
+    paste0("...have been saved to ", lfn)))
   fwrite(memory, 
        file = "./logs/xenon-beta_latest_run.csv",
        yaml = TRUE)
@@ -410,7 +407,6 @@ go <- \(action = NA, write = NA, finish = NA) {
               action, ", write = ", write, 
               "finish = ", finish, "`.")
     writeLines(ergo)
-    break
   } else {
     if (!invalid(printqueue)) {
       cat(as.character(printqueue), sep = "")
@@ -460,7 +456,6 @@ starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA, q
   }
   if (doing > quit) {
     writeLines("Nothing left to do.")
-    break
   } else {
     challengeR(doing = doing, quit = quit)
   }

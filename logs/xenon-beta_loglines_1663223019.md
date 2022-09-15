@@ -57,8 +57,17 @@ What do you do?
  
 ---
  
-"2022-09-14 23:53:08 || Saving logs to `./logs/saves/2022-09-14_logs_dump.md` with savefile at `./logs/saves/2022-09-14_memloc_1798_into_101.csv` now."
+"2022-09-14 23:23:39 || Saving logs to `./logs/saves/2022-09-14_logs_dump.md` with savefile at `./logs/saves/2022-09-14_memloc_1798_into_101.csv` now."
  
 ...
  
+PROMPT: 
+ 
+ 
 "Resume with `go(action = {command}, write = 101, finish = 1798)` to continue!"
+ 
+---
+ 
+**HALT ::** Program halted by z-index `1800`
+ 
+ 
