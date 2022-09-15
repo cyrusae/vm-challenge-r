@@ -95,10 +95,7 @@ dispatcheR <- \() {
   perform <- vemory[doing + 1]
   work <<- vemory[(doing + 2):(doing + 4)]
   args <- argue(work)
-  if ((length(printqueue) > 0) & 
-      ## test simplified printqueue, see if backfires
-      # it did 
-      any(c(0, 21, 20) == perform)) { 
+  if (any(c(0, 21, 20) == perform)) { 
     msg <- c(capture.output(
       cat(as.character(printqueue), sep = "")))
     writeLines(msg, con = stdout())
@@ -106,14 +103,12 @@ dispatcheR <- \() {
                         c(logbrk, msg, " "))
     printqueue <<- list()
   } 
-  if (perform == 0) {
-    op_00_halt()
-  } else {
-    stopifnot(any(1:21 == perform)) #stop for illegal commands
-    #if I hit a point where 
+  if (any(1:21 == perform)) {
     do.call(what = #use perform verbatim bc see offset 
               .subset2(opnames, perform), 
               args = as.list(args))
+  } else {
+    op_00_halt()
   }
   return(invisible(NULL))
 }
@@ -338,7 +333,8 @@ op_20_in <- \(...) {
   loglines <<- append(loglines, c(logbrk, msg))
   fwrite(list(loglines), file = ofn)
   fwrite(memory, file = sfn)
-  doing <<- modulo
+  finish(doing, 1)
+  op_00_halt()
   return(invisible(NULL))
 }
 
