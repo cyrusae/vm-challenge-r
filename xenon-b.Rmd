@@ -1,0 +1,483 @@
+---
+title: "vm - xenon-beta"
+author: "Cyrus"
+output: html_notebook
+---
+
+```{r setup}
+library(data.table) #table
+library(stringr) #string wrangling
+library(gtools) #dev help 
+
+library(tictoc) #timer
+library(profvis) #profiling
+
+##build constants:
+
+## use for bitwise not 
+bin_const <- 2^(0:14)
+
+## makes logs more readable 
+logbrk <- c(" ", "---", " ") 
+
+## use for less dyslexia mod errors
+modulo <- 32768
+magic <- 32776 ## total number of possible locations 
+
+## use for finding opcodes 
+opnames <- c("op_01_set", "op_02_push",
+  "op_03_pop", "op_04_eq", "op_05_gt", 
+  "op_06_jmp", "op_07_jt", "op_08_jf", "op_09_add",
+  "op_10_mult", "op_11_mod", "op_12_and",
+  "op_13_or", "op_14_not", "op_15_rmem",
+  "op_16_wmem", "op_17_call", "op_18_ret",
+  "op_19_out", "op_20_in", "op_21_noop")
+
+#get commands
+raw <- file("./materiel/challenge.bin", "rb") 
+    ## rb = "read binary"
+cmdlist <- readBin(raw, integer(), n = modulo, 
+      ### n kind of irrelevant but must be arbitrarily specified; assume program is no longer than memory 
+      ### the rest of these are very important 
+                   size = 2, endian = "little",
+                   signed = FALSE)
+close(raw)
+rm(raw)
+```
+
+```{r utility_funcs}
+## General-purpose functions
+#### called by the opcodes for repetitive tasks
+memorize <- \() {
+  m <- as.data.frame(memory)
+  m$cmd
+}
+
+argue <- \(vec) { 
+  out <- lapply(vec, \(x)
+                { if (x < 32768) { y <- x } 
+                  else { y <- vemory[x + 1] }
+                  } 
+                ) |> as.list()
+  } #change input vector to register values by address
+
+finish <- \(loc, n = 0) { #expect z-indexed
+  line <- loc + 1 ### location of current z 
+  doing <<- (line + n) ### doubles for moving to next z 
+  memory[(line):(doing), done := TRUE] ### mark done 
+  return(invisible(NULL))
+}
+
+write_loc <- \(value, to = NULL) {
+  if (invalid(to)) {
+    to <- work[1] ### might be reg
+  }
+  memory[(a)+1, cmd := (value)] ### update address
+  vemory <<- memorize() ### update working memory 
+  return(invisible(NULL))
+}
+
+pop_stack <- \() {
+  stopifnot(!invalid(stack)) 
+  x <- stack[1] 
+  stack <<- stack[-1] ### superassign pop top off stack
+  x ### return
+}
+```
+
+```{r dispatcheR}
+## Controller
+#run within while loop for doing < 32768
+dispatcheR <- \() {
+  perform <- vemory[doing + 1]
+  work <<- vemory[(doing + 2):(doing + 4)]
+  args <- argue(work)
+  if (isFALSE(invalid(printqueue) | 
+      ## test simplified printqueue, see if backfires
+      any(c(6:8, 17:19) == perform))) { 
+    msg <- c(capture.output(
+      cat(as.character(printqueue), sep = "")))
+    writeLines(msg, con = stdout())
+    loglines <<- append(loglines, 
+                        c(logbrk, msg, " "))
+    printqueue <<- list()
+  } 
+  if (perform == 0) {
+    op_00_halt()
+  } else {
+    stopifnot(any(1:21 == perform)) #stop for illegal commands
+    #if I hit a point where 
+    do.call(what = #use perform verbatim bc see offset 
+              .subset2(opnames, perform), 
+              args = as.list(args))
+  }
+  return(invisible(NULL))
+}
+```
+
+```{r opcodes}
+op_00_halt <- \(...) { 
+  print(paste0(
+    "ALERT :: Halting at z = ", doing, "!"))
+  loglines <<- append(
+    loglines, c(" ", "---", " ", 
+    (paste0(
+      "**HALT ::** Program halted by z-index `",
+            doing, "`")), " "))
+  finish(doing)
+  doing <<- modulo
+  lfn <- paste0("./logs/xenon-beta_loglines_", 
+                     as.integer(Sys.time()), ".md")
+  fwrite(list(loglines), file = lfn)
+  writeLines(c(
+    "Counter set to 32768; execution ended. Default logs...", 
+    paste0("...have been saved to ", lfn)))
+  return(invisible(NULL))
+}
+
+op_01_set <- \(...) {
+  b <- ..2
+  write_loc(value = b)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_02_push <- \(...) {
+  a <- ..1
+  stack <<- append(a, stack)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_03_pop <- \(...) {
+  val <- pop_stack()
+  write_loc(value = val)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_04_eq <- \(...) {
+  b <- ..2
+  c <- ..3
+  if (b == c) {
+    write_loc(value = 1)
+  } else {
+    write_loc(value = 0)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_05_gt <- \(...) {
+  b <- ..2
+  c <- ..3
+  if (b > c) {
+    write_loc(value = 1)
+  } else {
+    write_loc(value = 0)
+  }
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_06_jmp <- \(...) {
+  a <- ..1
+  finish(doing, 1)
+  doing <<- a 
+  return(invisible(NULL))
+}
+
+op_07_jt <- \(...) {
+  a <- ..1
+  b <- ..2
+  finish(doing, 2)
+  if (a > 0) {
+    doing <<- b
+  }
+  return(invisible(NULL))
+}
+
+op_08_jf <- \(...) {
+  a <- ..1
+  b <- ..2
+  finish(doing, 2)
+  if (a == 0) {
+    doing <<- b
+  } 
+  return(invisible(NULL))
+} 
+
+op_09_add <- \(...) {
+  b <- ..2
+  c <- ..3
+  got <- (b + c) %% modulo
+  write_loc(value = got)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_10_mult <- \(...) {
+  b <- ..2
+  c <- ..3
+  got <- (b * c) %% modulo
+  write_loc(value = got)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_11_mod <- \(...) {
+  b <- ..2
+  c <- ..3
+  got <- b %% c
+  write_loc(value = got)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_12_and <- \(...) {
+  b <- ..2
+  c <- ..3
+  bits <- bitwAnd(b, c)
+  write_loc(value = bits)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_13_or <- \(...) {
+  b <- ..2
+  c <- ..3
+  bits <- bitwOr(b, c)
+  write_loc(value = bits)
+  finish(doing, 3)
+  return(invisible(NULL))
+}
+
+op_14_not <- \(...) {
+  b <- as.integer(intToBits(..2))[1:15]
+  bt <- b == 0
+  bits <- sum(bin_const[bt])
+  write_loc(value = bits)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_15_rmem <- \(...) {
+  b <- vemory[(..2) + 1] 
+  write_loc(value = b)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_16_wmem <- \(...) {
+  a <- ..1
+  b <- ..2
+  write_loc(value = b, to = a)
+  finish(doing, 2)
+  return(invisible(NULL))
+}
+
+op_17_call <- \(...) {
+  a <- ..1
+  finish(doing, 1) 
+  stack <<- append(doing, stack) 
+  doing <<- a #update doing again to find real destination
+  return(invisible(NULL))
+}
+
+op_18_ret <- \(...) {
+  if (invalid(stack)) {
+    loglines <<- append( ## note error.
+      loglines, c(" ", (paste0(
+      "!!:: `ret` (opcode 18) at `doing` = `",
+      doing, 
+      "` found an empty stack; calling halt.")), 
+      " "))
+    op_00_halt()
+  } else {
+    finish(doing, 0)
+    top <- pop_stack()
+    if (top < modulo) {
+      doing <<- top
+    } else {
+      doing <<- vemory[top + 1]
+    }
+  }
+  return(invisible(NULL))
+}
+
+op_19_out <- \(...) {
+  ch <- gtools::chr(..1)
+  printqueue <<- append(printqueue, ch)
+  finish(doing, 1)
+  return(invisible(NULL))
+}
+
+op_20_in <- \(...) {
+  ti <- Sys.time()
+  d <- Sys.Date()
+  into <<- ..1
+  resume <<- doing
+  ofn <- paste0("./logs/saves/", d, 
+                "_logs_dump.md")
+  sfn <- paste0("./logs/saves/", d, 
+                "_memloc_", doing, 
+                "_into_", ..1, ".csv")
+  if (length(stack) > 0) {
+    fwrite(list(stack), file = tfn)
+  } 
+  msg <- c(paste0(ti, " || Saving logs to `", ofn,
+                "` with savefile at `", sfn, 
+                "` now."), 
+           " ", "...", " ", "PROMPT: ", " ",
+           capture.output(
+             cat(as.character(printqueue), sep = "")), " ", 
+           paste0("Resume with `go(action = {command}, write = "
+           , into, ", finish = ", resume, ")` to continue!"))
+  writeLines(msg)
+  loglines <<- append(loglines, c(logbrk, msg))
+  fwrite(list(loglines), file = ofn)
+  fwrite(memory, file = sfn)
+  doing <<- modulo
+  return(invisible(NULL))
+}
+
+op_21_noop <- \(...) {
+  writeLines(".....................")
+  finish(doing, 0)
+  return(invisible(NULL))
+}
+```
+
+```{r scratch}
+scratch <- \() {
+  cmdlen <- length(cmdlist)
+  memory <<- data.table(
+    z = 0:(magic - 1),
+    cmd = c(cmdlist, rep(0, (magic - cmdlen))),
+    done = c(rep(as.logical(NA), magic)),
+    is = c(rep("mem", modulo), rep("reg", 8))
+  )
+  setkey(memory, z)
+}
+```
+
+```{r load_save}
+restore <- \() {
+  if (invalid(sfn)) {
+    memory <<- file.choose() |> fread()
+    vemory <<- memorize()
+  } else {
+    memory <<- fread(sfn)
+    vemory <<- memorize()
+  }
+  setkey(memory, z)
+}
+```
+
+```{r machin}
+challengeR <- \(doing = 0, quit = 32768) {
+  tic("starting machine...")
+  writeLines(paste0("START :: Run starts at ", Sys.time()))
+  stopifnot(!invalid(memory))
+  vemory <<- memorize()
+  while (doing < quit) {
+    dispatcheR()
+  }
+  if (quit < modulo) {
+    writeLines(paste0(
+      "QUIT :: Stopped early for <quit> = ", quit))
+  }
+  fwrite(memory, 
+       file = "./logs/xenon-beta_latest_run.csv",
+       yaml = TRUE)
+  if (length(stack) > 0) {
+    fwrite(list(stack),
+           file = "./logs/xenon-beta_latest_stack.txt")
+  }
+  toc()
+  writeLines(paste0("STOP :: Run ends at ", Sys.time()))
+}
+```
+
+```{r interact}
+go <- \(action = NA, write = NA, finish = NA) {
+  if (invalid(write) & !(invalid(into))) {
+    write <- into
+  }
+  if (invalid(finish) & !invalid(resume)) {
+    finish <- resume
+  }
+  if (invalid(write) | invalid(finish)) {
+    ergo <- c(" ", "...", 
+              "ERROR :: Cannot execute `go(action = ", 
+              action, ", write = ", write, 
+              "finish = ", finish, "`.")
+    writeLines(ergo)
+    break
+  } else {
+    if (!invalid(printqueue)) {
+      cat(as.character(printqueue), sep = "")
+      printqueue <<- list()
+    }
+    ### Add to go() when ready:
+    while (invalid(action)) {
+      action <- gtools::ask(
+        prompt = "Enter command...", con = file("stdin")) 
+      #file("stdin") is a factor of 
+      ### how RStudio and gtools interact
+      #otherwise con = stdin() or default ok 
+      #double check that this is still the case 
+    }
+    str <- gtools::asc(action) |> as.integer()
+    seq <- seq_along(str) - 1
+    write_loc(value = str, to = seq)
+    finish(finish, n = 1)
+  }
+  return(invisible(NULL))
+}
+```
+
+```{r goeR}
+### restarts challengeR 
+goeR <- \(action = NA, write = NA, finish = NA) {
+  go(action = action, write = write, finish = finish)
+  challengeR(doing = doing)
+  return(invisible(NULL))
+}
+```
+
+```{r starteR}
+starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA, quit = 32768) {
+  if (isTRUE(resume)) {
+    restore()
+  } else {
+    scratch()
+  }
+  if (!invalid(from) & from < modulo) {
+    doing <- from
+    if (isTRUE(play)) {
+      go(action = action, write = write, finish = from)
+    }
+  } else {
+    doing <- 0
+  }
+  if (doing > quit) {
+    writeLines("Nothing left to do.")
+    break
+  } else {
+    challengeR(doing = doing, quit = quit)
+  }
+  return(invisible(NULL))
+}
+```
+
+```{r try_it}
+loglines <- list()
+stack <- list()
+printqueue <- list()
+doing <- 0
+
+profvis( { 
+    starteR() 
+  }, interval = 0.1)
+```
