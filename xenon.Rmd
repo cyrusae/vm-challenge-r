@@ -319,25 +319,16 @@ op_20_in <- \(...) {
                 "_memloc_", doing, 
                 "_into_", ..1, ".csv")
   if (length(stack) > 0) {
-    tfn <- paste0("./logs/saves/", d, 
-                  "_memloc_", doing, 
-                  "_into_", ..1, "_stack.txt")
-    tadd <- paste0(c("`, and stack of length ", 
-                     length(stack), " (`", 
-                     capture.output(cat(as.character(stack), 
-                                        sep = ", ")), 
-                     "`) to `", tfn))
     fwrite(list(stack), file = tfn)
-  } else {
-      tadd <- c()
-  }
+  } 
   msg <- c(paste0(ti, " || Saving logs to `", ofn,
-                "` with savefile at `", sfn, tadd,
+                "` with savefile at `", sfn, 
                 "` now."), 
            " ", "...", " ", "PROMPT: ", " ",
            capture.output(cat(printqueue, sep = "")),
-           " ", "Resume with `go(action = {command}, write = "
-           , into, ", finish = ", resume, ")` to continue!")
+           " ", 
+           paste0("Resume with `go(action = {command}, write = "
+           , into, ", finish = ", resume, ")` to continue!"))
   writeLines(msg)
   loglines <<- append(loglines, c(logbrk, msg))
   fwrite(list(loglines), file = ofn)
