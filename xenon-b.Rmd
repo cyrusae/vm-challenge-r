@@ -62,7 +62,7 @@ argue <- \(vec) {
   } #change input vector to register values by address
 
 finish <- \(loc, n = 0) { #expect z-indexed
-  line <- loc + 1 ### location of current z 
+  line <- as.integer(loc) + 1 ### location of current z 
   doing <<- (line + n) ### doubles for moving to next z 
   memory[(line):(doing), done := TRUE] ### mark done 
   return(invisible(NULL))
@@ -72,14 +72,14 @@ write_loc <- \(value, to = NULL) {
   if (invalid(to)) {
     to <- work[1] ### might be reg
   }
-  memory[(a)+1, cmd := (value)] ### update address
+  memory[(to)+1, cmd := (value)] ### update address
   vemory <<- memorize() ### update working memory 
   return(invisible(NULL))
 }
 
 pop_stack <- \() {
   stopifnot(!invalid(stack)) 
-  x <- stack[1] 
+  x <- stack[1] |> as.integer()
   stack <<- stack[-1] ### superassign pop top off stack
   x ### return
 }
@@ -150,7 +150,7 @@ op_02_push <- \(...) {
 }
 
 op_03_pop <- \(...) {
-  val <- pop_stack()
+  val <- pop_stack() 
   write_loc(value = val)
   finish(doing, 1)
   return(invisible(NULL))
@@ -181,15 +181,15 @@ op_05_gt <- \(...) {
 }
 
 op_06_jmp <- \(...) {
-  a <- ..1
+  a <- ..1 
   finish(doing, 1)
   doing <<- a 
   return(invisible(NULL))
 }
 
 op_07_jt <- \(...) {
-  a <- ..1
-  b <- ..2
+  a <- ..1 
+  b <- ..2 
   finish(doing, 2)
   if (a > 0) {
     doing <<- b
