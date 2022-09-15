@@ -64,6 +64,14 @@ argue <- \(vec) {
                 ) 
   } #change input vector to register values by address
 
+#### see if this is still not worth it:
+## touched <- vector(mode = "logical", length = 32776L)
+# on dispatch, touched[(doing + 1):(doing + 4)] <<- FALSE
+# on finish, touched[(line)] <<- TRUE 
+### mark commands with TRUE, FALSE can be assumed arg 
+# on pause, halt, call to 20, or quit,
+## memory <- data.table( z = 0:(modulo + 7), cmds = vemory, done = touched)
+
 finish <- \(loc, n = 0) { #expect z-indexed
   line <- as.integer(loc) + 1 ### location of current z 
   doing <<- (line + n) ### doubles for moving to next z 
