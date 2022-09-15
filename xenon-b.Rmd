@@ -3,6 +3,9 @@ title: "vm - xenon-beta"
 author: "Cyrus"
 output: html_notebook
 ---
+```{r}
+print(paste0(Sys.time(), ": Setting up..."))
+```
 
 ```{r setup}
 library(data.table) #table
@@ -49,27 +52,27 @@ rm(raw)
 ## General-purpose functions
 #### called by the opcodes for repetitive tasks
 memorize <- \() {
-  m <- as.data.frame(memory)
+  m <- as.data.frame(memory, optional = F)
   m$cmd
 }
 
 argue <- \(vec) { 
   out <- lapply(vec, \(x)
-                { if (x < 32768) { y <- x } 
-                  else { y <- vemory[x + 1] }
+                { if (x < 32768) { x } 
+                  else { x <- vemory[x + 1] }
                   } 
-                ) |> as.list()
+                ) 
   } #change input vector to register values by address
 
 finish <- \(loc, n = 0) { #expect z-indexed
   line <- as.integer(loc) + 1 ### location of current z 
   doing <<- (line + n) ### doubles for moving to next z 
-  memory[(line):(doing), done := TRUE] ### mark done 
+#  memory[(line):(doing), done := TRUE] ### mark done 
   return(invisible(NULL))
 }
 
 write_loc <- \(value, to = NULL) {
-  if (invalid(to)) {
+  if (is.null(to)) {
     to <- work[1] ### might be reg
   }
   memory[(to)+1, cmd := (value)] ### update address
@@ -78,8 +81,8 @@ write_loc <- \(value, to = NULL) {
 }
 
 pop_stack <- \() {
-  stopifnot(!invalid(stack)) 
-  x <- stack[1] |> as.integer()
+  stopifnot(length(stack) > 0) 
+  x <- stack[[1]] 
   stack <<- stack[-1] ### superassign pop top off stack
   x ### return
 }
@@ -92,9 +95,10 @@ dispatcheR <- \() {
   perform <- vemory[doing + 1]
   work <<- vemory[(doing + 2):(doing + 4)]
   args <- argue(work)
-  if (isFALSE(invalid(printqueue) | 
+  if ((length(printqueue) > 0) & 
       ## test simplified printqueue, see if backfires
-      any(c(6:8, 17:19) == perform))) { 
+      # it did 
+      any(c(0, 21, 20) == perform)) { 
     msg <- c(capture.output(
       cat(as.character(printqueue), sep = "")))
     writeLines(msg, con = stdout())
@@ -322,9 +326,6 @@ op_20_in <- \(...) {
   sfn <- paste0("./logs/saves/", d, 
                 "_memloc_", doing, 
                 "_into_", ..1, ".csv")
-  if (length(stack) > 0) {
-    fwrite(list(stack), file = tfn)
-  } 
   msg <- c(paste0(ti, " || Saving logs to `", ofn,
                 "` with savefile at `", sfn, 
                 "` now."), 
@@ -473,7 +474,7 @@ starteR <- \(resume = FALSE, play = FALSE, from = NA, action = NA, write = NA, q
 
 ```{r try_it}
 loglines <- list()
-stack <- list()
+stack <- c()
 printqueue <- list()
 doing <- 0
 
