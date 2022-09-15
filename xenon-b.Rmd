@@ -76,7 +76,7 @@ write_loc <- \(value, to = NULL) {
     to <- work[1] ### might be reg
   }
   memory[(to)+1, cmd := (value)] ### update address
-  vemory <<- memorize() ### update working memory 
+  vemory[to + 1] <<- value ### update working memory 
   return(invisible(NULL))
 }
 
