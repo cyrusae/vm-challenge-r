@@ -1,5 +1,70 @@
 library(R6)
 
+Virtual <- R6Class("Virtual",
+                   public = list(
+                     stack = Stack$new(),
+                     memories = Memories$new(),
+                     doing = 0
+                   ))
+
+### wrapper for 19s:
+###### 19 does printqueue$inprint({verbatim int})
+###### printqueue$inrpint() with no values 
+####### called on next 0, 20, or 21 
+####### because those are the only ones that would interfere
+Printqueue <- R6Class("Printqueue",
+                      public = list(
+                        initialize = \(with = NULL) {
+                          private$queue <- list(with)
+                        }
+                      ),
+                      private = list(
+                        queue = vector(mode = "list")
+                      ),
+                      active = list(
+                        inprint <- \(value) {
+                          if (missing(value)) {
+                            q <- capture.output(
+                                cat(as.character(private$queue),
+                                  sep = ""))
+                            private$queue <- list()
+                            q
+                          } else {
+                            private$queue <- append(
+                              private$queue,
+                              gtools::chr(value))
+                          } 
+                          })
+)
+                    
+
+Stack <- R6Class("Stack",
+                 public = list(
+                   initialize = \(with = NULL) {
+                     private$stack <- c(with)
+                   }
+                 ),
+                 private = list(
+                   stack <- vector(mode = "integer")
+                 ),
+                 active = list(
+                   pushpop = \(value) {
+                     if (missing(value)) {
+                       if (length(private$stack) < 1) {
+                         stop("Cannot pop an empty stack",
+                              .call = FALSE)
+                       } else {
+                         ret <- private$stack[[1]]
+                         private$stack <- private$stack[-1]
+                         ret
+                       }
+                     } else {
+                       self$stack <- append(value, self$stack)
+                       invisible(self)
+                     }
+                   }
+                 ))
+
 Memories <- R6Class("Memories", 
   active = list(
     pushpop = \(value) {
