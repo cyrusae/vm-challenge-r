@@ -108,5 +108,5 @@ if (perform == 19) {
 
 ```
 
-Consider: `paste0("machine$", opcodes[[6]], as.character(args)) |> str2lang() |> eval()`? 
+Consider: `paste0("machine$", opcodes[[6]], as.character(args)) |> str2lang() |> eval()`? (Requires retrofitting all Machine arguments to take `\(...)` and discard as needed, which, like, I've done it before.)
 
