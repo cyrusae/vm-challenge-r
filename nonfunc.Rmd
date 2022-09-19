@@ -12,8 +12,10 @@ library(R6)
 library(profvis)
 library(tictoc)
 ```
+
 ```{r}
 Stack <- R6Class("Stack", 
+                 portable = FALSE,
                  private = list(
                    stack = vector(mode = "integer")
                  ),
@@ -42,6 +44,7 @@ Stack <- R6Class("Stack",
                  ))
 
 Queue <- R6Class("Queue",
+                 portable = FALSE, #see if this still works
                  private = list(
                    queue = vector(mode = "list")
                  ),
@@ -67,6 +70,7 @@ Queue <- R6Class("Queue",
                    }
                  ))
 ```
+
 ```{r}
 printqueue <- Queue$new()
 
@@ -77,6 +81,7 @@ printqueue$print
 printqueue$print <- c(87, 71)
 printqueue$print
 ```
+
 ```{r}
 stack <- Stack$new()
 
@@ -88,6 +93,7 @@ stack$p
 stack$p
 stack$p
 ```
+
 Note: `eval(str2lang(str))`
 
 ```{r}
@@ -108,5 +114,8 @@ if (perform == 19) {
 
 ```
 
-Consider: `paste0("machine$", opcodes[[6]], as.character(args)) |> str2lang() |> eval()`? (Requires retrofitting all Machine arguments to take `\(...)` and discard as needed, which, like, I've done it before.)
-
+Consider:
+`paste0("machine$", opcodes[[6]], as.character(args)) |> str2lang() |> eval()`?
+(Requires retrofitting all Machine arguments to take `\(...)` and
+discard as needed, which, like, I've done it before. Unless that would
+instead break...)
